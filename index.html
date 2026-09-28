@@ -726,7 +726,7 @@ function enterGroup(id){S.groupId=id;try{localStorage.setItem("tapisvert-group",
 function viewHub(){
   const mine=myGroups();const mode=S.hub||"home";
   let h=`<header class="hub-hero rise"><div class="hub-glow" aria-hidden="true"></div>${logo("big")}
-    <div class="hub-name">KICKER</div><div class="hub-tag">Poker &amp; jeux de société entre amis</div>
+    <div class="hub-name">KICKER</div><div class="hub-tag">Poker &amp; jeux de société entre potes</div>
     <div class="suits hub-suits" aria-hidden="true">♠&#xFE0E;♥&#xFE0E;♦&#xFE0E;♣&#xFE0E;</div>
     <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div></header>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
