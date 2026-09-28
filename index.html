@@ -376,6 +376,7 @@ button.chipstack{padding:0;border:0;background:none;cursor:pointer;-webkit-tap-h
 </div></nav>
 <div id="toast" class="toast" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
 const COLORS=["#8C2F39","#1F6B52","#2E5B8A","#9A6B2F","#5E3A8C","#1C6F73","#8A3A6A","#56662A"];
@@ -406,33 +407,42 @@ function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t
 async function copy(text){try{await navigator.clipboard.writeText(text);toast("Copié — colle-le dans ton groupe")}catch(e){
   S.copyFallback=text;render(true);}}
 
-/* ---------- storage ---------- */
-function loadLocal(){try{const raw=localStorage.getItem("tapisvert-data");if(raw)S.data=Object.assign({players:{},games:{},meta:{},groups:{}},JSON.parse(raw))}catch(e){}}
-function saveLocal(){try{localStorage.setItem("tapisvert-data",JSON.stringify(S.data))}catch(e){}}
+/* ---------- stockage : Supabase ---------- */
+const SB_URL="https://qswhsawqhesobdyqcnvq.supabase.co";
+const SB_KEY="sb_publishable_PELSbEu3ZWpMG_VZ5GdCiw_KE2KhzPv";
+const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const TABLES=["players","games","groups"];
+function sbRow(coll,id,data){const r={id,data,updated_at:new Date().toISOString()};if(coll==="games")r.group_id=data.groupId||null;if(coll==="groups")r.code=data.code||null;return r}
 function write(coll,id,data,silent){
-  if(!S.canWrite){toast("Lecture seule : seul l’organisateur peut modifier.");return}
   if(data===null)delete S.data[coll][id];else S.data[coll][id]=data;
   if(!silent)render(true);
-  if(S.mode!=="shared"){saveLocal();return}
   const path=coll+"/"+id;const p=pending[path]||(pending[path]={});
   p.data=data===null?null:clone(data);p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),350);
 }
 async function flush(path){
   const p=pending[path];if(!p||p.inflight||!p.dirty)return;
-  p.inflight=true;p.dirty=false;const data=p.data;
-  try{const ref=db.doc(path);if(data===null)await ref.delete();else await ref.set(data)}
-  catch(e){if(e&&e.code==="invalid_argument"){S.canWrite=false;toast("Lecture seule : tes modifications ne sont pas enregistrées.")}
-    else if(e&&e.code==="quota_exceeded")toast("Espace plein : supprime d’anciennes soirées.");
-    else toast("Échec de l’enregistrement. Vérifie ta connexion.")}
+  p.inflight=true;p.dirty=false;const data=p.data;const [coll,id]=path.split("/");
+  try{
+    if(data===null){const {error}=await sb.from(coll).delete().eq("id",id);if(error)throw error}
+    else{const row=sbRow(coll,id,data);const {data:upd,error}=await sb.from(coll).update(row).eq("id",id).select("id");if(error)throw error;
+      if(!upd||!upd.length){const {error:e2}=await sb.from(coll).insert(row);if(e2)throw e2}}
+  }catch(e){console.warn(e);toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
   p.inflight=false;if(p.dirty)flush(path);else delete pending[path];
 }
-function subscribe(coll){
-  db.collection(coll).onSnapshot(snap=>{
-    const o={};snap.docs.forEach(d=>{o[d.id]=d.data()});
-    for(const path in pending){const [c,id]=path.split("/");if(c!==coll)continue;
-      if(pending[path].data===null)delete o[id];else o[id]=pending[path].data}
-    if(JSON.stringify(S.data[coll])===JSON.stringify(o)&&S.mode==="shared")return;S.data[coll]=o;if(S.mode==="loading-shared"){S.loaded=(S.loaded||0)+1;if(S.loaded>=4){S.mode="shared";if(S.pendingEnsure){const ps=S.pendingEnsure;S.pendingEnsure=null;ensurePlayer(ps)}}}render();
-  },()=>{toast("Connexion perdue. Recharge la page.")});
+async function loadAll(){
+  for(const t of TABLES){const {data,error}=await sb.from(t).select("id,data");if(error)throw error;
+    const o={};(data||[]).forEach(r=>{o[r.id]=r.data});
+    for(const path in pending){const [c,id]=path.split("/");if(c!==t)continue;if(pending[path].data===null)delete o[id];else o[id]=pending[path].data}
+    S.data[t]=o}
+}
+let sbChannel=null;
+function subscribeAll(){
+  if(sbChannel)return;sbChannel=sb.channel("kicker-live");
+  TABLES.forEach(t=>sbChannel.on("postgres_changes",{event:"*",schema:"public",table:t},pl=>{
+    const id=(pl.new&&pl.new.id)||(pl.old&&pl.old.id);if(!id||pending[t+"/"+id])return;
+    if(pl.eventType==="DELETE")delete S.data[t][id];else S.data[t][id]=pl.new.data;render()}));
+  sbChannel.subscribe();
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.auth==="ok")loadAll().then(()=>render()).catch(()=>{})});
 }
 
 /* ---------- domain ---------- */
@@ -640,81 +650,102 @@ function viewBoard(){
 }
 
 function isMe(pid){return !!S.me.id&&pid===S.me.id}
-function canAnswer(pid){return S.canWrite&&(S.isOwner||isMe(pid)||S.mode!=="shared")}
-/* ---------- compte : email + mot de passe ---------- */
+function canAnswer(pid){const G=curGroup();return isMe(pid)||!!(G&&G.createdBy===S.me.id)}
+/* ---------- compte : Supabase Auth (email + mot de passe) ---------- */
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-function b64(buf){return btoa(String.fromCharCode(...new Uint8Array(buf)))}
-async function hashPw(pw,saltB64,iter){const enc=new TextEncoder();const salt=Uint8Array.from(atob(saltB64),c=>c.charCodeAt(0));
-  const key=await crypto.subtle.importKey("raw",enc.encode(pw),"PBKDF2",false,["deriveBits"]);
-  return b64(await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:iter,hash:"SHA-256"},key,256))}
-async function loadAccount(){
-  if(S.mode!=="shared"){try{return JSON.parse(localStorage.getItem("tapisvert-account")||"null")}catch(e){return null}}
-  const snap=await db.doc("data/users/"+S.me.id+"/account").get();return snap.exists?snap.data():null}
-async function saveAccount(acc){
-  if(S.mode!=="shared"){try{localStorage.setItem("tapisvert-account",JSON.stringify(acc))}catch(e){}return}
-  await db.doc("data/users/"+S.me.id+"/account").set(acc)}
-function hasSession(){try{const s=JSON.parse(localStorage.getItem("tapisvert-session")||"null");return !!s&&s.id===S.me.id&&s.exp>Date.now()}catch(e){return false}}
-function setSession(on){try{if(on)localStorage.setItem("tapisvert-session",JSON.stringify({id:S.me.id,exp:Date.now()+30*864e5}));else localStorage.removeItem("tapisvert-session")}catch(e){}}
-const AUTH_ENABLED=false; /* page de connexion désactivée pour l’instant */
+const AUTH_ENABLED=true;
+function setSession(){}
+async function onSignedIn(user){
+  if(S.auth==="ok"&&S.me.id===user.id)return;
+  S.me={id:user.id,name:(user.user_metadata&&user.user_metadata.pseudo)||user.email.split("@")[0],avatarUrl:""};
+  S.account={email:user.email};S.mode="loading-shared";S.auth="ok";render(true);
+  try{await loadAll()}catch(e){console.warn(e);S.auth="error";render(true);return}
+  S.mode="shared";subscribeAll();ensurePlayer(S.me.name);render(true);
+}
 async function initAuth(){
-  if(!AUTH_ENABLED){S.auth="ok";if(S.me.id)ensurePlayer(S.me.name||"Joueur");render(true);return}
-  if(!S.me.id){S.auth="noid";render(true);return}
-  try{S.account=await loadAccount()}catch(e){S.auth="error";render(true);return}
-  S.auth=S.account?(hasSession()?"ok":"login"):"signup";render(true);
+  sb.auth.onAuthStateChange((ev,session)=>{
+    if(ev==="PASSWORD_RECOVERY"){S.auth="newpw";S.authErr="";render(true);return}
+    if(ev==="SIGNED_IN"&&session&&S.auth!=="newpw")setTimeout(()=>onSignedIn(session.user),0);
+    if(ev==="SIGNED_OUT"){S.auth="login";S.me={id:null,name:"",avatarUrl:""};S.data={players:{},games:{},meta:{},groups:{}};render(true)}
+  });
+  const {data}=await sb.auth.getSession();
+  if(S.auth==="newpw")return;
+  if(data&&data.session)onSignedIn(data.session.user);else{S.auth="login";render(true)}
 }
 function viewAuth(){
-  const m=meta();let body="";
-  if(S.auth==="checking")body=`<p class="muted" style="margin:0">Vérification de ton compte…</p>`;
-  else if(S.auth==="noid")body=`<h2 style="margin:0 0 6px">Accès impossible</h2><p class="muted" style="margin:0;font-size:14px">Ouvre cette page depuis ton compte Claude, avec le lien d’invitation reçu par mail, pour créer ton compte Kicker.</p>`;
+  let body="";
+  if(S.auth==="checking")body=`<p class="muted" style="margin:0">Ouverture du salon…</p>`;
   else if(S.auth==="error")body=`<h2 style="margin:0 0 6px">Connexion impossible</h2><p class="muted" style="margin:0 0 12px;font-size:14px">Le salon ne répond pas. Vérifie ta connexion puis réessaie.</p><button class="btn primary" data-act="auth-retry" style="width:100%">Réessayer</button>`;
-  else if(S.auth==="signup"){const reset=!!S.authReset;
-    body=`<div class="auth-tabs"><button class="on">Créer un compte</button><button data-act="auth-to-login">Se connecter</button></div>
-      <h2 style="margin:14px 0 4px">${reset?"Nouveau mot de passe":"Rejoindre la table"}</h2>
-      <p class="muted" style="margin:0 0 14px;font-size:13px">${reset?"Ton compte est lié à ton compte Claude : choisis simplement un nouveau mot de passe.":"Crée ton compte pour accéder aux soirées du groupe."}</p>
-      <div class="stack">
-      ${reset?"":`<label class="field">Pseudo à la table<input id="a-name" maxlength="24" autocomplete="nickname" placeholder="Ex. Le Requin" value="${esc((S.me.id&&S.data.players[S.me.id]?.name)||S.me.name||"")}"></label>`}
-      <label class="field">Adresse mail<input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder="toi@exemple.com" value="${esc(reset&&S.account?S.account.email:"")}" ${reset?"readonly":""}></label>
+  else if(S.auth==="confirm")body=`<h2 style="margin:0 0 6px">Vérifie ta boîte mail</h2><p class="muted" style="margin:0 0 14px;font-size:14px">On t’a envoyé un lien de confirmation à <b style="color:var(--ink)">${esc(S.authEmail||"")}</b>. Clique dessus, puis reviens te connecter ici.</p><button class="btn primary" data-act="auth-to-login" style="width:100%">J’ai confirmé, me connecter</button>`;
+  else if(S.auth==="newpw")body=`<h2 style="margin:0 0 4px">Nouveau mot de passe</h2><p class="muted" style="margin:0 0 14px;font-size:13px">Choisis ton nouveau mot de passe.</p>
+      <div class="stack"><label class="field">Mot de passe<input id="a-pw" type="password" autocomplete="new-password" placeholder="8 caractères minimum"></label>
+      <label class="field">Confirme le mot de passe<input id="a-pw2" type="password" autocomplete="new-password"></label></div>
+      <div class="auth-err" id="a-err" role="alert">${esc(S.authErr||"")}</div>
+      <button class="btn primary" data-act="auth-newpw" style="width:100%;margin-top:6px">Enregistrer</button>`;
+  else if(S.auth==="signup")body=`<div class="auth-tabs"><button class="on">Créer un compte</button><button data-act="auth-to-login">Se connecter</button></div>
+      <h2 style="margin:14px 0 4px">Rejoindre la table</h2>
+      <p class="muted" style="margin:0 0 14px;font-size:13px">Crée ton compte pour organiser tes soirées avec tes amis.</p>
+      <div class="stack"><label class="field">Pseudo à la table<input id="a-name" maxlength="24" autocomplete="nickname" placeholder="Ex. Le Requin"></label>
+      <label class="field">Adresse mail<input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder="toi@exemple.com" value="${esc(S.authEmail||"")}"></label>
       <label class="field">Mot de passe<input id="a-pw" type="password" autocomplete="new-password" placeholder="8 caractères minimum"></label>
       <label class="field">Confirme le mot de passe<input id="a-pw2" type="password" autocomplete="new-password"></label></div>
       <div class="auth-err" id="a-err" role="alert">${esc(S.authErr||"")}</div>
-      <button class="btn primary" data-act="auth-signup" style="width:100%;margin-top:6px">${reset?"Enregistrer":"Créer mon compte"}</button>
-      <p class="muted" style="font-size:11.5px;margin:12px 0 0">Choisis un mot de passe que tu n’utilises nulle part ailleurs.</p>`}
-  else{ body=`<div class="auth-tabs"><button data-act="auth-to-signup">Créer un compte</button><button class="on">Se connecter</button></div>
-      <h2 style="margin:14px 0 4px">Bon retour à la table</h2><p class="muted" style="margin:0 0 14px;font-size:13px">Connecte-toi pour voir les soirées.</p>
-      <div class="stack"><label class="field">Adresse mail<input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder="toi@exemple.com"></label>
+      <button class="btn primary" data-act="auth-signup" style="width:100%;margin-top:6px">Créer mon compte</button>`;
+  else body=`<div class="auth-tabs"><button data-act="auth-to-signup">Créer un compte</button><button class="on">Se connecter</button></div>
+      <h2 style="margin:14px 0 4px">Bon retour à la table</h2><p class="muted" style="margin:0 0 14px;font-size:13px">Connecte-toi pour retrouver tes groupes.</p>
+      <div class="stack"><label class="field">Adresse mail<input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder="toi@exemple.com" value="${esc(S.authEmail||"")}"></label>
       <label class="field">Mot de passe<input id="a-pw" type="password" autocomplete="current-password"></label></div>
       <div class="auth-err" id="a-err" role="alert">${esc(S.authErr||"")}</div>
       <button class="btn primary" data-act="auth-login" style="width:100%;margin-top:6px">Se connecter</button>
-      <button class="btn small" data-act="auth-forgot" style="margin-top:10px;background:transparent;border-color:transparent;color:var(--gold-2)">Mot de passe oublié ?</button>`}
+      <button class="btn small" data-act="auth-forgot" style="margin-top:10px;background:transparent;border-color:transparent;color:var(--gold-2)">Mot de passe oublié ?</button>`;
   return `<div class="join rise">${logo("big")}
-    <div class="name" style="font-size:38px;margin-top:18px">KICKER</div><div class="muted" style="margin-top:4px">${esc(m.name)}</div>
+    <div class="name" style="font-size:38px;margin-top:18px">KICKER</div><div class="muted" style="margin-top:4px">Poker &amp; jeux de société entre amis</div>
     <div class="card join-card">${body}</div><div class="suits" aria-hidden="true" style="margin-top:22px">♠&#xFE0E;♥&#xFE0E;♦&#xFE0E;♣&#xFE0E;</div></div>`;
 }
 function authError(msg){S.authErr=msg;const e=document.getElementById("a-err");if(e)e.textContent=msg}
+function busy(act,label){const b=app.querySelector(`[data-act="${act}"]`);if(b){b.disabled=!!label;if(label){b.dataset.l=b.textContent;b.textContent=label}else if(b.dataset.l)b.textContent=b.dataset.l}}
+function frErr(e){const m=(e&&e.message||"").toLowerCase();
+  if(m.includes("invalid login"))return "Adresse mail ou mot de passe incorrect.";
+  if(m.includes("not confirmed"))return "Confirme d’abord ton adresse mail avec le lien reçu.";
+  if(m.includes("already registered")||m.includes("already been registered"))return "Un compte existe déjà avec cette adresse. Connecte-toi.";
+  if(m.includes("rate limit")||m.includes("too many"))return "Trop d’essais. Attends quelques minutes puis réessaie.";
+  if(m.includes("password"))return "Mot de passe trop faible : 8 caractères minimum.";
+  return "Une erreur est survenue. Réessaie.";}
 async function doSignup(){
-  const reset=!!S.authReset;const email=(document.getElementById("a-email").value||"").trim().toLowerCase();const pw=document.getElementById("a-pw").value;const pw2=document.getElementById("a-pw2").value;
-  const nmEl=document.getElementById("a-name");const nm=nmEl?(nmEl.value||"").trim().slice(0,24):"";
-  if(!reset&&!nm)return authError("Choisis un pseudo.");
-  if(!EMAIL_RE.test(email))return authError("Cette adresse mail n’est pas valide.");
-  if(pw.length<8)return authError("Le mot de passe doit faire au moins 8 caractères.");
-  if(pw!==pw2)return authError("Les deux mots de passe ne correspondent pas.");
-  if(!(window.crypto&&crypto.subtle))return authError("Ce navigateur ne permet pas de sécuriser le mot de passe.");
-  authError("");const btn=app.querySelector('[data-act="auth-signup"]');if(btn){btn.disabled=true;btn.textContent="Création…"}
-  try{const salt=b64(crypto.getRandomValues(new Uint8Array(16)));const iter=150000;const hash=await hashPw(pw,salt,iter);
-    const acc={email,salt,iter,hash,pseudo:reset&&S.account?S.account.pseudo:nm,createdAt:S.account?.createdAt||Date.now(),updatedAt:Date.now()};
-    await saveAccount(acc);S.account=acc;setSession(true);S.auth="ok";S.authReset=false;S.authErr="";
-    ensurePlayer(acc.pseudo);S.tab="games";render(true);toast(reset?"Mot de passe mis à jour":"Compte créé. Bienvenue à la table !");
-  }catch(e){if(btn){btn.disabled=false;btn.textContent=reset?"Enregistrer":"Créer mon compte"}authError(e&&e.code==="invalid_argument"?"Tu n’as pas l’accès « Peut modifier » : demande à l’organisateur de te le donner.":"Impossible de créer le compte. Réessaie.")}
+  const nm=(document.getElementById("a-name").value||"").trim().slice(0,24);const email=(document.getElementById("a-email").value||"").trim().toLowerCase();
+  const pw=document.getElementById("a-pw").value,pw2=document.getElementById("a-pw2").value;
+  if(!nm)return authError("Choisis un pseudo.");if(!EMAIL_RE.test(email))return authError("Cette adresse mail n’est pas valide.");
+  if(pw.length<8)return authError("Le mot de passe doit faire au moins 8 caractères.");if(pw!==pw2)return authError("Les deux mots de passe ne correspondent pas.");
+  authError("");busy("auth-signup","Création…");S.authEmail=email;
+  const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{pseudo:nm},emailRedirectTo:location.origin}});
+  if(error){busy("auth-signup");return authError(frErr(error))}
+  if(data.user&&data.user.identities&&data.user.identities.length===0){busy("auth-signup");return authError("Un compte existe déjà avec cette adresse. Connecte-toi.")}
+  if(data.session){onSignedIn(data.session.user);return}
+  S.auth="confirm";S.authErr="";render(true);
 }
 async function doLogin(){
   const email=(document.getElementById("a-email").value||"").trim().toLowerCase();const pw=document.getElementById("a-pw").value;
   if(!email||!pw)return authError("Entre ton adresse mail et ton mot de passe.");
-  const btn=app.querySelector('[data-act="auth-login"]');if(btn){btn.disabled=true;btn.textContent="Connexion…"}
-  let ok=false,none=false;try{const acc=S.account||await loadAccount();if(acc)S.account=acc;else none=true;ok=!!acc&&acc.email===email&&(await hashPw(pw,acc.salt,acc.iter))===acc.hash}catch(e){}
-  if(!ok){if(btn){btn.disabled=false;btn.textContent="Se connecter"}return authError(none?"Aucun compte trouvé. Crée d’abord ton compte avec l’onglet « Créer un compte ».":"Adresse mail ou mot de passe incorrect.")}
-  setSession(true);S.auth="ok";S.authErr="";ensurePlayer(S.account.pseudo);render(true);
+  authError("");busy("auth-login","Connexion…");S.authEmail=email;
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pw});
+  if(error){busy("auth-login");return authError(frErr(error))}
+  onSignedIn(data.user);
 }
-function ensurePlayer(pseudo){if(S.mode==='loading-shared'){S.pendingEnsure=pseudo||'Joueur';return}const id=S.me.id;if(!id||S.data.players[id])return;
+async function doForgot(){
+  const email=(document.getElementById("a-email").value||"").trim().toLowerCase();
+  if(!EMAIL_RE.test(email))return authError("Tape d’abord ton adresse mail ci-dessus.");
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin});
+  if(error)return authError(frErr(error));
+  authError("");toast("Mail envoyé : clique sur le lien pour choisir un nouveau mot de passe.");
+}
+async function doNewPw(){
+  const pw=document.getElementById("a-pw").value,pw2=document.getElementById("a-pw2").value;
+  if(pw.length<8)return authError("Le mot de passe doit faire au moins 8 caractères.");if(pw!==pw2)return authError("Les deux mots de passe ne correspondent pas.");
+  busy("auth-newpw","Enregistrement…");const {data,error}=await sb.auth.updateUser({password:pw});
+  if(error){busy("auth-newpw");return authError(frErr(error))}
+  S.auth="checking";toast("Mot de passe mis à jour");onSignedIn(data.user);
+}
+function ensurePlayer(pseudo){if(S.mode==='loading-shared')return;const id=S.me.id;if(!id||S.data.players[id])return;
   write("players",id,{name:(pseudo||"Joueur").slice(0,24),userId:S.mode==="shared"?id:null,joinedAt:Date.now()});
   gamesSorted().up.forEach(g=>{if(!(g.seats||{})[id]){const c=clone(S.data.games[g.id]);c.seats=c.seats||{};c.seats[id]={rsvp:"maybe"};write("games",g.id,c)}});}
 /* ---------- groupes ---------- */
@@ -726,7 +757,7 @@ function enterGroup(id){S.groupId=id;try{localStorage.setItem("tapisvert-group",
 function viewHub(){
   const mine=myGroups();const mode=S.hub||"home";
   let h=`<header class="hub-hero rise"><div class="hub-glow" aria-hidden="true"></div>${logo("big")}
-    <div class="hub-name">KICKER</div><div class="hub-tag">Poker &amp; jeux de société entre potes</div>
+    <div class="hub-name">KICKER</div><div class="hub-tag">Poker &amp; jeux de société entre amis</div>
     <div class="suits hub-suits" aria-hidden="true">♠&#xFE0E;♥&#xFE0E;♦&#xFE0E;♣&#xFE0E;</div>
     <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div></header>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
@@ -761,7 +792,7 @@ function viewPlayers(){
   // Mon profil
   if(mine){const r=lb[S.me.id],b=bs[S.me.id];
     h+=`<div class="card me-card rise"><div class="row">${avatar(S.me.id)}<div class="grow" style="min-width:0"><span class="eyebrow">Mon profil</span>
-      <input id="pn-me" data-pname="${S.me.id}" value="${esc(mine.name)}" maxlength="24" ${dis} class="pseudo" aria-label="Mon pseudo"><div class="muted ellipsis" style="font-size:12px">${esc(S.account?.email||"")}</div></div>${AUTH_ENABLED?`<button class="btn small" data-act="logout">Déconnexion</button>`:""}</div>
+      <input id="pn-me" data-pname="${S.me.id}" value="${esc(mine.name)}" maxlength="24" ${dis} class="pseudo" aria-label="Mon pseudo"><div class="muted ellipsis" style="font-size:12px">${esc(S.account?.email||"")}</div></div><button class="btn small" data-act="logout">Déconnexion</button></div>
       <div class="stats" style="margin-top:12px"><div class="stat"><span class="eyebrow">Poker</span><b class="${r&&r.net>0?"win":r&&r.net<0?"loss":""}">${r?money(r.net,true):"—"}</b></div><div class="stat"><span class="eyebrow">Victoires jeux</span><b>${b?b.wins:0}</b></div><div class="stat"><span class="eyebrow">Soirées</span><b>${(r?r.games:0)+(b?b.games:0)}</b></div></div></div>`}
 
   // Membres
@@ -857,9 +888,10 @@ app.addEventListener("click",e=>{
   if(act==="auth-login"){doLogin();return}
   if(act==="auth-to-signup"){S.auth="signup";S.authReset=false;S.authErr="";render(true);return}
   if(act==="auth-to-login"){S.auth="login";S.authReset=false;S.authErr="";render(true);return}
-  if(act==="auth-forgot"){S.auth="signup";S.authReset=true;S.authErr="";render(true);return}
-  if(act==="auth-retry"){S.auth="checking";render(true);initAuth();return}
-  if(act==="logout"){setSession(false);S.auth="login";S.authErr="";S.gameId=null;S.tab="games";render(true);window.scrollTo(0,0);return}
+  if(act==="auth-forgot"){doForgot();return}
+  if(act==="auth-newpw"){doNewPw();return}
+  if(act==="auth-retry"){S.auth="checking";render(true);sb.auth.getSession().then(({data})=>{if(data&&data.session){S.me.id=null;onSignedIn(data.session.user)}else{S.auth="login";render(true)}});return}
+  if(act==="logout"){S.gameId=null;S.tab="games";S.groupId=null;sb.auth.signOut();window.scrollTo(0,0);return}
   if(act==="copy-join"){copy(`Je t’invite dans notre groupe « ${meta().name} » sur Kicker pour organiser nos soirées poker et jeux. Je viens de te partager la page par mail : ouvre-la, crée ton profil et dis-nous si tu viens à la prochaine soirée.`);return}
   if(act==="goto-board"){S.tab="board";S.boardMode=b.dataset.m;render(true);window.scrollTo(0,0);return}
   if(act==="new-game"){const id=uid();const kind=b.dataset.kind||"cash";const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));
@@ -921,12 +953,13 @@ app.addEventListener("click",e=>{
     enterGroup(id);S.tab="players";render(true);toast("Groupe créé ! Envoie le code à tes amis.");return}
   if(act==="hub-join"){const code=(document.getElementById("hub-code").value||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");const e=document.getElementById("hub-err");
     if(code.length!==6){e.textContent="Le code fait 6 caractères.";return}
-    const hit=Object.entries(S.data.groups).find(([,g])=>g.code===code);
-    if(!hit){e.textContent="Aucun groupe avec ce code. Vérifie auprès de l’organisateur.";return}
-    const [gid,g]=hit;ensurePlayer(S.me.name||"Joueur");
-    if(!(g.members||{})[S.me.id]){const c=clone(g);c.members=c.members||{};c.members[S.me.id]={joinedAt:Date.now()};write("groups",gid,c,true);
-      Object.entries(S.data.games).filter(([,x])=>x.groupId===gid&&x.status!=="done"&&!(x.seats||{})[S.me.id]).forEach(([xid,x])=>{const cc=clone(x);cc.seats=cc.seats||{};cc.seats[S.me.id]={rsvp:"maybe"};write("games",xid,cc,true)})}
-    enterGroup(gid);toast("Bienvenue dans « "+g.name+" » !");return}
+    e.textContent="";b.disabled=true;b.textContent="Recherche…";
+    sb.rpc("join_group",{p_code:code}).then(async({data:gid,error})=>{b.disabled=false;b.textContent="Rejoindre le groupe";
+      if(error){e.textContent="Impossible de rejoindre le groupe. Réessaie.";return}
+      if(!gid){e.textContent="Aucun groupe avec ce code. Vérifie auprès de l’organisateur.";return}
+      await loadAll();const g=S.data.groups[gid];
+      Object.entries(S.data.games).filter(([,x])=>x.groupId===gid&&x.status!=="done"&&!(x.seats||{})[S.me.id]).forEach(([xid,x])=>{const cc=clone(x);cc.seats=cc.seats||{};cc.seats[S.me.id]={rsvp:"maybe"};write("games",xid,cc,true)});
+      enterGroup(gid);toast("Bienvenue dans « "+(g?g.name:"ton groupe")+" » !")});return}
   if(act==="switch-group"){S.groupId=null;try{localStorage.removeItem("tapisvert-group")}catch(e){}S.hub=null;S.confirm=null;render(true);window.scrollTo(0,0);return}
   if(act==="leave"){S.confirm="leave";render(true);return}
   if(act==="leave-yes"){const G=curGroup();const gid=S.groupId;S.confirm=null;
@@ -950,7 +983,7 @@ app.addEventListener("keydown",e=>{if(e.key!=="Enter")return;
   if(e.target.matches&&e.target.matches('[role=button][data-act]')){e.preventDefault();e.target.click();return}
   if(e.target.id==="hub-name"){e.preventDefault();app.querySelector('[data-act="hub-create"]').click();return}
   if(e.target.id==="hub-code"){e.preventDefault();app.querySelector('[data-act="hub-join"]').click();return}
-  if(/^a-/.test(e.target.id||"")){e.preventDefault();const bt=app.querySelector('[data-act="auth-signup"],[data-act="auth-login"]');if(bt)bt.click();return}
+  if(/^a-/.test(e.target.id||"")){e.preventDefault();const bt=app.querySelector('[data-act="auth-signup"],[data-act="auth-login"],[data-act="auth-newpw"]');if(bt)bt.click();return}
   if(e.target.id==="new-player"){e.preventDefault();app.querySelector('[data-act="add-player"]').click()}
   if(e.target.id==="quick-player"){e.preventDefault();app.querySelector('[data-act="quick-add"]').click()}});
 app.addEventListener("change",e=>{const el=e.target;
@@ -965,13 +998,7 @@ app.addEventListener("change",e=>{const el=e.target;
 
 /* ---------- boot ---------- */
 render(true);
-(async()=>{
-  try{db=window.claude&&window.claude.use?await window.claude.use("db"):null}catch(e){db=null}
-  if(!db){S.mode="local";S.me={id:"moi",name:"",avatarUrl:""};S.isOwner=true;loadLocal();initAuth();return}
-  S.mode="loading-shared";
-  try{const u=await window.claude.use("user");if(u){const me=await u.me();S.me={id:me.id,name:me.name||"",avatarUrl:me.avatarUrl||""};S.isOwner=!!me.isOwner;const c=await u.can("data.write");if(c===false)S.canWrite=false}}catch(e){}
-  subscribe("players");subscribe("games");subscribe("meta");subscribe("groups");initAuth();
-})();
+initAuth().catch(e=>{console.warn(e);S.auth="error";render(true)});
 })();
 </script>
 
