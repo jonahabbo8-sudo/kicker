@@ -336,11 +336,10 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .inv-actions .btn{padding:10px 4px;font-size:14px;white-space:nowrap}
 .inv-later{display:block;margin:12px auto 0;background:transparent;border-color:transparent;color:var(--muted)}
 /* Mini dés (icône jeux de société) */
-.dice-ic{position:relative;display:flex!important;align-items:center;justify-content:center;gap:2px;overflow:visible}
-.mdie{width:15px;height:15px;border-radius:4px;padding:2px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);background:linear-gradient(145deg,#FFFDF7,#E0D6C1);box-shadow:inset 0 -1.5px 0 rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.4)}
-.mdie i{width:3px;height:3px;border-radius:50%;background:#16181C;place-self:center}
-.mdie.r{background:linear-gradient(145deg,#D2463D,#8C2027);transform:rotate(12deg) translateY(3px)}
-.mdie.r i{background:#FFF7E6}
+.dice-ic{position:relative;display:flex!important;align-items:center;justify-content:center;gap:1px;overflow:visible}
+.mdie{width:13px;height:13px;border-radius:4px;padding:1.5px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);background:none;border:1.6px solid currentColor;box-shadow:none;color:inherit}
+.mdie i{width:2.6px;height:2.6px;border-radius:50%;background:currentColor;place-self:center}
+.mdie.r{transform:rotate(12deg) translateY(3px)}
 .mdie:not(.r){transform:rotate(-10deg) translateY(-2px)}
 .wz-opt .mdie,.hub-card .mdie{width:20px;height:20px}
 @media (prefers-reduced-motion:no-preference){
@@ -348,6 +347,9 @@ button.item:hover{background:rgba(210,172,103,.05)}
   .mdie.r.rolling{animation:mdieRollR .7s cubic-bezier(.3,1.4,.5,1)}}
 @keyframes mdieRoll{0%{transform:rotate(-10deg) translateY(-2px)}30%{transform:translate(-4px,-16px) rotate(-200deg) scale(1.15)}60%{transform:translate(-2px,0) rotate(-340deg)}80%{transform:translate(-1px,-5px) rotate(-360deg)}100%{transform:rotate(-370deg) translateY(-2px)}}
 @keyframes mdieRollR{0%{transform:rotate(12deg) translateY(3px)}30%{transform:translate(5px,-18px) rotate(220deg) scale(1.15)}60%{transform:translate(2px,3px) rotate(350deg)}80%{transform:translate(1px,-3px) rotate(365deg)}100%{transform:rotate(372deg) translateY(3px)}}
+.champ .suit-dice{display:flex;gap:6px;right:-4px;top:-6px;opacity:.12}
+.champ .suit-dice .mdie{width:48px;height:48px;border-width:4px;border-radius:10px;padding:5px}
+.champ .suit-dice .mdie i{width:8px;height:8px}
 /* Dés */
 .dice-layer{position:fixed;inset:0;z-index:50;pointer-events:none;transition:opacity .35s}
 .dice-layer.out{opacity:0}
@@ -580,7 +582,7 @@ function viewGames(){
   const pk=lb.rows[0],jx=bs.rows[0];
   if(pk||jx)h+=`<section class="block rise d4"><div class="sec-title"><h2>Les champions</h2></div><div class="champs">
     ${pk?`<button class="champ poker" data-act="goto-board" data-m="poker"><span class="suit" aria-hidden="true">♠&#xFE0E;</span><span class="eyebrow">Roi du poker</span><div class="who">${avatar(pk.pid)}<div style="min-width:0"><div class="nm ellipsis">${esc(pname(pk.pid))}</div><div class="sc ${pk.net>=0?"win":"loss"}">${money(pk.net,true)}</div></div></div></button>`:""}
-    ${jx?`<button class="champ jeux" data-act="goto-board" data-m="board"><span class="suit" aria-hidden="true">♦&#xFE0E;</span><span class="eyebrow">Champion des jeux</span><div class="who">${avatar(jx.pid)}<div style="min-width:0"><div class="nm ellipsis">${esc(pname(jx.pid))}</div><div class="sc" style="color:var(--gold-2)">${jx.wins} victoire${jx.wins>1?"s":""}</div></div></div></button>`:""}
+    ${jx?`<button class="champ jeux" data-act="goto-board" data-m="board"><span class="suit suit-dice" aria-hidden="true">${miniDice()}</span><span class="eyebrow">Champion des jeux</span><div class="who">${avatar(jx.pid)}<div style="min-width:0"><div class="nm ellipsis">${esc(pname(jx.pid))}</div><div class="sc" style="color:var(--gold-2)">${jx.wins} victoire${jx.wins>1?"s":""}</div></div></div></button>`:""}
   </div></section>`;
   if(up.length>1){h+=`<section class="block"><div class="sec-title"><h2>À venir</h2></div><div class="list">${up.slice(1).map(gameRow).join("")}</div></section>`}
   h+=`<section class="block"><div class="sec-title"><h2>Historique</h2></div>${past.length?`<div class="list">${past.map(gameRow).join("")}</div>`:`<div class="card empty">Les soirées terminées apparaîtront ici avec leurs résultats.</div>`}</section>`;
