@@ -123,7 +123,7 @@ label.field{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weigh
 .seat.yes{--ring:var(--gold)}
 .seat.yes .avatar{box-shadow:0 0 0 2px #0A0D0F,0 0 0 3.5px var(--gold),0 0 14px rgba(210,172,103,.55)}
 .seat.maybe .avatar{opacity:.8;box-shadow:0 0 0 2px #0A0D0F,0 0 0 3px transparent;outline:1.5px dashed var(--gold);outline-offset:1px}
-.seat.no .avatar,.seat.none .avatar{filter:grayscale(1);opacity:.35}
+.seat.no .avatar,.seat.none .avatar,.seat.invited .avatar{filter:grayscale(1);opacity:.35}
 .seat em{font-style:normal;font-size:10px;font-weight:700;color:var(--ink);max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 1px 2px #000}
 .table-meta{display:flex;justify-content:space-between;gap:10px;margin-top:22px;position:relative;flex-wrap:wrap}
 .table-meta .chip{background:rgba(0,0,0,.3);border:1px solid rgba(240,214,156,.2);color:var(--ink)}
@@ -313,6 +313,28 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .hub-empty-cards i{font-style:normal;width:40px;height:56px;border-radius:7px;background:linear-gradient(160deg,#FFFDF7,#E9E1CF);display:grid;place-items:center;font-size:20px;box-shadow:0 6px 14px -4px rgba(0,0,0,.6)}
 .hub-empty-cards i:first-child{color:#16181C;transform:rotate(-10deg) translateX(6px)}
 .hub-empty-cards i:last-child{color:#B3202A;transform:rotate(8deg) translateX(-6px)}
+/* Invitations */
+.bell{position:relative;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);color:var(--ink)}
+.bell svg{width:22px;height:22px}
+.bell b{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--chip);color:#fff;font-size:11px;display:grid;place-items:center;box-shadow:0 0 0 2px var(--bg)}
+.hub-bell{position:absolute;top:0;right:0}
+.inv-layer{position:fixed;inset:0;z-index:30;background:rgba(5,7,8,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+@media (min-width:560px){.inv-layer{align-items:center}}
+.inv-pop,.inv-sheet{width:100%;max-width:440px;border-radius:24px;padding:20px;background:linear-gradient(170deg,var(--velvet),var(--velvet-2) 55%,var(--surface));border:1px solid rgba(210,172,103,.35);box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+.inv-sheet{max-height:80vh;overflow:auto;background:var(--surface)}
+@media (prefers-reduced-motion:no-preference){.inv-pop{animation:invIn .45s cubic-bezier(.2,1.2,.4,1)}}
+@keyframes invIn{from{transform:translateY(40px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.inv-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#1E1608;background:linear-gradient(180deg,#E7C888,var(--gold));padding:4px 10px;border-radius:999px;margin-bottom:12px}
+.inv{display:flex;flex-direction:column;gap:8px}
+.inv-sheet .inv{padding:14px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line)}
+.inv .eyebrow{color:var(--gold-2)}
+.inv-title{font-family:var(--f-display);font-stretch:72%;font-weight:800;font-size:24px;line-height:1.1;color:var(--title)}
+.inv.big .inv-title{font-size:30px}
+.inv-meta{font-size:13.5px;color:rgba(237,229,211,.75)}
+.inv-host{display:flex;align-items:center;gap:10px;font-size:14px;margin-top:4px}
+.inv-actions{display:grid;grid-template-columns:1.2fr 1.1fr .9fr;gap:8px;margin-top:8px}
+.inv-actions .btn{padding:10px 4px;font-size:14px;white-space:nowrap}
+.inv-later{display:block;margin:12px auto 0;background:transparent;border-color:transparent;color:var(--muted)}
 /* Profil / rejoindre */
 .join{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6vh}
 .join .name{font-family:var(--f-display);font-weight:900;font-stretch:68%;letter-spacing:.01em;color:var(--title);text-shadow:0 2px 0 rgba(0,0,0,.45)}
@@ -440,7 +462,10 @@ function subscribeAll(){
   if(sbChannel)return;sbChannel=sb.channel("kicker-live");
   TABLES.forEach(t=>sbChannel.on("postgres_changes",{event:"*",schema:"public",table:t},pl=>{
     const id=(pl.new&&pl.new.id)||(pl.old&&pl.old.id);if(!id||pending[t+"/"+id])return;
-    if(pl.eventType==="DELETE")delete S.data[t][id];else S.data[t][id]=pl.new.data;render()}));
+    const isNew=t==="games"&&pl.eventType==="INSERT"&&!S.data.games[id];
+    if(pl.eventType==="DELETE")delete S.data[t][id];else S.data[t][id]=pl.new.data;
+    if(isNew&&document.hidden&&pendingInvites().some(g=>g.id===id))sysNotify(Object.assign({id},pl.new.data));
+    render()}));
   sbChannel.subscribe();
   document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.auth==="ok")loadAll().then(()=>render()).catch(()=>{})});
 }
@@ -518,7 +543,7 @@ function tableHero(next){S.seatSel=null;
 }
 function viewGames(){
   const m=meta();const {up,past}=gamesSorted();const next=up[0];
-  let h=`<div class="brand rise"><div class="mark">${logo("")}<div style="min-width:0"><div class="name">KICKER</div><button class="grp grp-switch ellipsis" data-act="switch-group" aria-label="Changer de groupe">${esc(m.name)} <span aria-hidden="true">▾</span></button></div></div><div class="suits" aria-hidden="true">♠&#xFE0E;♥&#xFE0E;♦&#xFE0E;♣&#xFE0E;</div></div>${banner()}`;
+  let h=`<div class="brand rise"><div class="mark">${logo("")}<div style="min-width:0"><div class="name">KICKER</div><button class="grp grp-switch ellipsis" data-act="switch-group" aria-label="Changer de groupe">${esc(m.name)} <span aria-hidden="true">▾</span></button></div></div><div class="row" style="gap:10px">${bell()}</div></div>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
   h+=tableHero(next);
   if(S.canWrite)h+=`<div class="quick rise d2">
@@ -704,13 +729,17 @@ function viewAuth(){
 }
 function authError(msg){S.authErr=msg;const e=document.getElementById("a-err");if(e)e.textContent=msg}
 function busy(act,label){const b=app.querySelector(`[data-act="${act}"]`);if(b){b.disabled=!!label;if(label){b.dataset.l=b.textContent;b.textContent=label}else if(b.dataset.l)b.textContent=b.dataset.l}}
-function frErr(e){const m=(e&&e.message||"").toLowerCase();
+function frErr(e){console.warn("Supabase auth error:",e);const m=(e&&e.message||"").toLowerCase();
   if(m.includes("invalid login"))return "Adresse mail ou mot de passe incorrect.";
   if(m.includes("not confirmed"))return "Confirme d’abord ton adresse mail avec le lien reçu.";
   if(m.includes("already registered")||m.includes("already been registered"))return "Un compte existe déjà avec cette adresse. Connecte-toi.";
   if(m.includes("rate limit")||m.includes("too many"))return "Trop d’essais. Attends quelques minutes puis réessaie.";
   if(m.includes("password"))return "Mot de passe trop faible : 8 caractères minimum.";
-  return "Une erreur est survenue. Réessaie.";}
+  if(m.includes("signups not allowed")||m.includes("signup is disabled"))return "Les inscriptions sont désactivées dans Supabase.";
+  if(m.includes("invalid api key")||m.includes("apikey"))return "Clé Supabase refusée. Vérifie la clé publishable.";
+  if(m.includes("failed to fetch")||m.includes("network"))return "Impossible de joindre Supabase. Vérifie ta connexion.";
+  if(m.includes("email address")&&m.includes("invalid"))return "Supabase refuse cette adresse mail. Essaie une vraie adresse.";
+  return "Erreur : "+((e&&e.message)||"inconnue")+" (envoie cette phrase à Claude)";}
 async function doSignup(){
   const nm=(document.getElementById("a-name").value||"").trim().slice(0,24);const email=(document.getElementById("a-email").value||"").trim().toLowerCase();
   const pw=document.getElementById("a-pw").value,pw2=document.getElementById("a-pw2").value;
@@ -747,7 +776,36 @@ async function doNewPw(){
 }
 function ensurePlayer(pseudo){if(S.mode==='loading-shared')return;const id=S.me.id;if(!id||S.data.players[id])return;
   write("players",id,{name:(pseudo||"Joueur").slice(0,24),userId:S.mode==="shared"?id:null,joinedAt:Date.now()});
-  gamesSorted().up.forEach(g=>{if(!(g.seats||{})[id]){const c=clone(S.data.games[g.id]);c.seats=c.seats||{};c.seats[id]={rsvp:"maybe"};write("games",g.id,c)}});}
+  gamesSorted().up.forEach(g=>{if(!(g.seats||{})[id]){const c=clone(S.data.games[g.id]);c.seats=c.seats||{};c.seats[id]={rsvp:"invited"};write("games",g.id,c)}});}
+/* ---------- invitations / notifications ---------- */
+function myGroupIds(){return new Set(myGroups().map(g=>g.id))}
+function seenGames(){return (S.data.players[S.me.id]||{}).seenGames||{}}
+function pendingInvites(){if(!S.me.id)return[];const gids=myGroupIds();const t=today();
+  return Object.entries(S.data.games).map(([id,g])=>Object.assign({id},g))
+    .filter(g=>gids.has(g.groupId)&&g.status!=="done"&&g.createdBy&&g.createdBy!==S.me.id&&(!g.date||g.date>=t)&&(()=>{const r=(g.seats||{})[S.me.id]?.rsvp;return !r||r==="invited"})())
+    .sort((a,b)=>(a.date||"9").localeCompare(b.date||"9"))}
+function markSeen(ids){const p=S.data.players[S.me.id];if(!p)return;const seen=Object.assign({},p.seenGames||{});let ch=false;ids.forEach(i=>{if(!seen[i]){seen[i]=Date.now();ch=true}});
+  if(ch)write("players",S.me.id,Object.assign({},p,{seenGames:seen}),true)}
+function inviteLine(g){const grp=S.data.groups[g.groupId];return `${esc(kindLabel(g))} · ${esc(grp?grp.name:"")}`}
+function bell(){const n=pendingInvites().length;return `<button class="bell" data-act="inbox" aria-label="Invitations${n?` : ${n} en attente`:""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>${n?`<b class="num">${n}</b>`:""}</button>`}
+function inviteCard(g,big){const host=pname(g.createdBy);
+  return `<div class="inv ${big?"big":""}"><div class="inv-top"><span class="eyebrow">${inviteLine(g)}</span></div>
+    <div class="inv-title">${esc(g.title||"Nouvelle partie")}</div>
+    <div class="inv-meta">${esc(longDate(g))}${g.location?` · ${esc(g.location)}`:""}${g.type!=="board"||n(g.buyIn)>0?` · <span class="num">${money(n(g.buyIn))}</span>`:""}</div>
+    <div class="inv-host">${avatar(g.createdBy)}<span><b>${esc(host)}</b> t’invite. Tu viens ?</span></div>
+    <div class="inv-actions"><button class="btn primary" data-act="inv-answer" data-gid="${g.id}" data-v="yes">Je viens</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="maybe">Peut-être</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="no">Non</button></div></div>`}
+function viewInviteLayer(){
+  if(S.auth!=="ok"||S.mode!=="shared")return"";
+  const inv=pendingInvites();
+  if(S.showInbox)return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Invitations"><div class="inv-sheet"><div class="row between" style="margin-bottom:12px"><h2 style="margin:0">Invitations</h2><button class="btn small" data-act="inbox-close">Fermer</button></div>
+    ${inv.length?`<div class="stack">${inv.map(g=>inviteCard(g,false)).join("")}</div>`:`<div class="card empty">Aucune invitation en attente.</div>`}</div></div>`;
+  const seen=seenGames();const fresh=inv.find(g=>!seen[g.id]&&!(S.dismissed||{})[g.id]);
+  if(!fresh)return"";
+  return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Nouvelle partie"><div class="inv-pop"><span class="inv-badge">Nouvelle partie</span>${inviteCard(fresh,true)}<button class="btn small inv-later" data-act="inv-later" data-gid="${fresh.id}">Plus tard</button></div></div>`;
+}
+function sysNotify(g){try{if(!("Notification" in window)||Notification.permission!=="granted")return;
+  const n=new Notification("Nouvelle partie sur Kicker",{body:`${pname(g.createdBy)} organise « ${g.title||"une partie"} » — ${longDate(g)}. Tu viens ?`,tag:"kicker-"+g.id});
+  n.onclick=()=>{window.focus();n.close()}}catch(e){}}
 /* ---------- groupes ---------- */
 function curGroup(){const g=S.data.groups[S.groupId];return g&&S.me.id&&g.members&&g.members[S.me.id]?g:null}
 function myGroups(){return Object.entries(S.data.groups).filter(([,g])=>S.me.id&&g.members&&g.members[S.me.id]).map(([id,g])=>Object.assign({id},g)).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))}
@@ -759,7 +817,7 @@ function viewHub(){
   let h=`<header class="hub-hero rise"><div class="hub-glow" aria-hidden="true"></div>${logo("big")}
     <div class="hub-name">KICKER</div><div class="hub-tag">Poker &amp; jeux de société entre amis</div>
     <div class="suits hub-suits" aria-hidden="true">♠&#xFE0E;♥&#xFE0E;♦&#xFE0E;♣&#xFE0E;</div>
-    <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div></header>${banner()}`;
+    <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div><div class="hub-bell">${bell()}</div></header>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
   if(mode==="create")return h+`<div class="ticket rise"><div class="marquee"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
       <span class="eyebrow ticket-kind">Nouveau groupe</span><h2 class="hub-q">Crée ton groupe</h2>
@@ -807,6 +865,10 @@ function viewPlayers(){
       <span class="eyebrow">Code du groupe</span><div class="code-show num">${esc(G?G.code:"")}</div>
       <p class="muted" style="font-size:13px;margin:6px 0 12px">Envoie ce code à tes amis : ils choisissent « Rejoindre un groupe » et le tapent.</p>
       <div class="row wrap"><button class="btn primary small" data-act="copy-code">Copier l’invitation</button></div></div></section>`;
+  // Notifications
+  const np=("Notification" in window)?Notification.permission:"unsupported";
+  h+=`<section class="block"><div class="sec-title"><h2>Notifications</h2></div><div class="card"><p class="muted" style="margin:0 0 10px;font-size:13.5px">Quand un membre crée une partie, une invitation s’affiche dans l’app. Active aussi les alertes de cet appareil pour être prévenu quand Kicker est ouvert en arrière-plan.</p>
+    ${np==="granted"?`<span class="pill planned">Alertes activées sur cet appareil</span>`:np==="denied"?`<span class="muted" style="font-size:13px">Alertes bloquées : autorise-les dans les réglages du navigateur pour ce site.</span>`:np==="unsupported"?`<span class="muted" style="font-size:13px">Ce navigateur ne gère pas les alertes. Les invitations restent visibles dans l’app.</span>`:`<button class="btn primary small" data-act="notif-on">Activer les alertes</button>`}</div></section>`;
   // Mini timer
   h+=miniTimer();
   // Groupe
@@ -857,7 +919,8 @@ function render(force){
   const y=window.scrollY;
   const noGroup=S.auth==="ok"&&!curGroup();const needJoin=S.auth!=="ok"||noGroup;
   document.querySelector("nav.tabs").hidden=needJoin;
-  app.innerHTML=S.auth!=="ok"?viewAuth():noGroup?viewHub():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers();
+  const layer=viewInviteLayer();if(layer)document.querySelector("nav.tabs").hidden=true;
+  app.innerHTML=(S.auth!=="ok"?viewAuth():noGroup?viewHub():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers())+layer;
 
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));
   window.scrollTo(0,y);
@@ -888,6 +951,14 @@ app.addEventListener("click",e=>{
   if(act==="auth-login"){doLogin();return}
   if(act==="auth-to-signup"){S.auth="signup";S.authReset=false;S.authErr="";render(true);return}
   if(act==="auth-to-login"){S.auth="login";S.authReset=false;S.authErr="";render(true);return}
+  if(act==="inbox"){S.showInbox=true;render(true);return}
+  if(act==="inbox-close"){S.showInbox=false;markSeen(pendingInvites().map(g=>g.id));render(true);return}
+  if(act==="inv-later"){const gid=b.dataset.gid;S.dismissed=Object.assign({},S.dismissed,{[gid]:1});markSeen([gid]);render(true);return}
+  if(act==="inv-answer"){const gid=b.dataset.gid,v=b.dataset.v;const g=clone(S.data.games[gid]);if(!g)return;g.seats=g.seats||{};g.seats[S.me.id]=Object.assign({},g.seats[S.me.id],{rsvp:v});
+    write("games",gid,g,true);markSeen([gid]);if(!pendingInvites().length)S.showInbox=false;render(true);
+    toast(v==="yes"?"C’est noté, tu es à table !":v==="maybe"?"Noté : peut-être.":"Noté, tu ne viens pas.");return}
+  if(act==="notif-on"){if(!("Notification" in window)){toast("Ce navigateur ne gère pas les notifications.");return}
+    Notification.requestPermission().then(r=>{toast(r==="granted"?"Notifications activées sur cet appareil.":"Notifications refusées. Tu peux les autoriser dans les réglages du navigateur.");render(true)});return}
   if(act==="auth-forgot"){doForgot();return}
   if(act==="auth-newpw"){doNewPw();return}
   if(act==="auth-retry"){S.auth="checking";render(true);sb.auth.getSession().then(({data})=>{if(data&&data.session){S.me.id=null;onSignedIn(data.session.user)}else{S.auth="login";render(true)}});return}
@@ -895,8 +966,8 @@ app.addEventListener("click",e=>{
   if(act==="copy-join"){copy(`Je t’invite dans notre groupe « ${meta().name} » sur Kicker pour organiser nos soirées poker et jeux. Je viens de te partager la page par mail : ouvre-la, crée ton profil et dis-nous si tu viens à la prochaine soirée.`);return}
   if(act==="goto-board"){S.tab="board";S.boardMode=b.dataset.m;render(true);window.scrollTo(0,0);return}
   if(act==="new-game"){const id=uid();const kind=b.dataset.kind||"cash";const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));
-    const seats={};groupPlayers().forEach(([p])=>seats[p]={rsvp:p===S.me.id?"yes":"maybe"});
-    write("games",id,{title:kind==="board"?"Soirée jeux":"Soirée poker",date:d.toISOString().slice(0,10),time:"20:00",location:"",type:kind,buyIn:kind==="board"?0:20,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId});
+    const seats={};groupPlayers().forEach(([p])=>seats[p]={rsvp:p===S.me.id?"yes":"invited"});
+    write("games",id,{title:kind==="board"?"Soirée jeux":"Soirée poker",date:d.toISOString().slice(0,10),time:"20:00",location:"",type:kind,buyIn:kind==="board"?0:20,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId,createdBy:S.me.id});
     S.tab="games";S.gameId=id;render(true);window.scrollTo(0,0);return}
   if(act==="set-type"){const v=b.dataset.v;updGame(g=>{const wasB=g.type==="board";g.type=v;if(v==="board"&&g.title==="Soirée poker")g.title="Soirée jeux";if(v!=="board"&&g.title==="Soirée jeux")g.title="Soirée poker";if(v==="board"&&!wasB&&n(g.buyIn)===20)g.buyIn=0;if(v!=="board"&&wasB&&!n(g.buyIn))g.buyIn=20});return}
   if(act==="set-buy"){const v=n(b.dataset.v);updGame(g=>{g.buyIn=v});return}
@@ -958,7 +1029,7 @@ app.addEventListener("click",e=>{
       if(error){e.textContent="Impossible de rejoindre le groupe. Réessaie.";return}
       if(!gid){e.textContent="Aucun groupe avec ce code. Vérifie auprès de l’organisateur.";return}
       await loadAll();const g=S.data.groups[gid];
-      Object.entries(S.data.games).filter(([,x])=>x.groupId===gid&&x.status!=="done"&&!(x.seats||{})[S.me.id]).forEach(([xid,x])=>{const cc=clone(x);cc.seats=cc.seats||{};cc.seats[S.me.id]={rsvp:"maybe"};write("games",xid,cc,true)});
+      Object.entries(S.data.games).filter(([,x])=>x.groupId===gid&&x.status!=="done"&&!(x.seats||{})[S.me.id]).forEach(([xid,x])=>{const cc=clone(x);cc.seats=cc.seats||{};cc.seats[S.me.id]={rsvp:"invited"};write("games",xid,cc,true)});
       enterGroup(gid);toast("Bienvenue dans « "+(g?g.name:"ton groupe")+" » !")});return}
   if(act==="switch-group"){S.groupId=null;try{localStorage.removeItem("tapisvert-group")}catch(e){}S.hub=null;S.confirm=null;render(true);window.scrollTo(0,0);return}
   if(act==="leave"){S.confirm="leave";render(true);return}
