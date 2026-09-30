@@ -335,6 +335,16 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .inv-actions{display:grid;grid-template-columns:1.2fr 1.1fr .9fr;gap:8px;margin-top:8px}
 .inv-actions .btn{padding:10px 4px;font-size:14px;white-space:nowrap}
 .inv-later{display:block;margin:12px auto 0;background:transparent;border-color:transparent;color:var(--muted)}
+/* Dés */
+.dice-layer{position:fixed;inset:0;z-index:50;pointer-events:none;transition:opacity .35s}
+.dice-layer.out{opacity:0}
+.die{position:absolute;left:0;top:0;width:60px;height:60px;border-radius:14px;padding:9px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);
+  background:linear-gradient(145deg,#FFFDF7,#E6DDC9);box-shadow:inset 0 -4px 0 rgba(0,0,0,.12),inset 0 2px 0 rgba(255,255,255,.8),0 14px 26px -8px rgba(0,0,0,.75)}
+.die i{width:11px;height:11px;border-radius:50%;background:#16181C;place-self:center;box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}
+.die.red{background:linear-gradient(145deg,#D2463D,#8C2027);box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.25),0 14px 26px -8px rgba(0,0,0,.75)}
+.die.red i{background:#FFF7E6;box-shadow:none}
+.dice-sum{position:absolute;left:50%;top:calc(42% + 52px);transform:translateX(-50%);font-family:var(--f-mono);font-weight:700;font-size:20px;color:var(--gold-2);background:rgba(10,13,15,.85);border:1px solid rgba(210,172,103,.4);padding:4px 14px;border-radius:999px;animation:sumIn .3s ease both}
+@keyframes sumIn{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
 /* Profil / rejoindre */
 .join{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:6vh}
 .join .name{font-family:var(--f-display);font-weight:900;font-stretch:68%;letter-spacing:.01em;color:var(--title);text-shadow:0 2px 0 rgba(0,0,0,.45)}
@@ -777,6 +787,32 @@ async function doNewPw(){
 function ensurePlayer(pseudo){if(S.mode==='loading-shared')return;const id=S.me.id;if(!id||S.data.players[id])return;
   write("players",id,{name:(pseudo||"Joueur").slice(0,24),userId:S.mode==="shared"?id:null,joinedAt:Date.now()});
   gamesSorted().up.forEach(g=>{if(!(g.seats||{})[id]){const c=clone(S.data.games[g.id]);c.seats=c.seats||{};c.seats[id]={rsvp:"invited"};write("games",g.id,c)}});}
+/* ---------- lancer de dés ---------- */
+const PIPS={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+function dieFace(n){return PIPS[n].map(p=>`<i style="grid-area:${Math.ceil(p/3)}/${(p-1)%3+1}"></i>`).join("")}
+function throwDice(src){
+  if(throwDice.busy)return;throwDice.busy=true;
+  const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const layer=document.createElement("div");layer.className="dice-layer";layer.setAttribute("aria-hidden","true");
+  const W=innerWidth,H=innerHeight;const r=src&&src.getBoundingClientRect?src.getBoundingClientRect():{left:W/2,top:H-120,width:0,height:0};
+  const sx=r.left+r.width/2,sy=r.top+r.height/2;const faces=[];
+  for(let k=0;k<2;k++){const d=document.createElement("div");d.className="die"+(k?" red":"");d.innerHTML=dieFace(1+Math.floor(Math.random()*6));layer.appendChild(d);faces.push(d)}
+  document.body.appendChild(layer);
+  const total=faces.map((d,k)=>{const v=1+Math.floor(Math.random()*6);
+    const ex=W/2+(k?38:-38)+(Math.random()*30-15),ey=H*0.42+(Math.random()*30-15);
+    const midx=(sx+ex)/2+(k?40:-40),midy=Math.min(sy,ey)-H*0.25;const rot=(k?1:-1)*(540+Math.random()*360);
+    if(reduce){d.innerHTML=dieFace(v);d.animate([{transform:`translate(${ex-30}px,${ey-30}px)`,opacity:0},{transform:`translate(${ex-30}px,${ey-30}px)`,opacity:1}],{duration:250,fill:"forwards"});return v}
+    let t=0;const iv=setInterval(()=>{d.innerHTML=dieFace(1+Math.floor(Math.random()*6));if(++t>9){clearInterval(iv);d.innerHTML=dieFace(v)}},75);
+    d.animate([
+      {transform:`translate(${sx-30}px,${sy-30}px) rotate(0deg) scale(.5)`,opacity:0},
+      {transform:`translate(${midx-30}px,${midy-30}px) rotate(${rot*0.55}deg) scale(1.1)`,opacity:1,offset:.45},
+      {transform:`translate(${ex-30}px,${ey-30}px) rotate(${rot*0.9}deg) scale(1)`,offset:.75},
+      {transform:`translate(${ex-30+(k?10:-10)}px,${ey-44}px) rotate(${rot*0.97}deg) scale(1)`,offset:.87},
+      {transform:`translate(${ex-30+(k?14:-14)}px,${ey-30}px) rotate(${Math.round(rot/90)*90}deg) scale(1)`,opacity:1}
+    ],{duration:900+k*120,easing:"cubic-bezier(.25,.7,.3,1)",fill:"forwards"});return v});
+  setTimeout(()=>{const s=document.createElement("div");s.className="dice-sum";s.textContent=total[0]+total[1];layer.appendChild(s)},reduce?250:1050);
+  setTimeout(()=>{layer.classList.add("out");setTimeout(()=>{layer.remove();throwDice.busy=false},400)},reduce?900:1900);
+}
 /* ---------- invitations / notifications ---------- */
 function myGroupIds(){return new Set(myGroups().map(g=>g.id))}
 function seenGames(){return (S.data.players[S.me.id]||{}).seenGames||{}}
@@ -943,7 +979,7 @@ app.addEventListener("click",e=>{
   const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const act=b.dataset.act;
   if(act==="open-game"){S.gameId=b.dataset.id;S.confirm=null;S.copyFallback=null;render(true);window.scrollTo(0,0);return}
   if(act==="back"){S.gameId=null;S.confirm=null;S.copyFallback=null;render(true);return}
-  if(act==="bmode"){S.boardMode=b.dataset.m;render(true);return}
+  if(act==="bmode"){if(b.dataset.m==="board"&&S.boardMode!=="board")throwDice(b);S.boardMode=b.dataset.m;render(true);return}
   if(act==="cancel"){S.confirm=null;render(true);return}
   if(act==="goto-timer"){S.tab="players";S.gameId=null;render(true);const el=document.getElementById("mini-timer");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});return}
   if(act==="t-struct"){S.showLevels=!S.showLevels;render(true);return}
@@ -965,11 +1001,11 @@ app.addEventListener("click",e=>{
   if(act==="logout"){S.gameId=null;S.tab="games";S.groupId=null;sb.auth.signOut();window.scrollTo(0,0);return}
   if(act==="copy-join"){copy(`Je t’invite dans notre groupe « ${meta().name} » sur Kicker pour organiser nos soirées poker et jeux. Je viens de te partager la page par mail : ouvre-la, crée ton profil et dis-nous si tu viens à la prochaine soirée.`);return}
   if(act==="goto-board"){S.tab="board";S.boardMode=b.dataset.m;render(true);window.scrollTo(0,0);return}
-  if(act==="new-game"){const id=uid();const kind=b.dataset.kind||"cash";const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));
+  if(act==="new-game"){const id=uid();const kind=b.dataset.kind||"cash";if(kind==="board")throwDice(b);const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));
     const seats={};groupPlayers().forEach(([p])=>seats[p]={rsvp:p===S.me.id?"yes":"invited"});
     write("games",id,{title:kind==="board"?"Soirée jeux":"Soirée poker",date:d.toISOString().slice(0,10),time:"20:00",location:"",type:kind,buyIn:kind==="board"?0:20,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId,createdBy:S.me.id});
     S.tab="games";S.gameId=id;render(true);window.scrollTo(0,0);return}
-  if(act==="set-type"){const v=b.dataset.v;updGame(g=>{const wasB=g.type==="board";g.type=v;if(v==="board"&&g.title==="Soirée poker")g.title="Soirée jeux";if(v!=="board"&&g.title==="Soirée jeux")g.title="Soirée poker";if(v==="board"&&!wasB&&n(g.buyIn)===20)g.buyIn=0;if(v!=="board"&&wasB&&!n(g.buyIn))g.buyIn=20});return}
+  if(act==="set-type"){const v=b.dataset.v;if(v==="board"&&S.data.games[S.gameId]?.type!=="board")throwDice(b);updGame(g=>{const wasB=g.type==="board";g.type=v;if(v==="board"&&g.title==="Soirée poker")g.title="Soirée jeux";if(v!=="board"&&g.title==="Soirée jeux")g.title="Soirée poker";if(v==="board"&&!wasB&&n(g.buyIn)===20)g.buyIn=0;if(v!=="board"&&wasB&&!n(g.buyIn))g.buyIn=20});return}
   if(act==="set-buy"){const v=n(b.dataset.v);updGame(g=>{g.buyIn=v});return}
   if(act==="seat-move"){if(!S.canWrite){toast("Lecture seule : seul l’organisateur peut modifier.");return}
     const gid=b.dataset.gid,pid=b.dataset.seat;const g=S.data.games[gid];if(!g)return;
