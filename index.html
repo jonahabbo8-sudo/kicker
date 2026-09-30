@@ -337,8 +337,8 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .inv-later{display:block;margin:12px auto 0;background:transparent;border-color:transparent;color:var(--muted)}
 /* Mini dés (icône jeux de société) */
 .dice-ic{position:relative;display:flex!important;align-items:center;justify-content:center;gap:1px;overflow:visible}
-.mdie{width:13px;height:13px;border-radius:4px;padding:1.5px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);background:none;border:1.6px solid currentColor;box-shadow:none;color:inherit}
-.mdie i{width:2.6px;height:2.6px;border-radius:50%;background:currentColor;place-self:center}
+.mdie{width:14px;height:14px;border-radius:3.5px;padding:2px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);background:currentColor;border:0;box-shadow:none}
+.mdie i{width:2.6px;height:2.6px;border-radius:50%;background:#0E141A;place-self:center}
 .mdie.r{transform:rotate(12deg) translateY(3px)}
 .mdie:not(.r){transform:rotate(-10deg) translateY(-2px)}
 .wz-opt .mdie,.hub-card .mdie{width:20px;height:20px}
@@ -348,8 +348,8 @@ button.item:hover{background:rgba(210,172,103,.05)}
 @keyframes mdieRoll{0%{transform:rotate(-10deg) translateY(-2px)}30%{transform:translate(-4px,-16px) rotate(-200deg) scale(1.15)}60%{transform:translate(-2px,0) rotate(-340deg)}80%{transform:translate(-1px,-5px) rotate(-360deg)}100%{transform:rotate(-370deg) translateY(-2px)}}
 @keyframes mdieRollR{0%{transform:rotate(12deg) translateY(3px)}30%{transform:translate(5px,-18px) rotate(220deg) scale(1.15)}60%{transform:translate(2px,3px) rotate(350deg)}80%{transform:translate(1px,-3px) rotate(365deg)}100%{transform:rotate(372deg) translateY(3px)}}
 .champ .suit-dice{display:flex;gap:6px;right:-4px;top:-6px;opacity:.12}
-.champ .suit-dice .mdie{width:48px;height:48px;border-width:4px;border-radius:10px;padding:5px}
-.champ .suit-dice .mdie i{width:8px;height:8px}
+.champ .suit-dice .mdie{width:48px;height:48px;border-radius:10px;padding:6px;background:var(--ink)}
+.champ .suit-dice .mdie i{width:8px;height:8px;background:var(--surface)}
 /* Dés */
 .dice-layer{position:fixed;inset:0;z-index:50;pointer-events:none;transition:opacity .35s}
 .dice-layer.out{opacity:0}
