@@ -313,6 +313,19 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .hub-empty-cards i{font-style:normal;width:40px;height:56px;border-radius:7px;background:linear-gradient(160deg,#FFFDF7,#E9E1CF);display:grid;place-items:center;font-size:20px;box-shadow:0 6px 14px -4px rgba(0,0,0,.6)}
 .hub-empty-cards i:first-child{color:#16181C;transform:rotate(-10deg) translateX(6px)}
 .hub-empty-cards i:last-child{color:#B3202A;transform:rotate(8deg) translateX(-6px)}
+/* Suppression */
+.row-wrap{display:flex;align-items:stretch;border-top:1px solid var(--line)}
+.row-wrap:first-child{border-top:0}
+.row-wrap .item{border-top:0;flex:1;min-width:0}
+.row-del{flex:none;width:46px;display:grid;place-items:center;color:var(--muted);border-left:1px solid var(--line)}
+.row-del svg{width:19px;height:19px}
+.row-del:hover{color:var(--loss);background:rgba(224,119,108,.08)}
+.inv-pop.del-pop{background:linear-gradient(170deg,#3A1418,var(--surface) 60%);border-color:rgba(224,119,108,.4)}
+.inv-badge.del-badge{background:var(--loss);color:#fff}
+.del-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.btn.danger-solid{background:#B8372E;color:#fff;border-color:#D0564C}
+.btn.danger-solid:hover{background:#C9443A}
+.btn.danger svg{width:18px;height:18px}
 /* Invitations */
 .bell{position:relative;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);color:var(--ink)}
 .bell svg{width:22px;height:22px}
@@ -464,13 +477,15 @@ function write(coll,id,data,silent){
   if(data===null)delete S.data[coll][id];else S.data[coll][id]=data;
   if(!silent)render(true);
   const path=coll+"/"+id;const p=pending[path]||(pending[path]={});
-  p.data=data===null?null:clone(data);p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),350);
+  p.data=data===null?null:clone(data);p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),data===null?0:350);
 }
 async function flush(path){
   const p=pending[path];if(!p||p.inflight||!p.dirty)return;
   p.inflight=true;p.dirty=false;const data=p.data;const [coll,id]=path.split("/");
   try{
-    if(data===null){const {error}=await sb.from(coll).delete().eq("id",id);if(error)throw error}
+    if(data===null){const {data:del,error}=await sb.from(coll).delete().eq("id",id).select("id");if(error)throw error;
+      if(!del||!del.length){const {data:still}=await sb.from(coll).select("id").eq("id",id);
+        if(still&&still.length){toast("Suppression refusée par le serveur. Réessaie ou demande à l’organisateur.");p.inflight=false;delete pending[path];loadAll().then(()=>render(true)).catch(()=>{});return}}}
     else{const row=sbRow(coll,id,data);const {data:upd,error}=await sb.from(coll).update(row).eq("id",id).select("id");if(error)throw error;
       if(!upd||!upd.length){const {error:e2}=await sb.from(coll).insert(row);if(e2)throw e2}}
   }catch(e){console.warn(e);toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
@@ -592,8 +607,8 @@ function gameRow(g){const d=dateParts(g.date);let right=statusPill(g);
   if(g.status==="done"&&g.type==="board"){const w=winners(g);if(w.length)right=`<div style="text-align:right"><div style="font-weight:700;color:var(--gold)">${esc(w.map(pname).join(", "))}</div><div class="muted" style="font-size:12px">${w.length>1?"ex æquo":"gagne"}</div></div>`}
   else if(g.status==="done"){const rs=results(g);if(rs.length){const top=rs.reduce((a,b)=>b.net>a.net?b:a);right=`<div style="text-align:right"><div class="num win" style="font-weight:700">${money(top.net,true)}</div><div class="muted" style="font-size:12px">${esc(pname(top.pid))}</div></div>`}}
   const c=rsvpCounts(g);
-  return `<button class="item" data-act="open-game" data-id="${g.id}"><div class="date-tile ${g.type==="board"?"k-board":"k-poker"}"><b>${d.day}</b><span>${d.mon}</span></div>
-    <div class="grow"><div class="ellipsis" style="font-weight:600">${esc(g.title||"Soirée jeux")}</div><div class="muted ellipsis" style="font-size:13px">${esc(kindLabel(g))} · ${g.status==="done"?playing(g).length+" joueurs":c.yes+" confirmés"}</div></div>${right}</button>`}
+  return `<div class="row-wrap"><button class="item" data-act="open-game" data-id="${g.id}"><div class="date-tile ${g.type==="board"?"k-board":"k-poker"}"><b>${d.day}</b><span>${d.mon}</span></div>
+    <div class="grow"><div class="ellipsis" style="font-weight:600">${esc(g.title||"Soirée jeux")}</div><div class="muted ellipsis" style="font-size:13px">${esc(kindLabel(g))} · ${g.status==="done"?playing(g).length+" joueurs":c.yes+" confirmés"}</div></div>${right}</button>${canDelete(g)?`<button class="row-del" data-act="ask-del" data-id="${g.id}" aria-label="Supprimer ${esc(g.title||"la soirée")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button>`:""}</div>`}
 
 function viewGame(){
   const g=S.data.games[S.gameId];if(!g){S.gameId=null;return viewGames()}
@@ -648,7 +663,7 @@ function viewGame(){
   }
   h+=`</section>`;}
   if(S.copyFallback)h+=`<section class="block"><label class="field">Copie ce texte<textarea id="copy-fallback" readonly rows="6">${esc(S.copyFallback)}</textarea></label></section>`;
-  if(w)h+=`<section class="block">${S.confirm==="del-game"?`<div class="confirm"><span>Supprimer cette soirée et ses résultats ?</span><button class="btn small danger" data-act="del-game-yes">Supprimer</button><button class="btn small" data-act="cancel">Annuler</button></div>`:`<div><button class="btn small danger" data-act="del-game">Supprimer la soirée</button></div>`}</section>`;
+  if(canDelete(Object.assign({id},g)))h+=`<section class="block"><div><button class="btn danger" data-act="ask-del" data-id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:18px;height:18px" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg> Supprimer la soirée</button></div></section>`;
   return h;
 }
 
@@ -832,6 +847,14 @@ function throwDice(src){
   setTimeout(()=>{const s=document.createElement("div");s.className="dice-sum";s.textContent=total[0]+total[1];layer.appendChild(s)},reduce?250:1050);
   setTimeout(()=>{layer.classList.add("out");setTimeout(()=>{layer.remove();throwDice.busy=false},400)},reduce?900:1900);
 }
+/* ---------- suppression de soirée ---------- */
+function canDelete(g){const G=S.data.groups[g.groupId];return !!S.me.id&&(!g.createdBy||g.createdBy===S.me.id||(G&&G.createdBy===S.me.id))}
+function viewDelLayer(){const g=S.delGame&&S.data.games[S.delGame];if(!g)return"";
+  return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Supprimer la soirée"><div class="inv-pop del-pop">
+    <span class="inv-badge del-badge">Supprimer</span><div class="inv-title">${esc(g.title||"Soirée")}</div>
+    <div class="inv-meta">${esc(longDate(g))}${g.location?" · "+esc(g.location):""}</div>
+    <p class="muted" style="font-size:13.5px;margin:10px 0 0">La soirée, les réponses des joueurs et ses résultats seront supprimés pour tout le groupe. Cette action est définitive.</p>
+    <div class="del-actions"><button class="btn" data-act="del-cancel">Annuler</button><button class="btn danger-solid" data-act="del-confirm">Supprimer</button></div></div></div>`}
 /* ---------- invitations / notifications ---------- */
 function myGroupIds(){return new Set(myGroups().map(g=>g.id))}
 function seenGames(){return (S.data.players[S.me.id]||{}).seenGames||{}}
@@ -974,7 +997,7 @@ function render(force){
   const y=window.scrollY;
   const noGroup=S.auth==="ok"&&!curGroup();const needJoin=S.auth!=="ok"||noGroup;
   document.querySelector("nav.tabs").hidden=needJoin;
-  const layer=viewInviteLayer();if(layer)document.querySelector("nav.tabs").hidden=true;
+  const layer=viewDelLayer()||viewInviteLayer();if(layer)document.querySelector("nav.tabs").hidden=true;
   app.innerHTML=(S.auth!=="ok"?viewAuth():noGroup?viewHub():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers())+layer;
 
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));
@@ -1006,6 +1029,9 @@ app.addEventListener("click",e=>{
   if(act==="auth-login"){doLogin();return}
   if(act==="auth-to-signup"){S.auth="signup";S.authReset=false;S.authErr="";render(true);return}
   if(act==="auth-to-login"){S.auth="login";S.authReset=false;S.authErr="";render(true);return}
+  if(act==="ask-del"){S.delGame=b.dataset.id;render(true);return}
+  if(act==="del-cancel"){S.delGame=null;render(true);return}
+  if(act==="del-confirm"){const id=S.delGame;S.delGame=null;if(S.gameId===id)S.gameId=null;write("games",id,null);toast("Soirée supprimée");window.scrollTo(0,0);return}
   if(act==="inbox"){S.showInbox=true;render(true);return}
   if(act==="inbox-close"){S.showInbox=false;markSeen(pendingInvites().map(g=>g.id));render(true);return}
   if(act==="inv-later"){const gid=b.dataset.gid;S.dismissed=Object.assign({},S.dismissed,{[gid]:1});markSeen([gid]);render(true);return}
