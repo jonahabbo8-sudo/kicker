@@ -314,6 +314,33 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .hub-empty-cards i:first-child{color:#16181C;transform:rotate(-10deg) translateX(6px)}
 .hub-empty-cards i:last-child{color:#B3202A;transform:rotate(8deg) translateX(-6px)}
 .quick.two{grid-template-columns:1fr 1fr}
+/* Boutons & finitions */
+button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.rip-wrap{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0}
+.ripple{position:absolute;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.35),rgba(255,255,255,0) 70%);transform:scale(0);pointer-events:none;animation:ripple .6s ease-out forwards}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+@media (prefers-reduced-motion:no-preference){
+  .btn,.qa,.kind,.pchip,.hub-card,.live-btn,.wz-bl,.seg button,nav.tabs button,.bell,.row-del,.item{transition:transform .14s cubic-bezier(.3,1.4,.5,1),box-shadow .2s,background .2s,border-color .2s,filter .2s}
+  .btn:active,.qa:active,.kind:active,.hub-card:active,.live-btn:active,.wz-bl:active,.seg button:active,.bell:active,.row-del:active{transform:scale(.95)}
+  .pchip:active{transform:scale(.9) translateY(1px)}
+  .pchip.on{animation:chipPick .35s cubic-bezier(.3,1.6,.5,1)}
+  .kind.on{animation:kindPick .35s cubic-bezier(.3,1.6,.5,1)}
+  .seg button.on{animation:segPick .25s ease}
+  nav.tabs button.on svg{animation:navPop .35s cubic-bezier(.3,1.6,.5,1)}
+  .btn.primary{background-size:200% 100%;position:relative;overflow:hidden}
+  .btn.primary::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.45) 50%,transparent 65%);transform:translateX(-120%);animation:shine 4.5s ease-in-out infinite}
+  @media (hover:hover){.btn:hover,.qa:hover,.kind:hover,.hub-card:hover,.live-btn:hover{transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(0,0,0,.7)}.btn.primary:hover{filter:brightness(1.06)}}
+}
+@keyframes chipPick{0%{transform:translateY(0) scale(.85)}60%{transform:translateY(-6px) scale(1.08)}100%{transform:translateY(-3px) scale(1)}}
+@keyframes kindPick{0%{transform:scale(.94)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes segPick{from{transform:scale(.85);opacity:.6}}
+@keyframes navPop{0%{transform:scale(.7)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes shine{0%,70%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+.savebadge{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:40;font-size:12px;font-weight:700;padding:6px 12px 6px 26px;border-radius:999px;background:rgba(20,26,31,.92);border:1px solid var(--line);color:var(--muted);box-shadow:0 8px 20px -8px rgba(0,0,0,.7)}
+.savebadge::before{content:"";position:absolute;left:10px;top:50%;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:var(--muted)}
+.savebadge.saving::before{background:var(--gold);animation:blinkP 1s steps(2) infinite}
+.savebadge.saved{color:var(--win)}.savebadge.saved::before{background:var(--win)}
+.savebadge.error{color:var(--loss)}.savebadge.error::before{background:var(--loss)}
 /* Effets */
 @media (prefers-reduced-motion:no-preference){
   #app.view-in>*:not(.inv-layer){animation:viewIn .32s ease both}
@@ -490,6 +517,7 @@ button.chipstack{padding:0;border:0;background:none;cursor:pointer;-webkit-tap-h
   
 </div></nav>
 <div id="toast" class="toast" hidden></div>
+<div id="savebadge" class="savebadge" hidden role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -528,10 +556,12 @@ const SB_KEY="sb_publishable_PELSbEu3ZWpMG_VZ5GdCiw_KE2KhzPv";
 const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const TABLES=["players","games","groups"];
 function sbRow(coll,id,data){const r={id,data,updated_at:new Date().toISOString()};if(coll==="games")r.group_id=data.groupId||null;if(coll==="groups")r.code=data.code||null;return r}
+const LOCAL_TS={};
+function saveState(st){const el=document.getElementById("savebadge");if(!el)return;clearTimeout(saveState.t);el.className="savebadge "+st;el.textContent=st==="saving"?"Enregistrement…":st==="saved"?"Enregistré":"Hors ligne";el.hidden=false;if(st==="saved")saveState.t=setTimeout(()=>el.hidden=true,1400)}
 function write(coll,id,data,silent){
   if(data===null)delete S.data[coll][id];else S.data[coll][id]=data;
   if(!silent)render(true);
-  const path=coll+"/"+id;const p=pending[path]||(pending[path]={});
+  const path=coll+"/"+id;const p=pending[path]||(pending[path]={});LOCAL_TS[path]=Date.now();saveState("saving");
   p.data=data===null?null:clone(data);p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),data===null?0:350);
 }
 async function flush(path){
@@ -543,8 +573,8 @@ async function flush(path){
         if(still&&still.length){toast("Suppression refusée par le serveur. Réessaie ou demande à l’organisateur.");p.inflight=false;delete pending[path];loadAll().then(()=>render(true)).catch(()=>{});return}}}
     else{const row=sbRow(coll,id,data);const {data:upd,error}=await sb.from(coll).update(row).eq("id",id).select("id");if(error)throw error;
       if(!upd||!upd.length){const {error:e2}=await sb.from(coll).insert(row);if(e2)throw e2}}
-  }catch(e){console.warn(e);toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
-  p.inflight=false;if(p.dirty)flush(path);else delete pending[path];
+  }catch(e){console.warn(e);saveState("error");toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
+  p.inflight=false;if(p.dirty)flush(path);else{delete pending[path];if(!Object.keys(pending).length)saveState("saved")}
 }
 async function loadAll(){
   for(const t of TABLES){const {data,error}=await sb.from(t).select("id,data");if(error)throw error;
@@ -557,6 +587,8 @@ function subscribeAll(){
   if(sbChannel)return;sbChannel=sb.channel("kicker-live");
   TABLES.forEach(t=>sbChannel.on("postgres_changes",{event:"*",schema:"public",table:t},pl=>{
     const id=(pl.new&&pl.new.id)||(pl.old&&pl.old.id);if(!id||pending[t+"/"+id])return;
+    if(pl.new&&pl.new.updated_at&&LOCAL_TS[t+"/"+id]&&Date.parse(pl.new.updated_at)<LOCAL_TS[t+"/"+id]-50)return;
+    if(pl.eventType!=="DELETE"&&S.data[t][id]&&JSON.stringify(S.data[t][id])===JSON.stringify(pl.new.data))return;
     const isNew=t==="games"&&pl.eventType==="INSERT"&&!S.data.games[id];
     if(pl.eventType==="DELETE")delete S.data[t][id];else S.data[t][id]=pl.new.data;
     if(isNew&&document.hidden&&pendingInvites().some(g=>g.id===id))sysNotify(Object.assign({id},pl.new.data));
@@ -685,7 +717,7 @@ function viewGame(){
   h+=`<section class="block"><div class="row between"><h2 style="margin:0">Qui vient ?</h2><span class="muted" style="font-size:13px">${c.yes} oui · ${c.maybe} peut-être</span></div>`;
   if(!players.length)h+=`<div class="card empty">Personne n’a encore rejoint la table. Invite tes amis depuis l’onglet Joueurs.</div>`;
   else h+=`<div class="list">${players.map(([pid,p])=>{const r=seats[pid]?.rsvp;
-    const ok=canAnswer(pid);return `<div class="item">${avatar(pid)}<div class="grow ellipsis" style="font-weight:600">${esc(p.name)}${isMe(pid)?` <span class="pill planned">Toi</span>`:""}</div>
+    const ok=canAnswer(pid);return `<div class="item">${avatar(pid)}<div class="grow row" style="gap:6px;min-width:0"><span class="ellipsis" style="font-weight:600">${esc(p.name)}</span>${isMe(pid)?`<span class="pill planned" style="flex:none">Toi</span>`:""}</div>
     <div class="seg" role="group" aria-label="Réponse de ${esc(p.name)}">${[["yes","Oui"],["maybe","Peut-être"],["no","Non"]].map(([v,l])=>`<button data-act="rsvp" data-pid="${pid}" data-v="${v}" class="${r===v?"on":""}" ${ok?"":"disabled"} aria-pressed="${r===v}">${l}</button>`).join("")}</div></div>`}).join("")}</div>`;
   h+=`<div class="row wrap"><button class="btn small" data-act="copy-invite">Copier l’invitation</button></div></section>`;
   if(g.type==="board"){h+=scoresSection(g,w,dis)}else{
@@ -893,6 +925,10 @@ function throwDice(src){
   setTimeout(()=>{layer.classList.add("out");setTimeout(()=>{layer.remove();throwDice.busy=false},400)},reduce?900:1900);
 }
 /* ---------- effets & automatisations ---------- */
+document.addEventListener("pointerdown",e=>{const btn=e.target.closest("button,.btn,.qa,.kind,.pchip,.hub-card,.item,.live-btn,.wz-bl,.seat");if(!btn||btn.disabled||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;
+  const r=btn.getBoundingClientRect();const d=Math.max(r.width,r.height)*2;const sp=document.createElement("span");sp.className="ripple";sp.style.cssText=`width:${d}px;height:${d}px;left:${e.clientX-r.left-d/2}px;top:${e.clientY-r.top-d/2}px`;
+  if(btn.classList.contains("seat"))return;if(getComputedStyle(btn).position==="static")btn.style.position="relative";
+  const w=document.createElement("span");w.className="rip-wrap";w.appendChild(sp);btn.appendChild(w);setTimeout(()=>w.remove(),650)},{passive:true});
 function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||12)}catch(e){}}
 const REDUCE=()=>window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 function chipFly(fromEl,toEl,color){if(REDUCE()||!fromEl||!toEl)return;const a=fromEl.getBoundingClientRect(),b=toEl.getBoundingClientRect();
@@ -1192,7 +1228,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
     const sd=smartDefaults(kind);
     write("games",id,{title:sd.title,date:sd.date,time:sd.time,location:sd.location,type:sd.type,buyIn:sd.buyIn,gameName:sd.gameName,lowWins:sd.lowWins,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId,createdBy:S.me.id});
     S.tab="games";S.gameId=id;S.viewAnim="up";render(true);window.scrollTo(0,0);buzz(15);toast(sd.copied?"Partie préparée avec les réglages de la dernière fois ✓":"Partie créée : tout le groupe est invité");return}
-  if(act==="set-type"){const v=b.dataset.v;const roll=v==="board";setTimeout(()=>{if(roll)rollIcon(app.querySelector(".kind.j .dice-ic"))},0);updGame(g=>{const wasB=g.type==="board";g.type=v;if(v==="board"&&g.title==="Soirée poker")g.title="Soirée jeux";if(v!=="board"&&g.title==="Soirée jeux")g.title="Soirée poker";if(v==="board"&&!wasB&&n(g.buyIn)===20)g.buyIn=0;if(v!=="board"&&wasB&&!n(g.buyIn))g.buyIn=20});return}
+  if(act==="set-type"){const v=b.dataset.v;const roll=v==="board";setTimeout(()=>{if(roll)rollIcon(app.querySelector(".kind.j .dice-ic"))},0);updGame(g=>{const wasB=g.type==="board";g.type=v;if(v==="board"&&g.title==="Soirée poker")g.title="Soirée jeux";if(v!=="board"&&g.title==="Soirée jeux")g.title="Soirée poker";if(v==="board"&&!wasB)g.buyIn=0;if(v!=="board"&&wasB&&!n(g.buyIn))g.buyIn=20});return}
   if(act==="set-buy"){const v=n(b.dataset.v);updGame(g=>{g.buyIn=v});return}
   if(act==="seat-move"){if(!S.canWrite){toast("Lecture seule : seul l’organisateur peut modifier.");return}
     const gid=b.dataset.gid,pid=b.dataset.seat;const g=S.data.games[gid];if(!g)return;
