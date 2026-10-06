@@ -599,7 +599,7 @@ function tableHero(next){S.seatSel=null;
   h+=`<div class="oval">${seatHtml}<div class="center" data-act="${next.status==="live"&&!next.stoppedAt?"open-live":"open-game"}" data-id="${next.id}" role="button" tabindex="0">
       <span class="eyebrow">${esc(kindLabel(next))}</span><div class="t">${esc(next.title||"Soirée jeux")}</div><div class="d">${esc(longDate(next))}</div>${cdh}</div></div>
     <div class="table-meta"><div class="chips"><span class="chip"><i style="background:var(--gold)"></i><b id="cnt-yes" style="font-weight:inherit">${c.yes}</b>&nbsp;à table</span><span class="chip"><i style="background:var(--muted)"></i><b id="cnt-maybe" style="font-weight:inherit">${c.maybe}</b>&nbsp;peut-être</span></div>
-    <div class="chips">${next.location?`<span class="chip">${esc(next.location)}</span>`:""}${next.type!=="board"||n(next.buyIn)>0?`<span class="chip num">${money(n(next.buyIn))}${next.type==="board"?" / joueur":""}</span>`:""}</div></div>
+    <div class="chips">${next.location?`<span class="chip">${esc(next.location)}</span>`:""}${next.type!=="board"?`<span class="chip num">${money(n(next.buyIn))}</span>`:""}</div></div>
     ${S.me.id&&S.data.players[S.me.id]&&next.status!=="live"?`<div class="my-rsvp"><span class="eyebrow" style="color:var(--gold-2)">Tu viens ?</span><div class="seg">${[["yes","Oui"],["maybe","Peut-être"],["no","Non"]].map(([v,l])=>`<button data-act="rsvp-home" data-id="${next.id}" data-v="${v}" class="${seats[S.me.id]?.rsvp===v?"on":""}">${l}</button>`).join("")}</div></div>`:""}
     <div style="position:relative;margin-top:14px;display:flex;justify-content:center">${next.status==="planned"&&next.date&&next.date<=today()&&canDelete(next)?`<button class="btn primary" data-act="start-home" data-id="${next.id}">♠&#xFE0E; Lancer la partie</button><button class="btn small" data-act="open-game" data-id="${next.id}" style="margin-left:8px">Détails</button>`:`<button class="btn primary" data-act="${next.status==="live"&&!next.stoppedAt?"open-live":"open-game"}" data-id="${next.id}">${next.status==="live"?(next.stoppedAt?"Ouvrir la caisse":"Rejoindre la table"):"Voir la soirée"}</button>`}</div></div>`;
   return h;
@@ -641,10 +641,10 @@ function viewGame(){
   h+=`<section class="block"><div class="sec-title"><h2>Le jeu</h2></div>
     <div class="kinds">${[["cash","♠","Cash game","Poker","p"],["tournoi","♣","Tournoi","Poker","t"],["board","♦","Jeu de société","Catan, Skyjo…","j"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic">${s}&#xFE0E;</span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>
     ${isB?`<label class="field">Nom du jeu<input id="g-gname" data-g="gameName" value="${esc(g.gameName)}" ${dis} placeholder="Catan, Uno, Skyjo…" list="known-games"></label><datalist id="known-games">${["Catan","Uno","Skyjo","Tarot","Belote","Scrabble","Monopoly","Dixit","Codenames","7 Wonders","Les Aventuriers du Rail","Loup-Garou","Rami","Yams","Échecs",...new Set(Object.values(S.data.games).map(x=>x.gameName).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`:""}
-    <div class="stake card"><div class="row between"><span class="eyebrow">${isB?"Mise par joueur":"Buy-in"}</span><span class="stake-v num">${isB&&bi===0?"Sans argent":money(bi)}</span></div>
+    ${isB?"":`<div class="stake card"><div class="row between"><span class="eyebrow">Buy-in</span><span class="stake-v num">${isB&&bi===0?"Sans argent":money(bi)}</span></div>
       <div class="pchips">${presets.map(v=>`<button class="pchip ${bi===v?"on":""}" style="--c:${pc(v)}" data-act="set-buy" data-v="${v}" ${dis} aria-label="${v===0?"Sans argent":money(v)}"><span>${v===0?"0":v}</span></button>`).join("")}
         <label class="pcustom"><span class="eyebrow">Autre</span><input id="${isB?"g-stake":"g-buyin"}" type="number" inputmode="decimal" min="0" step="any" data-g="buyIn" value="${presets.includes(bi)?"":esc(bi)}" placeholder="${esc(cur())}" ${dis}></label></div>
-      ${isB?`<p class="muted" style="font-size:12px;margin:10px 0 0">Le gagnant remporte le pot. Choisis 0 pour jouer juste pour la gloire.</p>`:`<p class="muted" style="font-size:12px;margin:10px 0 0">Montant de chaque buy-in et de chaque recave.</p>`}</div>
+      ${isB?`<p class="muted" style="font-size:12px;margin:10px 0 0">Le gagnant remporte le pot. Choisis 0 pour jouer juste pour la gloire.</p>`:`<p class="muted" style="font-size:12px;margin:10px 0 0">Montant de chaque buy-in et de chaque recave.</p>`}</div>`}
     ${isB?`<label class="switch"><input id="g-low" type="checkbox" data-g="lowWins" ${g.lowWins?"checked":""} ${dis}><i aria-hidden="true"></i><span>Le plus petit score gagne <small class="muted">(Skyjo, golf…)</small></span></label>`:""}
   </section>
   `;
@@ -680,11 +680,11 @@ function viewGame(){
   return h;
 }
 
-function boardMoney(g){const stake=n(g.buyIn);if(stake<=0)return null;const sc=scoresOf(g);if(!sc.length||sc.some(r=>r.score==null))return{stake,pot:stake*sc.length,rs:null};
+function boardMoney(g){return null;const stake=n(g.buyIn);if(stake<=0)return null;const sc=scoresOf(g);if(!sc.length||sc.some(r=>r.score==null))return{stake,pot:stake*sc.length,rs:null};
   const w=winners(g),pot=stake*sc.length,share=pot/w.length;return{stake,pot,rs:sc.map(r=>({pid:r.pid,net:(w.includes(r.pid)?share:0)-stake}))}}
 function scoresSection(g,w,dis){
   let h=`<section class="block"><h2 style="margin:0">Scores</h2>`;
-  if(g.status==="planned"||!g.status)return h+`<div class="card"><p class="muted" style="margin:0 0 12px">Quand tout le monde est à table, lance la partie pour noter les scores.${n(g.buyIn)>0?` Le gagnant remporte le pot (${money(n(g.buyIn))} par joueur), partagé en cas d’égalité.`:""}</p>${w?`<button class="btn primary" data-act="start">Lancer la partie</button>`:""}</div></section>`;
+  if(g.status==="planned"||!g.status)return h+`<div class="card"><p class="muted" style="margin:0 0 12px">Quand tout le monde est à table, lance la partie pour noter les scores.</p>${w?`<button class="btn primary" data-act="start">Lancer la partie</button>`:""}</div></section>`;
   const sc=scoresOf(g),win=winners(g),filled=sc.filter(r=>r.score!=null).length;
   const order=[...sc].sort((a,b)=>a.score==null?1:b.score==null?-1:g.lowWins?a.score-b.score:b.score-a.score);
   h+=`<div class="list">${order.map(r=>`<div class="item">${avatar(r.pid)}<div class="grow" style="min-width:0"><div class="ellipsis" style="font-weight:600">${esc(pname(r.pid))}</div>${win.includes(r.pid)&&filled===sc.length?`<div style="font-size:12px;font-weight:700;color:var(--gold)">${win.length>1?"Ex æquo":"Vainqueur"}</div>`:""}</div>
@@ -1066,7 +1066,7 @@ document.querySelector("nav.tabs").addEventListener("click",e=>{const b=e.target
 
 function updGame(fn){const g=clone(S.data.games[S.gameId]);g.seats=g.seats||{};fn(g);write("games",S.gameId,g)}
 function inviteText(g){const c=rsvpCounts(g);const yes=Object.entries(seatsOf(g)).filter(([p,s])=>s.rsvp==="yes").map(([p])=>pname(p));
-  return `${g.title||"Soirée jeux"}\n${longDate(g)}${g.location?"\n"+g.location:""}\n${kindLabel(g)}${g.type==="board"?(n(g.buyIn)>0?", mise "+money(n(g.buyIn))+" par joueur":""):", buy-in "+money(n(g.buyIn))}${g.notes?"\n"+g.notes:""}\n\nConfirmés (${c.yes}) : ${yes.join(", ")||"personne pour l’instant"}\nTu viens ?`}
+  return `${g.title||"Soirée jeux"}\n${longDate(g)}${g.location?"\n"+g.location:""}\n${kindLabel(g)}${g.type==="board"?"":", buy-in "+money(n(g.buyIn))}${g.notes?"\n"+g.notes:""}\n\nConfirmés (${c.yes}) : ${yes.join(", ")||"personne pour l’instant"}\nTu viens ?`}
 function resultsText(g){if(g.type==="board"){const sc=scoresOf(g).sort((a,b)=>g.lowWins?a.score-b.score:b.score-a.score);const w=winners(g);
   return `${g.title||"Soirée jeux"} · ${g.gameName||"Jeu"} — ${longDate(g)}\n\n${sc.map((r,i)=>`${i+1}. ${pname(r.pid)} : ${r.score}`).join("\n")}\n\nVictoire : ${w.map(pname).join(", ")}${(()=>{const bm=boardMoney(g);if(!bm||!bm.rs)return"";const t=settle(bm.rs);return `\n\nMise ${money(bm.stake)} · pot ${money(bm.pot)}\nÀ régler :\n${t.map(x=>`${pname(x.from)} → ${pname(x.to)} : ${money(x.v)}`).join("\n")||"rien"}`})()}`}const rs=results(g).sort((a,b)=>b.net-a.net);const t=settle(rs);
   return `${g.title||"Soirée jeux"} — ${longDate(g)}\n\nRésultats :\n${rs.map((r,i)=>`${i+1}. ${pname(r.pid)} : ${money(r.net,true)}`).join("\n")}\n\nÀ régler :\n${t.map(x=>`${pname(x.from)} → ${pname(x.to)} : ${money(x.v)}`).join("\n")||"rien"}`}
