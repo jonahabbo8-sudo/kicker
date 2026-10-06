@@ -64,7 +64,7 @@ nav.tabs button.on::before{display:none}
 <title>Kicker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wdth,wght@62.5..100,600..900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wdth,wght@62.5..100,600..900&family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,800;1,900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
 /* Kicker — salon privé : nuit profonde, feutre émeraude, velours bordeaux, laiton */
 :root{
@@ -596,6 +596,79 @@ button.chipstack{padding:0;border:0;background:none;cursor:pointer;-webkit-tap-h
 @keyframes chipC{0%{translate:0 -110px;rotate:-90deg;opacity:0}50%{opacity:1}100%{translate:0 0;rotate:0deg;opacity:1}}
 @keyframes stackLand{0%{translate:0 0}40%{translate:0 3px}100%{translate:0 0}}
 @keyframes rise{from{transform:translateY(6px)}to{transform:none}}
+
+/* =====================================================================
+   THÈME HYBRIDE : casino (bordeaux, feutre, or) × appli sport (bandeaux,
+   titres très gras, boutons type « cotes », icônes rondes)
+   ===================================================================== */
+:root{
+  --bg:#0A1226; --bg-2:#0E1830; --surface:#121D38; --surface-2:#18264A; --surface-3:#21325E;
+  --ink:#EEF2FA; --muted:#93A0BD; --line:rgba(170,190,235,.14);
+  --blue:#1E5BE0; --blue-2:#3B78F2; --red:#E3173E;
+  --f-display:"Montserrat",system-ui,sans-serif; --f-body:"Montserrat",system-ui,sans-serif;
+}
+body{background:radial-gradient(120% 50% at 50% -10%,rgba(30,91,224,.28),transparent 60%),radial-gradient(90% 40% at 100% 40%,rgba(91,26,42,.35),transparent 60%),var(--bg)!important;background-attachment:fixed!important}
+body::before{opacity:.18}
+h1,h2,h3{font-family:var(--f-display)!important;font-weight:900!important;font-stretch:normal!important;letter-spacing:-.01em}
+h1{font-size:26px;text-transform:uppercase;font-style:italic;background:linear-gradient(180deg,#fff,#D9E3F8);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{text-transform:uppercase;font-size:14.5px;letter-spacing:.03em}
+.num{font-weight:800}
+/* bandeau bleu en haut */
+.brand{margin:-18px -16px 16px;padding:calc(14px + env(safe-area-inset-top,0px)) 16px 14px;background:linear-gradient(100deg,#0A2A78 0%,#1652D9 75%,#2E6BF0 100%);box-shadow:0 10px 24px -12px rgba(10,42,120,.8);border-bottom:2px solid rgba(210,172,103,.6)}
+.brand .name,.hub-name,.join .name{font-family:var(--f-display)!important;font-weight:900!important;font-style:italic;text-transform:uppercase;letter-spacing:.02em!important;background:linear-gradient(180deg,#FFF3D1,#E7C888 55%,#B98F4C)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;text-shadow:none!important}
+.brand .name{font-size:27px!important}
+.grp-switch{background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.3)!important;color:#fff!important}
+.bell{background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.3)!important;color:#fff!important}
+.top{margin:-18px -16px 16px;padding:calc(16px + env(safe-area-inset-top,0px)) 16px 16px;background:linear-gradient(100deg,#0A2A78,#1652D9);border-bottom:2px solid rgba(210,172,103,.6)}
+.top .eyebrow{color:rgba(255,255,255,.75)!important}
+.top .btn{background:rgba(255,255,255,.16)!important;border-color:rgba(255,255,255,.3)!important;color:#fff!important}
+/* titres de section : barre dorée façon appli sport */
+.sec-title h2::before,section.block>h2::before,section.block>.row>h2::before{width:4px!important;height:16px!important;transform:none!important;border-radius:2px;background:linear-gradient(180deg,var(--gold-2),var(--gold))!important}
+/* cartes */
+.card,.list,.stat,.qa,.kind,.stake,.notes,.inv-sheet .inv{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0) 40%),var(--surface)!important;border:1px solid var(--line)!important;border-radius:16px!important}
+/* bandeau rouge sur la table */
+.table-wrap{padding-top:52px!important}
+.table-wrap>.marquee:not(.bot){top:40px}
+.table-wrap::after{content:"PROCHAINE PARTIE";position:absolute;inset:0 0 auto 0;height:32px;display:flex;align-items:center;gap:8px;padding:0 16px;background:linear-gradient(90deg,#E3173E,#F0365A);color:#fff;font-family:var(--f-display);font-weight:900;font-size:12px;letter-spacing:.1em;z-index:2}
+.live-table::after{content:"● EN DIRECT"}
+.oval .center .t{font-family:var(--f-display)!important;font-weight:900!important;font-stretch:normal!important;text-transform:uppercase;font-size:clamp(14px,4vw,18px)!important}
+/* boutons « cotes » */
+.seg{background:transparent!important;border:0!important;gap:6px;padding:0!important}
+.seg button{background:var(--surface-3)!important;color:#C9D5EE!important;border-radius:8px!important;font-weight:800;padding:9px 11px!important}
+.seg button.on[data-v="yes"]{background:linear-gradient(180deg,#F1D79E,#C9A25B)!important;color:#1B1307!important}
+.seg button.on[data-v="maybe"]{background:var(--blue)!important;color:#fff!important;box-shadow:none!important}
+.seg button.on[data-v="no"]{background:var(--red)!important;color:#fff!important}
+@media (max-width:420px){.seg button{padding:8px 8px!important;font-size:12px}}
+/* icônes rondes façon catégories */
+.qa{align-items:center!important;text-align:center!important;min-height:auto!important;padding:16px 10px!important}
+.qa .ic,.kind .ic{width:52px!important;height:52px!important;border-radius:50%!important;font-size:24px;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.18),rgba(255,255,255,.03))!important;border:2px solid rgba(210,172,103,.45)!important;box-shadow:0 6px 14px -6px rgba(0,0,0,.7)}
+.qa b,.kind b{text-transform:uppercase;font-weight:900;font-size:13px!important;letter-spacing:.02em}
+.kind{align-items:center!important;text-align:center!important}
+.kind.on{border:2px solid var(--gold)!important;background:linear-gradient(180deg,rgba(210,172,103,.14),transparent),var(--surface)!important}
+/* boutons */
+.btn{font-weight:800;border-radius:12px!important}
+.btn:not(.primary):not(.danger):not(.danger-solid){background:var(--surface-3)!important;color:#DCE5F8!important;border:1px solid var(--line)!important}
+/* en-têtes bleus pour la fiche et le profil */
+.ticket{background:linear-gradient(120deg,#0A2A78,#1652D9)!important;border:0!important;border-bottom:3px solid var(--gold)!important}
+.ticket::before{display:none}
+.ticket-title{font-family:var(--f-display)!important;font-weight:900!important;text-transform:uppercase;font-style:italic;font-stretch:normal!important}
+.ticket .tf{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.22)!important}
+.me-card{background:linear-gradient(120deg,#0A2A78,#1652D9)!important;border:0!important;border-bottom:3px solid var(--gold)!important}
+.hub-hero{background:linear-gradient(120deg,#0A2A78,#1652D9);margin:-18px -16px 0;padding:calc(30px + env(safe-area-inset-top,0px)) 16px 26px!important;border-radius:0 0 28px 28px;border-bottom:3px solid var(--gold)}
+.hub-glow{display:none}
+.hub-card.create{background:linear-gradient(120deg,#8C1530,#E3173E)!important}
+.hub-card.rejoin{background:linear-gradient(120deg,#0E5A3B,#1E9A63)!important}
+.inv-pop,.inv-sheet{border-top:5px solid var(--red)!important}
+.inv-badge{background:var(--red)!important;color:#fff!important}
+.live-title,.cel-name,.inv-title{font-family:var(--f-display)!important;font-weight:900!important;font-stretch:normal!important;text-transform:uppercase}
+.live-clock span{font-family:var(--f-display)!important;font-weight:900}
+.date-tile b{font-family:var(--f-display)!important;font-weight:900}
+.pill.live{background:var(--red)}
+/* navigation : verre sombre, onglet actif bleu */
+nav.tabs{background:rgba(14,22,46,.85)!important;border-color:rgba(30,91,224,.35)!important}
+nav.tabs button.on{background:linear-gradient(180deg,#2E6BF0,#1652D9)!important;color:#fff!important;box-shadow:0 6px 14px -6px rgba(22,82,217,.8),inset 0 -2px 0 rgba(210,172,103,.8)!important}
+.ticket-title{font-size:23px!important;text-transform:none!important}
+.top h1{background:none!important;color:#fff!important;-webkit-background-clip:initial!important;background-clip:initial!important}
 </style>
 
 </head>
