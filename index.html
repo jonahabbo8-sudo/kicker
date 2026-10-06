@@ -314,6 +314,7 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .hub-empty-cards i:first-child{color:#16181C;transform:rotate(-10deg) translateX(6px)}
 .hub-empty-cards i:last-child{color:#B3202A;transform:rotate(8deg) translateX(-6px)}
 .quick.two{grid-template-columns:1fr 1fr}
+.kinds.two{grid-template-columns:1fr 1fr}
 /* Boutons & finitions */
 button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .rip-wrap{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0}
@@ -341,6 +342,40 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
 .savebadge.saving::before{background:var(--gold);animation:blinkP 1s steps(2) infinite}
 .savebadge.saved{color:var(--win)}.savebadge.saved::before{background:var(--win)}
 .savebadge.error{color:var(--loss)}.savebadge.error::before{background:var(--loss)}
+/* Animations v2 */
+@media (prefers-reduced-motion:no-preference){
+  #app.view-left>*:not(.inv-layer){animation:viewLeft .34s cubic-bezier(.2,.8,.3,1) both}
+  #app.view-right>*:not(.inv-layer){animation:viewRight .34s cubic-bezier(.2,.8,.3,1) both}
+  .stag{animation:stagIn .45s cubic-bezier(.2,.9,.3,1.1) both;animation-delay:calc(var(--i,0) * 45ms + 80ms)}
+  .pchip.stag{animation-name:chipRoll}
+  .sec-title::after{transform-origin:left;animation:lineDraw .7s .15s cubic-bezier(.2,.8,.3,1) both}
+  .toast.in{animation:toastIn .38s cubic-bezier(.2,1.4,.4,1) both}
+  .toast.out{animation:toastOut .26s ease forwards}
+  .inv-layer{animation:fadeIn .25s ease both}
+  .inv-pop,.inv-sheet{animation:invIn .45s cubic-bezier(.2,1.25,.4,1) both}
+  .seat.pulse .avatar{animation:seatPulse .6s ease}
+  .oval{position:relative}
+  .oval::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.07) 45%,transparent 60%);background-size:250% 100%;animation:feltSheen 7s ease-in-out infinite;pointer-events:none}
+  .bell b{animation:bellBadge 2.4s ease-in-out infinite}
+  .pill.live{animation:livePulse 1.8s ease-in-out infinite}
+  .count b{display:inline-block}
+  .hub-card .ic,.qa .ic{transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+  .hub-card:active .ic,.qa:active .ic{transform:rotate(-12deg) scale(1.12)}
+  .avatar{transition:transform .2s}
+  .item:active .avatar{transform:scale(.9)}
+}
+@keyframes viewLeft{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+@keyframes viewRight{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes stagIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes chipRoll{from{opacity:0;transform:translateX(-40px) rotate(-200deg)}to{opacity:1;transform:none}}
+@keyframes lineDraw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes toastOut{to{opacity:0;transform:translate(-50%,12px) scale(.96)}}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes seatPulse{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes feltSheen{0%,100%{background-position:120% 0}50%{background-position:-20% 0}}
+@keyframes bellBadge{0%,80%,100%{transform:scale(1)}88%{transform:scale(1.25)}}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(192,65,58,.6)}50%{box-shadow:0 0 0 6px rgba(192,65,58,0)}}
 /* Effets */
 @media (prefers-reduced-motion:no-preference){
   #app.view-in>*:not(.inv-layer){animation:viewIn .32s ease both}
@@ -546,7 +581,7 @@ function longDate(g){if(!g.date)return"Date à fixer";const dt=new Date(g.date+"
   let s=dt.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});s=s.charAt(0).toUpperCase()+s.slice(1);
   return g.time?s+" · "+g.time.replace(":","h"):s}
 const today=()=>new Date().toISOString().slice(0,10);
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2400)}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.hidden=false;t.classList.remove("out","in");void t.offsetWidth;t.classList.add("in");clearTimeout(toast._t);clearTimeout(toast._h);toast._t=setTimeout(()=>{t.classList.add("out");toast._h=setTimeout(()=>t.hidden=true,260)},2400)}
 async function copy(text){try{await navigator.clipboard.writeText(text);toast("Copié — colle-le dans ton groupe")}catch(e){
   S.copyFallback=text;render(true);}}
 
@@ -703,7 +738,7 @@ function viewGame(){
       <label class="tf full"><span>Lieu</span><input id="g-loc" data-g="location" value="${esc(g.location)}" ${dis} placeholder="Chez qui ?"></label>
     </div></div>`;
   h+=`<section class="block"><div class="sec-title"><h2>Le jeu</h2></div>
-    <div class="kinds">${[["cash","♠","Cash game","Poker","p"],["tournoi","♣","Tournoi","Poker","t"],["board","♦","Jeu de société","Catan, Skyjo…","j"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic">${s}&#xFE0E;</span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>
+    ${isB?"":`<div class="kinds two">${[["cash","♠","Cash game","Recaves libres","p"],["tournoi","♣","Tournoi","Blindes qui montent","t"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic">${s}&#xFE0E;</span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>`}
     ${isB?`<label class="field">Nom du jeu<input id="g-gname" data-g="gameName" value="${esc(g.gameName)}" ${dis} placeholder="Catan, Uno, Skyjo…" list="known-games"></label><datalist id="known-games">${["Catan","Uno","Skyjo","Tarot","Belote","Scrabble","Monopoly","Dixit","Codenames","7 Wonders","Les Aventuriers du Rail","Loup-Garou","Rami","Yams","Échecs",...new Set(Object.values(S.data.games).map(x=>x.gameName).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`:""}
     ${isB?"":`<div class="stake card"><div class="row between"><span class="eyebrow">Buy-in</span><span class="stake-v num">${isB&&bi===0?"Sans argent":money(bi)}</span></div>
       <div class="pchips">${presets.map(v=>`<button class="pchip ${bi===v?"on":""}" style="--c:${pc(v)}" data-act="set-buy" data-v="${v}" ${dis} aria-label="${v===0?"Sans argent":money(v)}"><span>${v===0?"0":v}</span></button>`).join("")}
@@ -1156,7 +1191,8 @@ function render(force){
 
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));
   window.scrollTo(0,y);
-  if(changed&&!REDUCE()){app.classList.remove("view-in","view-up");void app.offsetWidth;app.classList.add(S.viewAnim==="up"||vkey.startsWith("live")?"view-up":"view-in");S.viewAnim=null;
+  if(changed&&!REDUCE()){app.classList.remove("view-in","view-up","view-left","view-right");void app.offsetWidth;app.classList.add(S.viewAnim==="up"||vkey.startsWith("live")?"view-up":S.tabDir?"view-"+S.tabDir:"view-in");S.viewAnim=null;S.tabDir=null;
+    let k=0;app.querySelectorAll(".list>.item,.list>.row-wrap,.qa,.kind,.hub-card,.pchip,.stat,.inv-sheet .inv,.cel-line,.stack-in").forEach(el=>{el.style.setProperty("--i",k++);el.classList.add("stag")});
     if(vkey.startsWith("live"))app.querySelectorAll(".oval .seat").forEach((el,i)=>{el.style.animationDelay=(120+i*90)+"ms";el.classList.add("deal")})}
   if(S.auth==="ok"&&!app.classList.contains("settled"))setTimeout(()=>app.classList.add("settled"),700);
 }
@@ -1164,6 +1200,7 @@ app.addEventListener("focusout",()=>{if(needsRender)setTimeout(()=>{if(needsRend
 
 /* ---------- events ---------- */
 document.querySelector("nav.tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;
+  const order=["games","board","players"];S.tabDir=order.indexOf(b.dataset.tab)>=order.indexOf(S.tab)?"right":"left";buzz(6);
   if(S.tab===b.dataset.tab&&S.gameId)S.gameId=null;S.tab=b.dataset.tab;S.confirm=null;S.copyFallback=null;render(true);window.scrollTo(0,0)});
 
 function updGame(fn){const g=clone(S.data.games[S.gameId]);g.seats=g.seats||{};fn(g);write("games",S.gameId,g)}
@@ -1248,7 +1285,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
     const g=clone(S.data.games[gid]);g.seats=g.seats||{};g.seats[S.me.id]=Object.assign({},g.seats[S.me.id],{rsvp:v});
     write("games",gid,g,true);
     b.parentElement.querySelectorAll("button").forEach(x=>{const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on)});
-    const seat=app.querySelector(`[data-seat="${S.me.id}"]`);if(seat)seat.className="seat "+v;
+    const seat=app.querySelector(`[data-seat="${S.me.id}"]`);if(seat){seat.className="seat "+v;void seat.offsetWidth;seat.classList.add("pulse")}
     const c=rsvpCounts(g);const cy=document.getElementById("cnt-yes"),cm=document.getElementById("cnt-maybe");if(cy)cy.textContent=c.yes;if(cm)cm.textContent=c.maybe;
     return}
   if(act==="rsvp"){const pid=b.dataset.pid,v=b.dataset.v;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{rsvp:v})});return}
