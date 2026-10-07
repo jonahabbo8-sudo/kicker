@@ -824,7 +824,7 @@ nav.tabs button.on svg{color:#fff}
 /* barres de titre dorées */
 .sec-title h2::before,section.block>h2::before,section.block>.row>h2::before{background:linear-gradient(180deg,#E7C888,#B98F4C)!important}
 /* table : retour du cadre velours bordeaux et des ampoules */
-.table-wrap{background:linear-gradient(180deg,#5B1A2A,#3A1019)!important;border:0!important;box-shadow:0 10px 26px -12px rgba(58,16,25,.7)!important;padding-top:56px!important}
+.table-wrap{background:linear-gradient(180deg,#5B1A2A,#3A1019)!important;border:0!important;box-shadow:0 10px 26px -12px rgba(58,16,25,.7)!important;padding-top:48px!important}
 .table-wrap>.marquee{display:flex!important}
 .table-wrap>.marquee:not(.bot){top:42px}
 .oval{box-shadow:0 0 0 7px #2A1A10,0 0 0 9px #B98F4C,0 0 0 11px #1A0F09,0 14px 30px -10px rgba(0,0,0,.7),inset 0 0 40px rgba(0,0,0,.4)!important}
@@ -934,7 +934,7 @@ nav.tabs{border-color:#E2C88E!important}
 .table-wrap::before{content:""!important;position:absolute;inset:-3px!important;height:auto!important;border-radius:inherit;padding:3px!important;background:conic-gradient(from var(--ang),#D2AC67,#1652D9,#E3173E,#D2AC67)!important;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:-1;pointer-events:none;display:block!important}
 @media (prefers-reduced-motion:no-preference){.table-wrap::before{animation:spinBorder 6s linear infinite}}
 @keyframes spinBorder{to{--ang:360deg}}
-.table-wrap::after{content:"●  PROCHAINE PARTIE";position:absolute;left:0;top:0;right:28%;height:34px;display:flex;align-items:center;padding:0 16px;background:linear-gradient(90deg,#E3173E,#F0365A);color:#fff;font-family:var(--f-display);font-weight:900;font-size:12.5px;letter-spacing:.08em;z-index:3;clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%);border-top-left-radius:inherit}
+.table-wrap::after{content:"●  PROCHAINE PARTIE";position:absolute;left:0;top:0;right:40%;height:28px;display:flex;align-items:center;padding:0 13px;background:linear-gradient(90deg,#E3173E,#F0365A);color:#fff;font-family:var(--f-display);font-weight:900;font-size:10.5px;letter-spacing:.07em;z-index:3;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);border-top-left-radius:inherit}
 .live-table::after{content:"●  EN DIRECT"}
 @media (prefers-reduced-motion:no-preference){.table-wrap::after{animation:bannerIn .6s cubic-bezier(.2,1.2,.4,1) both}}
 @keyframes bannerIn{from{transform:translateX(-40px);opacity:0}}
