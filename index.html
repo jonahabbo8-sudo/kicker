@@ -822,10 +822,118 @@ nav.tabs button.on svg{color:#fff}
 .pchip.on{box-shadow:0 4px 0 rgba(0,0,0,.25),0 0 0 3px #fff,0 0 0 5px #C9A25B!important}
 .kind.on{border-color:#C9A25B!important;box-shadow:0 0 0 3px rgba(201,162,91,.18)!important}
 nav.tabs button.on{box-shadow:0 4px 12px -4px rgba(22,82,217,.6),inset 0 -2px 0 #E7C888!important}
+
+/* ===== 65 % sport / 35 % casino ===== */
+/* blocs d'en-tête en velours bordeaux + or (au lieu du bleu) */
+.ticket,.me-card,.mini-clock,.clock{background:linear-gradient(135deg,#6A1E31 0%,#4A1220 55%,#2E0A14 100%)!important;border:0!important;border-bottom:3px solid #D2AC67!important;box-shadow:0 10px 24px -12px rgba(58,16,25,.7)!important}
+.ticket{position:relative}
+.ticket>.marquee{display:flex!important;top:10px}
+.ticket{padding-top:30px!important}
+.ticket-kind{color:#F0D69C!important}
+.ticket .tf{background:rgba(0,0,0,.22)!important;border-color:rgba(240,214,156,.28)!important}
+.ticket .tf span{color:rgba(240,214,156,.85)!important}
+.me-card .stat{background:rgba(0,0,0,.22)!important;border-color:rgba(240,214,156,.25)!important}
+.me-card .avatar{box-shadow:0 0 0 2px #4A1220,0 0 0 4px #D2AC67!important}
+.mini-clock .time,.clock .time{color:#F0D69C!important}
+/* boutons principaux : or métallique (casino) */
+.btn.primary{background:linear-gradient(180deg,#F3DDA6 0%,#D9B571 45%,#B38D4B 100%)!important;color:#1B1307!important;border:1px solid #E9CF94!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 6px 16px -6px rgba(179,141,75,.7)!important}
+.live-btn.resume{background:linear-gradient(180deg,#F3DDA6,#C9A25B)!important;color:#1B1307!important}
+/* « Oui » doré, comme une mise gagnante */
+.seg button.on[data-v="yes"]{background:linear-gradient(180deg,#F3DDA6,#C9A25B)!important;color:#1B1307!important}
+.table-wrap .seg button.on[data-v="yes"]{background:linear-gradient(180deg,#F3DDA6,#C9A25B)!important;color:#1B1307!important}
+/* icônes rondes cerclées d'or */
+.qa .ic,.kind .ic{border-color:#E2C88E!important}
+/* cartes de l'écran des groupes : velours */
+.hub-card.create{background:linear-gradient(120deg,#5B1A2A,#A3203B)!important;border-bottom:3px solid #D2AC67!important}
+.hub-card.rejoin{background:linear-gradient(120deg,#0E4A37,#178054)!important;border-bottom:3px solid #D2AC67!important}
+/* fenêtres : liseré doré sous le rouge */
+.inv-pop,.inv-sheet{box-shadow:0 0 0 1px #E2C88E,0 30px 60px -20px rgba(10,20,45,.6)!important}
+/* date des soirées : jeton */
+.date-tile{border:2px dashed rgba(201,162,91,.55)!important}
+/* barre du bas : onglet actif bleu avec reflet or */
+nav.tabs{border-color:#E2C88E!important}
+
+/* =====================================================================
+   DESIGN ENRICHI : formes (biseaux, losanges, étiquettes inclinées,
+   bords de ticket), décor animé — mêmes couleurs, même police
+   ===================================================================== */
+/* décor : symboles qui flottent en fond */
+.suit-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.suit-sky span{position:absolute;bottom:-60px;font-size:var(--s,28px);color:var(--c,#1652D9);opacity:.07;animation:floatUp var(--d,22s) linear infinite;animation-delay:var(--dl,0s)}
+@keyframes floatUp{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(-120vh) rotate(var(--r,180deg))}}
+#app{position:relative;z-index:1}
+
+/* bandeau bleu : bord inférieur en biais + reflet qui passe */
+.brand,.top{clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),0 100%);padding-bottom:26px!important;position:relative;overflow:hidden}
+.brand::after,.top::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.18) 45%,transparent 60%);background-size:250% 100%;animation:bandShine 6s ease-in-out infinite;pointer-events:none}
+.brand::before,.top::before{content:"♠ ♥ ♦ ♣ ♠ ♥ ♦ ♣ ♠ ♥ ♦ ♣ ♠ ♥ ♦ ♣ ♠ ♥ ♦ ♣";position:absolute;right:-20px;top:50%;transform:translateY(-50%) rotate(-8deg);font-size:46px;letter-spacing:10px;white-space:nowrap;color:#fff;opacity:.06;pointer-events:none}
+@keyframes bandShine{0%,100%{background-position:130% 0}50%{background-position:-30% 0}}
+.hub-hero{clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),50% 100%,0 calc(100% - 22px));border-radius:0!important;padding-bottom:44px!important}
+
+/* titres de section : étiquette inclinée */
+.sec-title h2,section.block>h2,section.block>.row>h2{position:relative;padding:6px 16px 6px 12px;margin-left:4px!important;color:#fff!important;background:linear-gradient(100deg,#0A2A78,#1652D9);transform:skewX(-12deg);border-radius:4px;box-shadow:3px 3px 0 #D2AC67;font-size:13px!important}
+.sec-title h2>*,section.block>h2>*{transform:skewX(12deg)}
+.sec-title h2::before,section.block>h2::before,section.block>.row>h2::before{display:none!important}
+@media (prefers-reduced-motion:no-preference){.sec-title h2,section.block>h2,section.block>.row>h2{animation:tagIn .5s cubic-bezier(.2,1.3,.4,1) both}}
+@keyframes tagIn{from{transform:skewX(-12deg) translateX(-30px);opacity:0}to{transform:skewX(-12deg);opacity:1}}
+.sec-title::after{height:2px!important;background:repeating-linear-gradient(90deg,#C9D6EE 0 8px,transparent 8px 14px)!important;transform:none!important;animation:none!important}
+
+/* cartes à coins biseautés */
+.qa,.kind,.stake,.stat,.wz-bl{clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);border-radius:4px!important;box-shadow:none!important;border:1.5px solid #D5DFEF!important}
+.qa,.kind{position:relative;overflow:hidden}
+.qa::after,.kind::after{content:"";position:absolute;right:0;bottom:0;width:22px;height:22px;background:linear-gradient(135deg,transparent 50%,#D2AC67 50%)}
+.kind.on::after{background:linear-gradient(135deg,transparent 50%,#1652D9 50%)}
+
+/* icônes : losanges (cartes à jouer) */
+.qa .ic,.kind .ic{border-radius:10px!important;transform:rotate(45deg);width:46px!important;height:46px!important;margin:6px auto 4px}
+.qa .ic>*,.kind .ic>*{transform:rotate(-45deg)}
+.qa .ic:not(.dice-ic),.kind .ic:not(.dice-ic){font-size:0}
+.qa .ic:not(.dice-ic)::before,.kind .ic:not(.dice-ic)::before{content:attr(data-s);font-size:22px;transform:rotate(-45deg);display:block}
+.dice-ic .mdie{transform:rotate(-45deg)!important}
+@media (prefers-reduced-motion:no-preference){.qa .ic,.kind .ic{animation:bob 3.2s ease-in-out infinite}.qa:nth-child(2) .ic{animation-delay:-1.6s}}
+@keyframes bob{0%,100%{transform:rotate(45deg) translateY(0)}50%{transform:rotate(45deg) translate(-3px,-3px)}}
+
+/* listes : bord de ticket perforé à gauche */
+.list{position:relative;border-left:0!important}
+.list::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:radial-gradient(circle at 0 50%,var(--bg) 4px,transparent 4.5px) 0 0/6px 16px repeat-y,linear-gradient(180deg,#1652D9,#0A2A78);z-index:1}
+.list .item,.list .row-wrap{padding-left:18px}
+
+/* dates : petites cartes à jouer */
+.date-tile{border:0!important;border-radius:6px!important;background:#fff!important;box-shadow:0 2px 6px rgba(14,40,96,.18),inset 0 0 0 1.5px #D5DFEF!important;position:relative;transform:rotate(-4deg)}
+.date-tile::after{content:"♠";position:absolute;top:1px;left:4px;font-size:9px;color:#0B1D45}
+.date-tile.k-board::after{content:"♦";color:#1652D9}
+.date-tile.k-poker::after{content:"♥";color:#E3173E}
+@media (prefers-reduced-motion:no-preference){.item:hover .date-tile,.item:active .date-tile{transform:rotate(3deg) scale(1.06);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}}
+
+/* pastilles inclinées */
+.pill,.chip{border-radius:4px!important;transform:skewX(-10deg)}
+.pill>*,.chip>*{transform:skewX(10deg)}
+
+/* table : cadre au contour animé or/bleu/rouge + bandeau incliné */
+@property --ang{syntax:"<angle>";initial-value:0deg;inherits:false}
+.table-wrap{position:relative;isolation:isolate}
+.table-wrap::before{content:""!important;position:absolute;inset:-3px!important;height:auto!important;border-radius:inherit;padding:3px!important;background:conic-gradient(from var(--ang),#D2AC67,#1652D9,#E3173E,#D2AC67)!important;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;z-index:-1;pointer-events:none;display:block!important}
+@media (prefers-reduced-motion:no-preference){.table-wrap::before{animation:spinBorder 6s linear infinite}}
+@keyframes spinBorder{to{--ang:360deg}}
+.table-wrap::after{content:"●  PROCHAINE PARTIE";position:absolute;left:0;top:0;right:28%;height:34px;display:flex;align-items:center;padding:0 16px;background:linear-gradient(90deg,#E3173E,#F0365A);color:#fff;font-family:var(--f-display);font-weight:900;font-size:12.5px;letter-spacing:.08em;z-index:3;clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,0 100%);border-top-left-radius:inherit}
+.live-table::after{content:"●  EN DIRECT"}
+@media (prefers-reduced-motion:no-preference){.table-wrap::after{animation:bannerIn .6s cubic-bezier(.2,1.2,.4,1) both}}
+@keyframes bannerIn{from{transform:translateX(-40px);opacity:0}}
+/* boutons principaux : forme biseautée */
+.btn.primary{clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);border-radius:3px!important}
+
+/* barre du bas : indicateur losange */
+nav.tabs button.on::after{content:"";position:absolute;bottom:-3px;left:50%;width:8px;height:8px;background:#D2AC67;transform:translateX(-50%) rotate(45deg);border-radius:2px}
+nav.tabs button{position:relative}
+
+/* avatars de la liste : cadre doré qui tourne au toucher */
+@media (prefers-reduced-motion:no-preference){.item:active .avatar{transform:rotate(-10deg) scale(.92)}}
+.sec-title h2,section.block>h2,section.block>.row>h2{width:fit-content;max-width:100%;align-self:flex-start;flex:none}
 </style>
 
 </head>
 <body>
+<div class="suit-sky" aria-hidden="true"><span style="left:6%;--s:26px;--d:24s;--dl:-3s;--r:160deg;--c:#1652D9">♠</span><span style="left:22%;--s:40px;--d:30s;--dl:-12s;--r:-200deg;--c:#E3173E">♥</span><span style="left:41%;--s:22px;--d:20s;--dl:-7s;--r:220deg;--c:#D2AC67">♦</span><span style="left:58%;--s:34px;--d:27s;--dl:-18s;--r:-150deg;--c:#1652D9">♣</span><span style="left:74%;--s:28px;--d:23s;--dl:-1s;--r:190deg;--c:#E3173E">♦</span><span style="left:88%;--s:44px;--d:32s;--dl:-22s;--r:-220deg;--c:#D2AC67">♠</span><span style="left:33%;--s:18px;--d:19s;--dl:-14s;--r:140deg;--c:#1652D9">♥</span><span style="left:65%;--s:20px;--d:21s;--dl:-9s;--r:-170deg;--c:#0A2A78">♣</span></div>
 <div id="app"></div>
 <nav class="tabs" aria-label="Navigation"><div class="in">
   <button data-tab="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Soirées</button>
@@ -991,7 +1099,7 @@ function viewGames(){
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
   h+=tableHero(next);
   if(S.canWrite)h+=`<div class="quick two rise d2">
-    <button class="qa p" data-act="new-game" data-kind="cash"><span class="ic">♠&#xFE0E;</span><b>Soirée poker</b><small>Cash game ou tournoi</small></button>
+    <button class="qa p" data-act="new-game" data-kind="cash"><span class="ic" data-s="♠"><i>♠&#xFE0E;</i></span><b>Soirée poker</b><small>Cash game ou tournoi</small></button>
     <button class="qa j" data-act="new-game" data-kind="board"><span class="ic dice-ic">${miniDice()}</span><b>Soirée jeux</b><small>Catan, Skyjo, Uno…</small></button></div>`;
   if(up.length>1){h+=`<section class="block"><div class="sec-title"><h2>À venir</h2></div><div class="list">${up.slice(1).map(gameRow).join("")}</div></section>`}
   h+=`<section class="block"><div class="sec-title"><h2>Historique</h2></div>${past.length?`<div class="list">${(S.showAllPast?past:past.slice(0,4)).map(gameRow).join("")}</div>${past.length>4&&!S.showAllPast?`<button class="btn small" data-act="all-past" style="align-self:flex-start">Voir les ${past.length} soirées</button>`:""}`:`<div class="card empty">Les soirées terminées apparaîtront ici avec leurs résultats.</div>`}</section>`;
@@ -1020,7 +1128,7 @@ function viewGame(){
       <label class="tf full"><span>Lieu</span><input id="g-loc" data-g="location" value="${esc(g.location)}" ${dis} placeholder="Chez qui ?"></label>
     </div></div>`;
   h+=`<section class="block"><div class="sec-title"><h2>Le jeu</h2></div>
-    ${isB?"":`<div class="kinds two">${[["cash","♠","Cash game","Recaves libres","p"],["tournoi","♣","Tournoi","Blindes qui montent","t"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic">${s}&#xFE0E;</span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>`}
+    ${isB?"":`<div class="kinds two">${[["cash","♠","Cash game","Recaves libres","p"],["tournoi","♣","Tournoi","Blindes qui montent","t"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic" data-s="${s}"><i>${s}&#xFE0E;</i></span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>`}
     ${isB?`<label class="field">Nom du jeu<input id="g-gname" data-g="gameName" value="${esc(g.gameName)}" ${dis} placeholder="Catan, Uno, Skyjo…" list="known-games"></label><datalist id="known-games">${["Catan","Uno","Skyjo","Tarot","Belote","Scrabble","Monopoly","Dixit","Codenames","7 Wonders","Les Aventuriers du Rail","Loup-Garou","Rami","Yams","Échecs",...new Set(Object.values(S.data.games).map(x=>x.gameName).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`:""}
     ${isB?"":`<div class="stake card"><div class="row between"><span class="eyebrow">Buy-in</span><span class="stake-v num">${isB&&bi===0?"Sans argent":money(bi)}</span></div>
       <div class="pchips">${presets.map(v=>`<button class="pchip ${bi===v?"on":""}" style="--c:${pc(v)}" data-act="set-buy" data-v="${v}" ${dis} aria-label="${v===0?"Sans argent":money(v)}"><span>${v===0?"0":v}</span></button>`).join("")}
