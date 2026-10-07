@@ -464,6 +464,15 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
 .cel-list{margin-top:14px;text-align:left;display:flex;flex-direction:column;gap:6px}
 .cel-line{display:grid;grid-template-columns:1fr auto 1fr auto;gap:8px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.25);font-size:14px}
 .cel-line b{color:var(--gold-2)}
+/* Afficher le mot de passe */
+.pw-wrap{position:relative;display:block}
+.pw-wrap input{padding-right:48px!important;width:100%}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:#7C89A6;background:transparent}
+.pw-eye svg{width:21px;height:21px}
+.pw-eye .slash{opacity:0;transition:opacity .2s}
+.pw-eye.on{color:#1652D9}
+.pw-eye.on .slash{opacity:1}
+.pw-eye:active{transform:translateY(-50%) scale(.9)}
 /* Face ID */
 .lock-box{text-align:center;display:flex;flex-direction:column;align-items:center}
 .lock-ic{width:84px;height:84px;margin:4px auto 10px;color:#1652D9;display:grid;place-items:center;border-radius:24px;background:radial-gradient(circle,rgba(22,82,217,.12),transparent 70%)}
@@ -1291,8 +1300,8 @@ function viewAuth(){
   else if(S.auth==="error")body=`<h2 style="margin:0 0 6px">Connexion impossible</h2><p class="muted" style="margin:0 0 12px;font-size:14px">Le salon ne répond pas. Vérifie ta connexion puis réessaie.</p><button class="btn primary" data-act="auth-retry" style="width:100%">Réessayer</button>`;
   else if(S.auth==="confirm")body=`<h2 style="margin:0 0 6px">Vérifie ta boîte mail</h2><p class="muted" style="margin:0 0 14px;font-size:14px">On t’a envoyé un lien de confirmation à <b style="color:var(--ink)">${esc(S.authEmail||"")}</b>. Clique dessus, puis reviens te connecter ici.</p><button class="btn primary" data-act="auth-to-login" style="width:100%">J’ai confirmé, me connecter</button>`;
   else if(S.auth==="newpw")body=`<h2 style="margin:0 0 4px">Nouveau mot de passe</h2><p class="muted" style="margin:0 0 14px;font-size:13px">Choisis ton nouveau mot de passe.</p>
-      <div class="stack"><label class="field">Mot de passe<input id="a-pw" type="password" autocomplete="new-password" placeholder="8 caractères minimum"></label>
-      <label class="field">Confirme le mot de passe<input id="a-pw2" type="password" autocomplete="new-password"></label></div>
+      <div class="stack"><label class="field">Mot de passe<span class="pw-wrap"><input id="a-pw" type="password" autocomplete="new-password" placeholder="8 caractères minimum"><button type="button" class="pw-eye" data-act="pw-eye" aria-label="Afficher le mot de passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></span></label>
+      <label class="field">Confirme le mot de passe<span class="pw-wrap"><input id="a-pw2" type="password" autocomplete="new-password"><button type="button" class="pw-eye" data-act="pw-eye" aria-label="Afficher le mot de passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></span></label></div>
       <div class="auth-err" id="a-err" role="alert">${esc(S.authErr||"")}</div>
       <button class="btn primary" data-act="auth-newpw" style="width:100%;margin-top:6px">Enregistrer</button>`;
   else if(S.auth==="signup")body=`<div class="auth-tabs"><button class="on">Créer un compte</button><button data-act="auth-to-login">Se connecter</button></div>
@@ -1300,14 +1309,14 @@ function viewAuth(){
       <p class="muted" style="margin:0 0 14px;font-size:13px">Crée ton compte pour organiser tes soirées avec tes amis.</p>
       <div class="stack"><label class="field">Pseudo à la table<input id="a-name" maxlength="24" autocomplete="nickname" placeholder="Ex. Le Requin"></label>
       <label class="field">Adresse mail<input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder="toi@exemple.com" value="${esc(S.authEmail||"")}"></label>
-      <label class="field">Mot de passe<input id="a-pw" type="password" autocomplete="new-password" placeholder="8 caractères minimum"></label>
-      <label class="field">Confirme le mot de passe<input id="a-pw2" type="password" autocomplete="new-password"></label></div>
+      <label class="field">Mot de passe<span class="pw-wrap"><input id="a-pw" type="password" autocomplete="new-password" placeholder="8 caractères minimum"><button type="button" class="pw-eye" data-act="pw-eye" aria-label="Afficher le mot de passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></span></label>
+      <label class="field">Confirme le mot de passe<span class="pw-wrap"><input id="a-pw2" type="password" autocomplete="new-password"><button type="button" class="pw-eye" data-act="pw-eye" aria-label="Afficher le mot de passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></span></label></div>
       <div class="auth-err" id="a-err" role="alert">${esc(S.authErr||"")}</div>
       <button class="btn primary" data-act="auth-signup" style="width:100%;margin-top:6px">Créer mon compte</button>`;
   else body=`<div class="auth-tabs"><button data-act="auth-to-signup">Créer un compte</button><button class="on">Se connecter</button></div>
       <h2 style="margin:14px 0 4px">Bon retour à la table</h2><p class="muted" style="margin:0 0 14px;font-size:13px">Connecte-toi pour retrouver tes groupes.</p>
       <div class="stack"><label class="field">Adresse mail<input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder="toi@exemple.com" value="${esc(S.authEmail||"")}"></label>
-      <label class="field">Mot de passe<input id="a-pw" type="password" autocomplete="current-password"></label></div>
+      <label class="field">Mot de passe<span class="pw-wrap"><input id="a-pw" type="password" autocomplete="current-password"><button type="button" class="pw-eye" data-act="pw-eye" aria-label="Afficher le mot de passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></span></label></div>
       <div class="auth-err" id="a-err" role="alert">${esc(S.authErr||"")}</div>
       <button class="btn primary" data-act="auth-login" style="width:100%;margin-top:6px">Se connecter</button>
       <button class="btn small" data-act="auth-forgot" style="margin-top:10px;background:transparent;border-color:transparent;color:var(--gold-2)">Mot de passe oublié ?</button>`;
@@ -1692,6 +1701,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="auth-forgot"){doForgot();return}
   if(act==="auth-newpw"){doNewPw();return}
   if(act==="auth-retry"){S.auth="checking";render(true);sb.auth.getSession().then(({data})=>{if(data&&data.session){S.me.id=null;onSignedIn(data.session.user)}else{S.auth="login";render(true)}});return}
+  if(act==="pw-eye"){const inp=b.parentElement.querySelector("input");const show=inp.type==="password";inp.type=show?"text":"password";b.classList.toggle("on",show);b.setAttribute("aria-label",show?"Masquer le mot de passe":"Afficher le mot de passe");inp.focus();try{inp.setSelectionRange(inp.value.length,inp.value.length)}catch(e){}return}
   if(act==="fid-unlock"){fidUnlock();return}
   if(act==="fid-password"){fidSet(null);S.pendingUser=null;sb.auth.signOut();S.auth="login";render(true);return}
   if(act==="fid-on"){fidEnable().then(()=>render(true));return}
