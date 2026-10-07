@@ -1247,6 +1247,8 @@ function setSession(){}
 const FID_KEY="kicker-faceid";
 function fidGet(){try{return JSON.parse(localStorage.getItem(FID_KEY)||"null")}catch(e){return null}}
 function fidSet(v){try{if(v)localStorage.setItem(FID_KEY,JSON.stringify(v));else localStorage.removeItem(FID_KEY)}catch(e){}}
+function fidSync(v){try{sb.auth.updateUser({data:{fid:v?{id:v.id,on:v.on}:null}}).catch(e=>console.warn(e))}catch(e){}}
+function fidRestore(user){const m=user&&user.user_metadata&&user.user_metadata.fid;const f=fidGet();if(m&&m.id&&(!f||f.user!==user.id))fidSet({id:m.id,user:user.id,on:m.on||Date.now()});if(f&&f.user===user.id&&!m)fidSync(f)}
 const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const unb64u=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"==".slice(0,(4-s.length%4)%4)),c=>c.charCodeAt(0));
 async function fidAvailable(){try{return !!(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}}
@@ -1257,7 +1259,7 @@ async function fidEnable(){
       user:{id:new TextEncoder().encode(S.me.id),name:(S.account&&S.account.email)||S.me.name,displayName:S.me.name},
       pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
       authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},timeout:60000,attestation:"none"}});
-    fidSet({id:b64u(cred.rawId),user:S.me.id,on:Date.now()});S.unlockedAt=Date.now();toast(fidLabel()+" activé : Kicker se déverrouillera avec ton visage");return true}
+    const fv={id:b64u(cred.rawId),user:S.me.id,on:Date.now()};fidSet(fv);fidSync(fv);try{localStorage.setItem("kicker-fid-asked","1")}catch(e){}S.unlockedAt=Date.now();toast(fidLabel()+" activé : Kicker se déverrouillera avec ton visage");return true}
   catch(e){console.warn(e);toast(e&&e.name==="NotAllowedError"?"Activation annulée.":"Impossible d’activer "+fidLabel()+" ici.");return false}
 }
 async function fidVerify(){const f=fidGet();if(!f)return true;
@@ -1276,6 +1278,7 @@ function viewLock(){const L=fidLabel();
     <button class="btn small" data-act="fid-password" style="margin-top:6px;background:transparent!important;border-color:transparent!important">Utiliser mon mot de passe</button></div>`}
 async function onSignedIn(user){
   if(S.auth==="ok"&&S.me.id===user.id)return;
+  fidRestore(user);
   if(fidLocked(user)){S.pendingUser=user;S.auth="locked";S.authErr="";render(true);setTimeout(()=>{if(S.auth==="locked")fidUnlock(true)},350);return}
   S.me={id:user.id,name:(user.user_metadata&&user.user_metadata.pseudo)||user.email.split("@")[0],avatarUrl:""};
   S.account={email:user.email};S.mode="loading-shared";S.auth="ok";render(true);
@@ -1532,7 +1535,7 @@ function viewHub(){
   let h=`<header class="hub-hero rise"><div class="hub-glow" aria-hidden="true"></div>${logo("big")}
     <div class="hub-name">KICKER</div><div class="hub-tag">Poker &amp; jeux de société entre amis</div>
     <div class="suits hub-suits" aria-hidden="true">♠&#xFE0E;♥&#xFE0E;♦&#xFE0E;♣&#xFE0E;</div>
-    <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div><div class="hub-bell">${bell()}</div></header>${banner()}`;
+    <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div>${S.fidAvail?`<div style="text-align:center"><button class="fid-toggle ${fidGet()?"on":""}" data-act="${fidGet()?"fid-off":"fid-on"}"><span class="fid-dot"></span>${fidLabel()} ${fidGet()?"activé":"désactivé"}</button></div>`:""}<div class="hub-bell">${bell()}</div></header>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
   if(mode==="create")return h+`<div class="ticket rise"><div class="marquee"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
       <span class="eyebrow ticket-kind">Nouveau groupe</span><h2 class="hub-q">Crée ton groupe</h2>
@@ -1703,12 +1706,12 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="auth-retry"){S.auth="checking";render(true);sb.auth.getSession().then(({data})=>{if(data&&data.session){S.me.id=null;onSignedIn(data.session.user)}else{S.auth="login";render(true)}});return}
   if(act==="pw-eye"){const inp=b.parentElement.querySelector("input");const show=inp.type==="password";inp.type=show?"text":"password";b.classList.toggle("on",show);b.setAttribute("aria-label",show?"Masquer le mot de passe":"Afficher le mot de passe");inp.focus();try{inp.setSelectionRange(inp.value.length,inp.value.length)}catch(e){}return}
   if(act==="fid-unlock"){fidUnlock();return}
-  if(act==="fid-password"){fidSet(null);S.pendingUser=null;sb.auth.signOut();S.auth="login";render(true);return}
+  if(act==="fid-password"){S.pendingUser=null;sb.auth.signOut();S.auth="login";render(true);return}
   if(act==="fid-on"){fidEnable().then(()=>render(true));return}
-  if(act==="fid-off"){fidSet(null);toast(fidLabel()+" désactivé");render(true);return}
+  if(act==="fid-off"){fidSet(null);fidSync(null);toast(fidLabel()+" désactivé");render(true);return}
   if(act==="fid-later"){S.fidOffer=false;try{localStorage.setItem("kicker-fid-asked","1")}catch(e){}render(true);return}
   if(act==="fid-yes"){S.fidOffer=false;try{localStorage.setItem("kicker-fid-asked","1")}catch(e){}fidEnable().then(()=>render(true));return}
-  if(act==="logout"){fidSet(null);S.gameId=null;S.tab="games";S.groupId=null;sb.auth.signOut();window.scrollTo(0,0);return}
+  if(act==="logout"){S.gameId=null;S.tab="games";S.groupId=null;sb.auth.signOut();window.scrollTo(0,0);return}
   if(act==="copy-join"){copy(`Je t’invite dans notre groupe « ${meta().name} » sur Kicker pour organiser nos soirées poker et jeux. Je viens de te partager la page par mail : ouvre-la, crée ton profil et dis-nous si tu viens à la prochaine soirée.`);return}
   if(act==="goto-board"){S.tab="board";S.boardMode=b.dataset.m;render(true);window.scrollTo(0,0);return}
   if(act==="new-game"&&b.dataset.kind==="board"&&!b.dataset.rolled){rollIcon(b.querySelector(".dice-ic"));b.dataset.rolled="1";setTimeout(()=>{b.click();delete b.dataset.rolled},720);return}
