@@ -314,7 +314,13 @@ button.item:hover{background:rgba(210,172,103,.05)}
 .pchip.on{box-shadow:0 4px 0 rgba(0,0,0,.45),0 0 0 3px var(--bg),0 0 0 5px var(--gold),0 0 18px rgba(210,172,103,.6);transform:translateY(-3px)}
 .pcustom{display:flex;flex-direction:column;gap:3px;flex:1;min-width:84px}
 .pcustom input{font-family:var(--f-mono);text-align:right}
-.switch{display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;font-weight:600}
+.switch{display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;font-weight:600;position:relative;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.rb-switch{color:#14213D;gap:8px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid var(--line);user-select:none;-webkit-user-select:none}
+.rb-switch .rb-l{order:0;flex:1;font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:13px}
+.rb-switch .rb-no{order:1}.rb-switch i{order:2}.rb-switch .rb-yes{order:3}
+.rb-opt{font-size:12px;font-weight:700;color:var(--muted);min-width:24px;text-align:center;padding:2px 6px;border-radius:8px;transition:color .15s,background .15s}
+.rb-opt.on{color:#fff;background:var(--green,#1E9E5A)}
+.switch i::after{will-change:transform}
 .switch input{position:absolute;opacity:0;width:1px;height:1px}
 .switch i{width:44px;height:26px;border-radius:13px;background:var(--surface-3);border:1px solid var(--line);position:relative;flex:none;transition:background .15s}
 .switch i::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:transform .15s,background .15s}
@@ -1172,8 +1178,8 @@ function viewGame(){
     ${isB?"":`<div class="stake card"><div class="row between"><span class="eyebrow">Buy-in</span><span class="stake-v num">${isB&&bi===0?"Sans argent":money(bi)}</span></div>
       <div class="pchips">${presets.map(v=>`<button class="pchip ${bi===v?"on":""}" style="--c:${pc(v)}" data-act="set-buy" data-v="${v}" ${dis} aria-label="${v===0?"Sans argent":money(v)}"><span>${v===0?"0":v}</span></button>`).join("")}
         <label class="pcustom"><span class="eyebrow">Autre</span><input id="${isB?"g-stake":"g-buyin"}" type="number" inputmode="decimal" min="0" step="any" data-g="buyIn" value="${presets.includes(bi)?"":esc(bi)}" placeholder="${esc(cur())}" ${dis}></label></div>
-      ${isB?`<p class="muted" style="font-size:12px;margin:10px 0 0">Le gagnant remporte le pot. Choisis 0 pour jouer juste pour la gloire.</p>`:`<p class="muted" style="font-size:12px;margin:10px 0 0">${g.rebuys!==false?"Montant de chaque buy-in et de chaque recave.":"Montant du buy-in. Recaves désactivées."}</p>`}</div>`}
-    ${isB?`<label class="switch"><input id="g-low" type="checkbox" data-g="lowWins" ${g.lowWins?"checked":""} ${dis}><i aria-hidden="true"></i><span>Le plus petit score gagne <small class="muted">(Skyjo, golf…)</small></span></label>`:`<label class="switch" style="margin-top:12px"><input id="g-rebuys" type="checkbox" data-g="rebuys" ${g.rebuys!==false?"checked":""} ${dis}><i aria-hidden="true"></i><span>Recaves autorisées <small class="muted">${g.rebuys!==false?"(oui)":"(non : une seule cave par joueur)"}</small></span></label>`}
+      ${isB?`<p class="muted" style="font-size:12px;margin:10px 0 0">Le gagnant remporte le pot. Choisis 0 pour jouer juste pour la gloire.</p>`:`<p class="muted" style="font-size:12px;margin:10px 0 0"><span id="rb-hint">${g.rebuys!==false?"Montant de chaque buy-in et de chaque recave.":"Montant du buy-in. Recaves désactivées."}</span></p>`}</div>`}
+    ${isB?`<label class="switch"><input id="g-low" type="checkbox" data-g="lowWins" ${g.lowWins?"checked":""} ${dis}><i aria-hidden="true"></i><span>Le plus petit score gagne <small class="muted">(Skyjo, golf…)</small></span></label>`:`<label class="switch rb-switch" style="margin-top:12px"><input id="g-rebuys" type="checkbox" data-g="rebuys" ${g.rebuys!==false?"checked":""} ${dis}><i aria-hidden="true"></i><span class="rb-l">Recaves</span><span class="rb-opt rb-no ${g.rebuys===false?"on":""}">Non</span><span class="rb-opt rb-yes ${g.rebuys!==false?"on":""}">Oui</span></label>`}
   </section>
   `;
   // RSVP
@@ -1831,6 +1837,8 @@ app.addEventListener("keydown",e=>{if(e.key!=="Enter")return;
   if(e.target.id==="quick-player"){e.preventDefault();app.querySelector('[data-act="quick-add"]').click()}});
 app.addEventListener("change",e=>{const el=e.target;
   if(el.dataset.score){const pid=el.dataset.score;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{score:el.value===""?null:n(el.value)})});return}
+  if(el.dataset.g==="rebuys"){const on=el.checked;const sw=el.closest(".rb-switch");if(sw){sw.querySelector(".rb-no").classList.toggle("on",!on);sw.querySelector(".rb-yes").classList.toggle("on",on)}const h=document.getElementById("rb-hint");if(h)h.textContent=on?"Montant de chaque buy-in et de chaque recave.":"Montant du buy-in. Recaves désactivées.";buzz(10);
+    const g=clone(S.data.games[S.gameId]);g.rebuys=on;write("games",S.gameId,g,true);clearTimeout(S.rbT);S.rbT=setTimeout(()=>render(true),260);return}
   if(el.dataset.g){const k=el.dataset.g;const v=k==="buyIn"?n(el.value):(k==="lowWins"||k==="rebuys")?el.checked:el.value;updGame(g=>{g[k]=v});return}
   if(el.dataset.out){const pid=el.dataset.out;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{out:el.value===""?null:n(el.value)})});return}
   if(el.dataset.pname){const nm=el.value.trim();if(!nm){render(true);return}write("players",el.dataset.pname,Object.assign({},S.data.players[el.dataset.pname],{name:nm}));return}
