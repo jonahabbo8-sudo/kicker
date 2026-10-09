@@ -1002,10 +1002,23 @@ const TABLES=["players","games","groups"];
 function sbRow(coll,id,data){const r={id,data,updated_at:new Date().toISOString()};if(coll==="games")r.group_id=data.groupId||null;if(coll==="groups")r.code=data.code||null;return r}
 const LOCAL_TS={};
 function saveState(st){const el=document.getElementById("savebadge");if(!el)return;clearTimeout(saveState.t);el.className="savebadge "+st;el.textContent=st==="saving"?"Enregistrement…":st==="saved"?"Enregistré":"Hors ligne";el.hidden=false;if(st==="saved")saveState.t=setTimeout(()=>el.hidden=true,1400)}
+const isObj=v=>v!==null&&typeof v==="object"&&!Array.isArray(v);
+function jdiff(a,b,path,ops){
+  if(isObj(a)&&isObj(b)){
+    for(const k in a)if(b[k]===undefined)ops.push({p:path.concat(k),del:1});
+    for(const k in b){if(b[k]===undefined)continue;if(a[k]===undefined)ops.push({p:path.concat(k),v:b[k]});else jdiff(a[k],b[k],path.concat(k),ops)}
+    return ops}
+  if(JSON.stringify(a)===JSON.stringify(b))return ops;
+  const an=a===""||a==null?0:+a,bn=+b;
+  if(path[0]==="seats"&&path[path.length-1]==="in"&&typeof b==="number"&&isFinite(an)&&isFinite(bn))ops.push({p:path,add:Math.round((bn-an)*100)/100});
+  else ops.push({p:path,v:b===undefined?null:b});
+  return ops}
 function write(coll,id,data,silent){
+  const prev=S.data[coll][id];
   if(data===null)delete S.data[coll][id];else S.data[coll][id]=data;
   if(!silent)render(true);
   const path=coll+"/"+id;const p=pending[path]||(pending[path]={});LOCAL_TS[path]=Date.now();saveState("saving");
+  if(coll==="games"&&data!==null&&prev&&!p.full&&p.data!==null){(p.ops||(p.ops=[])).push(...jdiff(prev,data,[],[]))}else{p.full=true;p.ops=[]}
   p.data=data===null?null:clone(data);p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),data===null?0:350);
 }
 async function flush(path){
@@ -1015,9 +1028,14 @@ async function flush(path){
     if(data===null){const {data:del,error}=await sb.from(coll).delete().eq("id",id).select("id");if(error)throw error;
       if(!del||!del.length){const {data:still}=await sb.from(coll).select("id").eq("id",id);
         if(still&&still.length){toast("Suppression refusée par le serveur. Réessaie ou demande à l’organisateur.");p.inflight=false;delete pending[path];loadAll().then(()=>render(true)).catch(()=>{});return}}}
-    else{const row=sbRow(coll,id,data);const {data:upd,error}=await sb.from(coll).update(row).eq("id",id).select("id");if(error)throw error;
-      if(!upd||!upd.length){const {error:e2}=await sb.from(coll).insert(row);if(e2)throw e2}}
-  }catch(e){console.warn(e);saveState("error");toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
+    else if(coll==="games"&&!p.full){const ops=p.ops||[];p.ops=[];
+      if(ops.length){const {data:srv,error}=await sb.rpc("game_apply",{p_id:id,p_ops:ops});
+        if(error){p.ops=ops.concat(p.ops);throw error}
+        if(srv==null){const {error:e2}=await sb.from(coll).insert(sbRow(coll,id,data));if(e2){p.full=true;throw e2}}
+        else if(!p.dirty&&S.data.games[id]){S.data.games[id]=srv;render()}}}
+    else{const full=p.full;p.full=false;const row=sbRow(coll,id,data);const {data:upd,error}=await sb.from(coll).update(row).eq("id",id).select("id");if(error){p.full=full;throw error}
+      if(!upd||!upd.length){const {error:e2}=await sb.from(coll).insert(row);if(e2){p.full=full;throw e2}}}
+  }catch(e){console.warn(e);saveState("error");if(data!==null&&!(e&&e.code==="23505")&&(p.retry=(p.retry||0)+1)<=3){p.inflight=false;p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),2500*p.retry);return}toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
   p.inflight=false;if(p.dirty)flush(path);else{delete pending[path];if(!Object.keys(pending).length)saveState("saved")}
 }
 async function loadAll(){
