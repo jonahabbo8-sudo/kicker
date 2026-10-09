@@ -1006,7 +1006,7 @@ const SB_KEY="sb_publishable_PELSbEu3ZWpMG_VZ5GdCiw_KE2KhzPv";
 const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const TABLES=["players","games","groups"];
 function sbRow(coll,id,data){const r={id,data,updated_at:new Date().toISOString()};if(coll==="games")r.group_id=data.groupId||null;if(coll==="groups")r.code=data.code||null;return r}
-const LOCAL_TS={};
+const LOCAL_TS={},SRV_TS={};
 function saveState(st){const el=document.getElementById("savebadge");if(!el)return;clearTimeout(saveState.t);el.className="savebadge "+st;el.textContent=st==="saving"?"Enregistrement…":st==="saved"?"Enregistré":"Hors ligne";el.hidden=false;if(st==="saved")saveState.t=setTimeout(()=>el.hidden=true,1400)}
 const isObj=v=>v!==null&&typeof v==="object"&&!Array.isArray(v);
 function jdiff(a,b,path,ops){
@@ -1035,7 +1035,7 @@ async function flush(path){
       if(!del||!del.length){const {data:still}=await sb.from(coll).select("id").eq("id",id);
         if(still&&still.length){toast("Suppression refusée par le serveur. Réessaie ou demande à l’organisateur.");p.inflight=false;delete pending[path];loadAll().then(()=>render(true)).catch(()=>{});return}}}
     else if(coll==="games"&&!p.full){const ops=p.ops||[];p.ops=[];
-      if(ops.length){const {data:srv,error}=await sb.rpc("game_apply",{p_id:id,p_ops:ops});
+      if(ops.length){const {data:res,error}=await sb.rpc("game_apply2",{p_id:id,p_ops:ops});const srv=res&&res.data;if(res&&res.ts)SRV_TS[path]=Math.max(SRV_TS[path]||0,Date.parse(res.ts));
         if(error){p.ops=ops.concat(p.ops);throw error}
         if(srv==null){const {error:e2}=await sb.from(coll).insert(sbRow(coll,id,data));if(e2){p.full=true;throw e2}}
         else if(!p.dirty&&S.data.games[id]){S.data.games[id]=srv;render()}}}
@@ -1055,7 +1055,10 @@ function subscribeAll(){
   if(sbChannel)return;sbChannel=sb.channel("kicker-live");
   TABLES.forEach(t=>sbChannel.on("postgres_changes",{event:"*",schema:"public",table:t},pl=>{
     const id=(pl.new&&pl.new.id)||(pl.old&&pl.old.id);if(!id||pending[t+"/"+id])return;
-    if(pl.new&&pl.new.updated_at&&LOCAL_TS[t+"/"+id]&&Date.parse(pl.new.updated_at)<LOCAL_TS[t+"/"+id]-50)return;
+    if(pl.new&&pl.new.updated_at){const ts=Date.parse(pl.new.updated_at),k=t+"/"+id;
+      if(SRV_TS[k]&&ts<=SRV_TS[k])return;
+      if(t!=="games"&&LOCAL_TS[k]&&ts<LOCAL_TS[k]-50)return;
+      if(t==="games")SRV_TS[k]=Math.max(SRV_TS[k]||0,ts)}
     if(pl.eventType!=="DELETE"&&S.data[t][id]&&JSON.stringify(S.data[t][id])===JSON.stringify(pl.new.data))return;
     const isNew=t==="games"&&pl.eventType==="INSERT"&&!S.data.games[id];
     if(pl.eventType==="DELETE")delete S.data[t][id];else S.data[t][id]=pl.new.data;
