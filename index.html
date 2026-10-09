@@ -1167,13 +1167,13 @@ function viewGame(){
       <label class="tf full"><span>Lieu</span><input id="g-loc" data-g="location" value="${esc(g.location)}" ${dis} placeholder="Chez qui ?"></label>
     </div></div>`;
   h+=`<section class="block"><div class="sec-title"><h2>Le jeu</h2></div>
-    ${isB?"":`<div class="kinds two">${[["cash","♠","Cash game","Recaves libres","p"],["tournoi","♣","Tournoi","Blindes qui montent","t"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic" data-s="${s}"><i>${s}&#xFE0E;</i></span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>`}
+    ${isB?"":`<div class="kinds two">${[["cash","♠","Cash game",g.rebuys!==false?"Recaves libres":"Sans recave","p"],["tournoi","♣","Tournoi","Blindes qui montent","t"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic" data-s="${s}"><i>${s}&#xFE0E;</i></span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>`}
     ${isB?`<label class="field">Nom du jeu<input id="g-gname" data-g="gameName" value="${esc(g.gameName)}" ${dis} placeholder="Catan, Uno, Skyjo…" list="known-games"></label><datalist id="known-games">${["Catan","Uno","Skyjo","Tarot","Belote","Scrabble","Monopoly","Dixit","Codenames","7 Wonders","Les Aventuriers du Rail","Loup-Garou","Rami","Yams","Échecs",...new Set(Object.values(S.data.games).map(x=>x.gameName).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`:""}
     ${isB?"":`<div class="stake card"><div class="row between"><span class="eyebrow">Buy-in</span><span class="stake-v num">${isB&&bi===0?"Sans argent":money(bi)}</span></div>
       <div class="pchips">${presets.map(v=>`<button class="pchip ${bi===v?"on":""}" style="--c:${pc(v)}" data-act="set-buy" data-v="${v}" ${dis} aria-label="${v===0?"Sans argent":money(v)}"><span>${v===0?"0":v}</span></button>`).join("")}
         <label class="pcustom"><span class="eyebrow">Autre</span><input id="${isB?"g-stake":"g-buyin"}" type="number" inputmode="decimal" min="0" step="any" data-g="buyIn" value="${presets.includes(bi)?"":esc(bi)}" placeholder="${esc(cur())}" ${dis}></label></div>
-      ${isB?`<p class="muted" style="font-size:12px;margin:10px 0 0">Le gagnant remporte le pot. Choisis 0 pour jouer juste pour la gloire.</p>`:`<p class="muted" style="font-size:12px;margin:10px 0 0">Montant de chaque buy-in et de chaque recave.</p>`}</div>`}
-    ${isB?`<label class="switch"><input id="g-low" type="checkbox" data-g="lowWins" ${g.lowWins?"checked":""} ${dis}><i aria-hidden="true"></i><span>Le plus petit score gagne <small class="muted">(Skyjo, golf…)</small></span></label>`:""}
+      ${isB?`<p class="muted" style="font-size:12px;margin:10px 0 0">Le gagnant remporte le pot. Choisis 0 pour jouer juste pour la gloire.</p>`:`<p class="muted" style="font-size:12px;margin:10px 0 0">${g.rebuys!==false?"Montant de chaque buy-in et de chaque recave.":"Montant du buy-in. Recaves désactivées."}</p>`}</div>`}
+    ${isB?`<label class="switch"><input id="g-low" type="checkbox" data-g="lowWins" ${g.lowWins?"checked":""} ${dis}><i aria-hidden="true"></i><span>Le plus petit score gagne <small class="muted">(Skyjo, golf…)</small></span></label>`:`<label class="switch" style="margin-top:12px"><input id="g-rebuys" type="checkbox" data-g="rebuys" ${g.rebuys!==false?"checked":""} ${dis}><i aria-hidden="true"></i><span>Recaves autorisées <small class="muted">${g.rebuys!==false?"(oui)":"(non : une seule cave par joueur)"}</small></span></label>`}
   </section>
   `;
   // RSVP
@@ -1191,7 +1191,7 @@ function viewGame(){
   else{const rs=results(g);const step=n(g.buyIn)||10;
     h+=`<div class="card"><div class="cash"><span class="hd h-who">Joueur</span><span class="hd h-mis" style="text-align:center">Mis</span><span class="hd" style="text-align:right">Jetons fin</span>
     ${rs.map(r=>`<div class="row who" style="min-width:0">${avatar(r.pid)}<div style="min-width:0"><div class="ellipsis" style="font-weight:600">${esc(pname(r.pid))}</div>${r.out!=null?`<div class="net num ${r.net>0?"win":r.net<0?"loss":"muted"}">${money(r.net,true)}</div>`:`<div class="net muted">${Math.round(r.in/step*10)/10} buy-in</div>`}</div></div>
-      <div class="stepper"><button class="btn icon" data-act="buy" data-pid="${r.pid}" data-d="-1" ${dis} aria-label="Retirer une recave">−</button><span class="val num">${money(r.in)}</span><button class="btn icon" data-act="buy" data-pid="${r.pid}" data-d="1" ${dis} aria-label="Ajouter une recave">+</button></div>
+      <div class="stepper"><button class="btn icon" data-act="buy" data-pid="${r.pid}" data-d="-1" ${dis} aria-label="Retirer une recave">−</button><span class="val num">${money(r.in)}</span><button class="btn icon" data-act="buy" data-pid="${r.pid}" data-d="1" ${dis} ${!rebuyOn(g)&&n(r.in)>=n(g.buyIn)?"disabled":""} aria-label="Ajouter une recave">+</button></div>
       <input id="out-${r.pid}" type="number" inputmode="decimal" step="any" min="0" data-out="${r.pid}" value="${r.out==null?"":r.out}" placeholder="—" ${dis} aria-label="Jetons de fin de ${esc(pname(r.pid))}">`).join("")}</div></div>`;
     const tin=rs.reduce((a,r)=>a+r.in,0),tout=rs.reduce((a,r)=>a+(r.out||0),0),filled=rs.filter(r=>r.out!=null).length,diff=Math.round((tout-tin)*100)/100;
     h+=`<div class="row wrap" style="gap:8px"><div class="stat grow"><span class="eyebrow">Pot total</span><b>${money(tin)}</b></div><div class="stat grow"><span class="eyebrow">Recaves</span><b>${Math.max(0,Math.round((tin/step-rs.length)*10)/10)}</b></div></div>`;
@@ -1438,10 +1438,11 @@ function chipFly(fromEl,toEl,color){if(REDUCE()||!fromEl||!toEl)return;const a=f
   c.animate([{transform:`translate(${x0}px,${y0}px) scale(.6) rotate(0deg)`,opacity:0},{transform:`translate(${(x0+x1)/2}px,${Math.min(y0,y1)-70}px) scale(1.1) rotate(200deg)`,opacity:1,offset:.5},{transform:`translate(${x1}px,${y1}px) scale(.7) rotate(380deg)`,opacity:.9}],{duration:620,easing:"cubic-bezier(.3,.7,.4,1)"}).onfinish=()=>{c.remove();toEl.classList.remove("pot-bump");void toEl.offsetWidth;toEl.classList.add("pot-bump")}}
 function countUp(el,from,to,fmt){if(!el)return;if(REDUCE()||from===to){el.textContent=fmt(to);return}const t0=performance.now(),d=600;
   (function f(t){const k=Math.min(1,(t-t0)/d),e=1-Math.pow(1-k,3);el.textContent=fmt(from+(to-from)*e);if(k<1)requestAnimationFrame(f)})(t0)}
+const rebuyOn=g=>!g||g.type==="board"||g.rebuys!==false;
 function lastGameOfGroup(){return Object.values(S.data.games).filter(g=>g.groupId===S.groupId).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0]}
 function smartDefaults(kind){const last=Object.values(S.data.games).filter(g=>g.groupId===S.groupId&&(kind==="board"?g.type==="board":g.type!=="board")).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0];
   const d=new Date();let wd=6;if(last&&last.date){wd=new Date(last.date+"T12:00:00").getDay()}d.setDate(d.getDate()+((wd-d.getDay()+7)%7||7));
-  return {date:d.toISOString().slice(0,10),time:(last&&last.time)||"20:00",location:(last&&last.location)||"",type:kind==="board"?"board":((last&&last.type)||"cash"),buyIn:kind==="board"?0:(last?n(last.buyIn)||20:20),gameName:kind==="board"&&last?last.gameName||"":"",lowWins:kind==="board"&&last?!!last.lowWins:false,
+  return {date:d.toISOString().slice(0,10),time:(last&&last.time)||"20:00",location:(last&&last.location)||"",type:kind==="board"?"board":((last&&last.type)||"cash"),buyIn:kind==="board"?0:(last?n(last.buyIn)||20:20),gameName:kind==="board"&&last?last.gameName||"":"",lowWins:kind==="board"&&last?!!last.lowWins:false,rebuys:kind==="board"?true:(last?last.rebuys!==false:true),
     title:last&&last.title&&!/^Soirée (poker|jeux)$/.test(last.title)?last.title:(kind==="board"?"Soirée jeux":"Soirée poker"),copied:!!last}}
 /* célébration de fin de partie */
 function viewCelebrate(){const g=S.celebrate&&S.data.games[S.celebrate];if(!g)return"";const isB=g.type==="board";
@@ -1477,11 +1478,11 @@ function viewLive(){
     <div class="live-clock ${paused?"paused":""}"><span class="num" id="live-clock">${fmtDur(liveElapsed(g))}</span><small>${start?`Commencée à ${start}`:""}${paused?" · en pause":""}</small></div></div>
   <div class="table-wrap live-table ${paused?"is-paused":""}"><div class="marquee">${'<b></b>'.repeat(14)}</div><div class="marquee bot">${'<b></b>'.repeat(14)}</div>
     <div class="oval">${seatHtml}<div class="center"><span class="eyebrow">${isB?esc(g.gameName||"Jeu de société"):"Pot total"}</span>
-      ${isB?`<div class="t">${pl.length} joueurs</div>`:`<div class="t num">${money(pot)}</div><div class="d">${pl.length} joueurs · ${rec} recave${rec>1?"s":""}</div>`}
+      ${isB?`<div class="t">${pl.length} joueurs</div>`:`<div class="t num">${money(pot)}</div><div class="d">${pl.length} joueurs${rebuyOn(g)?` · ${rec} recave${rec>1?"s":""}`:" · sans recave"}</div>`}
       ${paused?`<div class="pause-badge">❚❚ Pause</div>`:""}</div></div></div>`;
   if(g.type==="tournoi")h+=miniTimer();
   if(!isB&&pl.length)h+=`<section class="block"><div class="sec-title"><h2>Recaves</h2></div><div class="list">${pl.map(s=>`<div class="item">${avatar(s.pid)}<div class="grow ellipsis" style="font-weight:700">${esc(pname(s.pid))}</div>
-      <div class="stepper"><button class="btn icon" data-act="live-buy" data-pid="${s.pid}" data-d="-1" aria-label="Retirer une recave">−</button><span class="val num">${money(n(s.in))}</span><button class="btn icon" data-act="live-buy" data-pid="${s.pid}" data-d="1" aria-label="Ajouter une recave">+</button></div></div>`).join("")}</div></section>`;
+      <div class="stepper"><button class="btn icon" data-act="live-buy" data-pid="${s.pid}" data-d="-1" aria-label="Retirer une recave">−</button><span class="val num">${money(n(s.in))}</span><button class="btn icon" data-act="live-buy" data-pid="${s.pid}" data-d="1" ${!rebuyOn(g)&&n(s.in)>=n(g.buyIn)?"disabled":""} aria-label="Ajouter une recave">+</button></div></div>`).join("")}</div></section>`;
   if(!pl.length)h+=`<div class="card empty" style="margin-top:16px">Personne n’est encore à table. Touche « Modifier » pour marquer les présents.</div>`;
   h+=`<div class="live-bar"><button class="live-btn" data-act="live-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg><span>Modifier</span></button>
     <button class="live-btn ${paused?"resume":"pause"}" data-act="live-pause">${paused?`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span>Reprendre</span>`:`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span>Pause</span>`}</button>
@@ -1696,7 +1697,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="open-live"){S.liveId=b.dataset.id;S.gameId=null;render(true);window.scrollTo(0,0);return}
   if(act==="live-back"){S.liveId=null;S.tab="games";render(true);window.scrollTo(0,0);return}
   if(act==="live-edit"){S.gameId=S.liveId;S.liveId=null;S.tab="games";render(true);window.scrollTo(0,0);return}
-  if(act==="live-buy"){const pid=b.dataset.pid,d=+b.dataset.d;const potEl=app.querySelector(".oval .center .t.num");const before=playing(S.data.games[S.liveId]).reduce((a,s)=>a+n(s.in),0);
+  if(act==="live-buy"){const pid=b.dataset.pid,d=+b.dataset.d;{const gg=S.data.games[S.liveId],st0=gg&&gg.seats&&gg.seats[pid];if(d>0&&gg&&!rebuyOn(gg)&&st0&&n(st0.in)>=n(gg.buyIn)){toast("Recaves désactivées pour cette soirée");return}}const potEl=app.querySelector(".oval .center .t.num");const before=playing(S.data.games[S.liveId]).reduce((a,s)=>a+n(s.in),0);
     if(d>0){chipFly(b,potEl);buzz(10)}
     setTimeout(()=>{const after=playing(S.data.games[S.liveId]).reduce((a,s)=>a+n(s.in),0);countUp(app.querySelector(".oval .center .t.num"),before,after,v=>money(Math.round(v)))},d>0?600:0);
     updLive(g=>{const st=g.seats[pid];const step=n(g.buyIn)||10;st.in=Math.max(0,Math.round((n(st.in)+d*step)*100)/100)});return}
@@ -1736,7 +1737,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="new-game"){const id=uid();const kind=b.dataset.kind||"cash";const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));
     const seats={};groupPlayers().forEach(([p])=>seats[p]={rsvp:p===S.me.id?"yes":"invited"});
     const sd=smartDefaults(kind);
-    write("games",id,{title:sd.title,date:sd.date,time:sd.time,location:sd.location,type:sd.type,buyIn:sd.buyIn,gameName:sd.gameName,lowWins:sd.lowWins,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId,createdBy:S.me.id});
+    write("games",id,{title:sd.title,date:sd.date,time:sd.time,location:sd.location,type:sd.type,buyIn:sd.buyIn,gameName:sd.gameName,lowWins:sd.lowWins,rebuys:sd.rebuys,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId,createdBy:S.me.id});
     S.tab="games";S.gameId=id;S.viewAnim="up";render(true);window.scrollTo(0,0);buzz(15);toast(sd.copied?"Partie préparée avec les réglages de la dernière fois ✓":"Partie créée : tout le groupe est invité");return}
   if(act==="set-type"){const v=b.dataset.v;const roll=v==="board";setTimeout(()=>{if(roll)rollIcon(app.querySelector(".kind.j .dice-ic"))},0);updGame(g=>{const wasB=g.type==="board";g.type=v;if(v==="board"&&g.title==="Soirée poker")g.title="Soirée jeux";if(v!=="board"&&g.title==="Soirée jeux")g.title="Soirée poker";if(v==="board"&&!wasB)g.buyIn=0;if(v!=="board"&&wasB&&!n(g.buyIn))g.buyIn=20});return}
   if(act==="set-buy"){const v=n(b.dataset.v);updGame(g=>{g.buyIn=v});return}
@@ -1769,7 +1770,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="start"){const sid=S.gameId;updGame(g=>{g.status="live";g.startedAt=Date.now();g.pausedAt=null;g.pausedTotal=0;if(g.type!=="board")Object.values(g.seats).forEach(s=>{if(s.rsvp==="yes"&&!n(s.in))s.in=n(g.buyIn)})});
     if(!Object.values(seatsOf(S.data.games[sid])).some(s=>s.rsvp==="yes")){toast("Personne n’a répondu oui : marque les présents dans « Qui vient ? ».");return}
     S.liveId=sid;S.gameId=null;render(true);window.scrollTo(0,0);return}
-  if(act==="buy"){const pid=b.dataset.pid,d=+b.dataset.d;updGame(g=>{const s=g.seats[pid];const step=n(g.buyIn)||10;s.in=Math.max(0,Math.round((n(s.in)+d*step)*100)/100);if(s.in===0&&d<0&&s.rsvp!=="yes")delete g.seats[pid]});return}
+  if(act==="buy"){const pid=b.dataset.pid,d=+b.dataset.d;{const gg=S.data.games[S.gameId],st0=gg&&gg.seats&&gg.seats[pid];if(d>0&&gg&&!rebuyOn(gg)&&st0&&n(st0.in)>=n(gg.buyIn)){toast("Recaves désactivées pour cette soirée");return}}updGame(g=>{const s=g.seats[pid];const step=n(g.buyIn)||10;s.in=Math.max(0,Math.round((n(s.in)+d*step)*100)/100);if(s.in===0&&d<0&&s.rsvp!=="yes")delete g.seats[pid]});return}
   if(act==="finish"){const gid=S.gameId;updGame(g=>{g.status="done"});S.celebrate=gid;const tt=document.getElementById("toast");if(tt)tt.hidden=true;render(true);buzz([20,40,20]);setTimeout(confetti,60);return}
   if(act==="reopen"){updGame(g=>{g.status="live";g.stoppedAt=g.stoppedAt||Date.now()});return}
   if(act==="del-game"){S.confirm="del-game";render(true);return}
@@ -1830,7 +1831,7 @@ app.addEventListener("keydown",e=>{if(e.key!=="Enter")return;
   if(e.target.id==="quick-player"){e.preventDefault();app.querySelector('[data-act="quick-add"]').click()}});
 app.addEventListener("change",e=>{const el=e.target;
   if(el.dataset.score){const pid=el.dataset.score;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{score:el.value===""?null:n(el.value)})});return}
-  if(el.dataset.g){const k=el.dataset.g;const v=k==="buyIn"?n(el.value):k==="lowWins"?el.checked:el.value;updGame(g=>{g[k]=v});return}
+  if(el.dataset.g){const k=el.dataset.g;const v=k==="buyIn"?n(el.value):(k==="lowWins"||k==="rebuys")?el.checked:el.value;updGame(g=>{g[k]=v});return}
   if(el.dataset.out){const pid=el.dataset.out;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{out:el.value===""?null:n(el.value)})});return}
   if(el.dataset.pname){const nm=el.value.trim();if(!nm){render(true);return}write("players",el.dataset.pname,Object.assign({},S.data.players[el.dataset.pname],{name:nm}));return}
   if(el.dataset.meta){const G=curGroup();if(!G)return;write("groups",S.groupId,Object.assign({},G,{[el.dataset.meta]:el.value.trim()||G[el.dataset.meta]}));return}
