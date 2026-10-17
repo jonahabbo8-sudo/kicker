@@ -1,0 +1,19 @@
+{
+  "name": "Kicker — Poker & jeux entre amis",
+  "short_name": "Kicker",
+  "description": "Organise tes soirées poker et jeux de société entre amis : invitations, recaves, scores et qui paie qui.",
+  "id": "/",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "fr",
+  "background_color": "#0A1E5C",
+  "theme_color": "#0A2A78",
+  "categories": ["games", "social", "lifestyle"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
