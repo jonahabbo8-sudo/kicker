@@ -422,9 +422,10 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
 .savebadge.error{color:var(--loss)}.savebadge.error::before{background:var(--loss)}
 /* Animations v2 */
 @media (prefers-reduced-motion:no-preference){
-  #app.view-left>*:not(.inv-layer){animation:viewLeft .34s cubic-bezier(.2,.8,.3,1) both}
-  #app.view-right>*:not(.inv-layer){animation:viewRight .34s cubic-bezier(.2,.8,.3,1) both}
-  .stag{animation:stagIn .45s cubic-bezier(.2,.9,.3,1.1) both;animation-delay:calc(var(--i,0) * 45ms + 80ms)}
+  #app.view-left>*:not(.inv-layer){animation:viewLeft .26s cubic-bezier(.2,.8,.3,1) both}
+  #app.view-right>*:not(.inv-layer){animation:viewRight .26s cubic-bezier(.2,.8,.3,1) both}
+  .stag{animation:stagIn .3s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(min(var(--i,0),8) * 28ms + 20ms)}
+  #app.view-left>:is(.top,.brand,.hub-hero),#app.view-right>:is(.top,.brand,.hub-hero),#app.view-in>:is(.top,.brand){animation:none!important}
   .pchip.stag{animation-name:chipRoll}
   .sec-title::after{transform-origin:left;animation:lineDraw .7s .15s cubic-bezier(.2,.8,.3,1) both}
   .toast.in{animation:toastIn .38s cubic-bezier(.2,1.4,.4,1) both}
@@ -442,9 +443,9 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
   .avatar{transition:transform .2s}
   .item:active .avatar{transform:scale(.9)}
 }
-@keyframes viewLeft{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
-@keyframes viewRight{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
-@keyframes stagIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes viewLeft{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+@keyframes viewRight{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+@keyframes stagIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes chipRoll{from{opacity:0;transform:translateX(-40px) rotate(-200deg)}to{opacity:1;transform:none}}
 @keyframes lineDraw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,20px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
