@@ -528,7 +528,16 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
 .bell{position:relative;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);color:var(--ink)}
 .bell svg{width:22px;height:22px}
 .bell b{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--chip);color:#fff;font-size:11px;display:grid;place-items:center;box-shadow:0 0 0 2px var(--bg)}
-.hub-bell{position:absolute;top:0;right:0}
+.hub-bell{position:absolute;top:0;right:0;display:flex;gap:8px}
+.top-btns{display:flex;gap:8px}
+.fb-kinds{display:flex;gap:8px;margin:4px 0 12px}
+.fb-kind{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;padding:10px 4px;border-radius:12px;border:1.5px solid #D5DDEA;background:#F4F7FC;font:inherit;font-size:13px;font-weight:700;color:#3A4A66;cursor:pointer;touch-action:manipulation;transition:background .15s,border-color .15s,color .15s,transform .1s}
+.fb-ic{font-size:18px;line-height:1}
+.fb-kind:active{transform:scale(.96)}
+.fb-kind.on{background:#1652D9;border-color:#1652D9;color:#fff}
+.fb-text{width:100%;min-height:120px;box-sizing:border-box;border-radius:14px;border:1.5px solid #D5DDEA;padding:12px;font:inherit;font-size:16px;resize:vertical;background:#fff;color:#14213D}
+.fb-text:focus{outline:none;border-color:#1652D9}
+.fb-note{font-size:12px;color:#5B6B86;margin:8px 0 14px}
 .inv-layer{position:fixed;inset:0;z-index:30;background:rgba(5,7,8,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
 @media (min-width:560px){.inv-layer{align-items:center}}
 .inv-pop,.inv-sheet{width:100%;max-width:440px;border-radius:24px;padding:20px;background:linear-gradient(170deg,var(--velvet),var(--velvet-2) 55%,var(--surface));border:1px solid rgba(210,172,103,.35);box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
@@ -1144,7 +1153,7 @@ function tableHero(next){S.seatSel=null;
 }
 function viewGames(){
   const m=meta();const {up,past}=gamesSorted();const next=up[0];
-  let h=`<div class="brand rise"><div class="mark">${logo("")}<div style="min-width:0"><div class="name">KICKER</div><button class="grp grp-switch ellipsis" data-act="switch-group" aria-label="Changer de groupe">${esc(m.name)} <span aria-hidden="true">▾</span></button></div></div><div class="row" style="gap:10px">${bell()}</div></div>${banner()}`;
+  let h=`<div class="brand rise"><div class="mark">${logo("")}<div style="min-width:0"><div class="name">KICKER</div><button class="grp grp-switch ellipsis" data-act="switch-group" aria-label="Changer de groupe">${esc(m.name)} <span aria-hidden="true">▾</span></button></div></div><div class="row" style="gap:10px">${fbBtn()}${bell()}</div></div>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
   h+=tableHero(next);
   if(S.canWrite)h+=`<div class="quick two rise d2">
@@ -1523,6 +1532,7 @@ function pendingInvites(){if(!S.me.id)return[];const gids=myGroupIds();const t=t
 function markSeen(ids){const p=S.data.players[S.me.id];if(!p)return;const seen=Object.assign({},p.seenGames||{});let ch=false;ids.forEach(i=>{if(!seen[i]){seen[i]=Date.now();ch=true}});
   if(ch)write("players",S.me.id,Object.assign({},p,{seenGames:seen}),true)}
 function inviteLine(g){const grp=S.data.groups[g.groupId];return `${esc(kindLabel(g))} · ${esc(grp?grp.name:"")}`}
+function fbBtn(){return `<button class="bell fb-btn" data-act="fb-open" aria-label="Signaler un bug ou une réclamation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z" stroke-linejoin="round"/><path d="M12 8v4"/><path d="M12 14.2v.1" stroke-linecap="round" stroke-width="2.4"/></svg></button>`}
 function bell(){const n=pendingInvites().length;return `<button class="bell" data-act="inbox" aria-label="Invitations${n?` : ${n} en attente`:""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>${n?`<b class="num">${n}</b>`:""}</button>`}
 function inviteCard(g,big){const host=pname(g.createdBy);
   return `<div class="inv ${big?"big":""}"><div class="inv-top"><span class="eyebrow">${inviteLine(g)}</span></div>
@@ -1530,8 +1540,15 @@ function inviteCard(g,big){const host=pname(g.createdBy);
     <div class="inv-meta">${esc(longDate(g))}${g.location?` · ${esc(g.location)}`:""}${g.type!=="board"||n(g.buyIn)>0?` · <span class="num">${money(n(g.buyIn))}</span>`:""}</div>
     <div class="inv-host">${avatar(g.createdBy)}<span><b>${esc(host)}</b> t’invite. Tu viens ?</span></div>
     <div class="inv-actions"><button class="btn primary" data-act="inv-answer" data-gid="${g.id}" data-v="yes">Je viens</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="maybe">Peut-être</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="no">Non</button></div></div>`}
+function viewFbLayer(){const k=S.fbKind||"bug";const kinds=[["bug","🐞 Bug"],["reclamation","✋ Réclamation"],["idee","💡 Idée"]];
+  return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Signaler un problème"><div class="inv-sheet"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Un souci ?</h2><button class="btn small" data-act="fb-close">Fermer</button></div>
+    <div class="fb-kinds" role="radiogroup" aria-label="Type de message">${kinds.map(([v,l])=>{const [ic,...t]=l.split(" ");return `<button class="fb-kind ${k===v?"on":""}" data-act="fb-kind" data-k="${v}" role="radio" aria-checked="${k===v}"><span class="fb-ic" aria-hidden="true">${ic}</span>${t.join(" ")}</button>`}).join("")}</div>
+    <textarea id="fb-text" class="fb-text" maxlength="2000" placeholder="${k==="bug"?"Qu’est-ce qui ne marche pas ? Sur quel écran ? Que faisais-tu juste avant ?":k==="idee"?"Ton idée pour améliorer Kicker…":"Explique-nous ce qui ne va pas…"}">${esc(S.fbText||"")}</textarea>
+    <p class="fb-note">On reçoit ton message avec ton e-mail pour pouvoir te répondre. Merci de nous aider à améliorer Kicker !</p>
+    <button class="btn primary" data-act="fb-send" style="width:100%" ${S.fbBusy?"disabled":""}>${S.fbBusy?"Envoi…":"Envoyer"}</button></div></div>`}
 function viewInviteLayer(){
   if(S.auth!=="ok"||S.mode!=="shared")return"";
+  if(S.showFb)return viewFbLayer();
   const inv=pendingInvites();
   if(S.showInbox)return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Invitations"><div class="inv-sheet"><div class="row between" style="margin-bottom:12px"><h2 style="margin:0">Invitations</h2><button class="btn small" data-act="inbox-close">Fermer</button></div>
     ${inv.length?`<div class="stack">${inv.map(g=>inviteCard(g,false)).join("")}</div>`:`<div class="card empty">Aucune invitation en attente.</div>`}</div></div>`;
@@ -1564,7 +1581,7 @@ function viewHub(){
   let h=`<header class="hub-hero rise"><div class="hub-glow" aria-hidden="true"></div>${logo("big")}
     <div class="hub-name">KICKER</div><div class="hub-tag">Poker &amp; jeux de société entre amis</div>
     <div class="suits hub-suits" aria-hidden="true">♠&#xFE0E;♥&#xFE0E;♦&#xFE0E;♣&#xFE0E;</div>
-    <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div>${S.fidAvail?`<div style="text-align:center"><button class="fid-toggle ${fidGet()?"on":""}" data-act="${fidGet()?"fid-off":"fid-on"}"><span class="fid-dot"></span>${fidLabel()} ${fidGet()?"activé":"désactivé"}</button></div>`:""}<div class="hub-bell">${bell()}</div></header>${banner()}`;
+    <div class="hub-hello">Salut <b>${esc(pname(S.me.id))}</b></div>${S.fidAvail?`<div style="text-align:center"><button class="fid-toggle ${fidGet()?"on":""}" data-act="${fidGet()?"fid-off":"fid-on"}"><span class="fid-dot"></span>${fidLabel()} ${fidGet()?"activé":"désactivé"}</button></div>`:""}<div class="hub-bell">${fbBtn()}${bell()}</div></header>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
   if(mode==="create")return h+`<div class="ticket rise"><div class="marquee"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></div>
       <span class="eyebrow ticket-kind">Nouveau groupe</span><h2 class="hub-q">Crée ton groupe</h2>
@@ -1723,6 +1740,14 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="del-cancel"){S.delGame=null;render(true);return}
   if(act==="del-confirm"){const id=S.delGame;S.delGame=null;if(S.gameId===id)S.gameId=null;write("games",id,null);toast("Soirée supprimée");window.scrollTo(0,0);return}
   if(act==="inbox"){S.showInbox=true;render(true);return}
+  if(act==="fb-open"){S.showFb=true;S.showInbox=false;render(true);setTimeout(()=>{const t=document.getElementById("fb-text");if(t&&!/iPhone|iPad|Android/.test(navigator.userAgent))t.focus()},300);return}
+  if(act==="fb-close"){S.showFb=false;render(true);return}
+  if(act==="fb-kind"){S.fbKind=b.dataset.k;app.querySelectorAll(".fb-kind").forEach(x=>{const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-checked",on)});const t=document.getElementById("fb-text");if(t)t.placeholder=S.fbKind==="bug"?"Qu’est-ce qui ne marche pas ? Sur quel écran ? Que faisais-tu juste avant ?":S.fbKind==="idee"?"Ton idée pour améliorer Kicker…":"Explique-nous ce qui ne va pas…";return}
+  if(act==="fb-send"){const t=document.getElementById("fb-text");const msg=((t&&t.value)||"").trim();if(msg.length<3){toast("Écris quelques mots pour qu’on comprenne 🙂");if(t)t.focus();return}
+    S.fbBusy=true;b.disabled=true;b.textContent="Envoi…";
+    sb.from("feedback").insert({kind:S.fbKind||"bug",message:msg.slice(0,2000),context:{tab:S.tab||null,group:S.groupId||null,game:S.gameId||null,live:S.liveId||null,url:location.href,ua:navigator.userAgent,screen:innerWidth+"x"+innerHeight,at:new Date().toISOString()}}).then(({error})=>{
+      S.fbBusy=false;if(error){console.warn(error);toast("Envoi impossible. Vérifie ta connexion et réessaie.");render(true);return}
+      S.fbText="";S.showFb=false;S.fbKind="bug";buzz(15);toast("Merci ! Ton message est bien arrivé ✓");render(true)});return}
   if(act==="inbox-close"){S.showInbox=false;markSeen(pendingInvites().map(g=>g.id));render(true);return}
   if(act==="inv-later"){const gid=b.dataset.gid;S.dismissed=Object.assign({},S.dismissed,{[gid]:1});markSeen([gid]);render(true);return}
   if(act==="inv-answer"){const gid=b.dataset.gid,v=b.dataset.v;const g=clone(S.data.games[gid]);if(!g)return;g.seats=g.seats||{};g.seats[S.me.id]=Object.assign({},g.seats[S.me.id],{rsvp:v});
@@ -1839,6 +1864,7 @@ app.addEventListener("keydown",e=>{if(e.key!=="Enter")return;
   if(/^a-/.test(e.target.id||"")){e.preventDefault();const bt=app.querySelector('[data-act="auth-signup"],[data-act="auth-login"],[data-act="auth-newpw"]');if(bt)bt.click();return}
   if(e.target.id==="new-player"){e.preventDefault();app.querySelector('[data-act="add-player"]').click()}
   if(e.target.id==="quick-player"){e.preventDefault();app.querySelector('[data-act="quick-add"]').click()}});
+app.addEventListener("input",e=>{if(e.target.id==="fb-text")S.fbText=e.target.value});
 app.addEventListener("change",e=>{const el=e.target;
   if(el.dataset.score){const pid=el.dataset.score;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{score:el.value===""?null:n(el.value)})});return}
   if(el.dataset.g==="rebuys"){const on=el.checked;const sw=el.closest(".rb-switch");if(sw){sw.querySelector(".rb-no").classList.toggle("on",!on);sw.querySelector(".rb-yes").classList.toggle("on",on)}const h=document.getElementById("rb-hint");if(h)h.textContent=on?"Montant de chaque buy-in et de chaque recave.":"Montant du buy-in. Recaves désactivées.";buzz(10);
