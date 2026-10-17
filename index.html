@@ -547,6 +547,9 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
 .bell b{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--chip);color:#fff;font-size:11px;display:grid;place-items:center;box-shadow:0 0 0 2px var(--bg)}
 .hub-bell{position:absolute;top:0;right:0;display:flex;gap:8px}
 .top-btns{display:flex;gap:8px}
+.or-sep{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:#8A97AE;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.or-sep::before,.or-sep::after{content:"";flex:1;height:1px;background:#DCE3EF}
+.fid-login-btn{background:#fff!important;color:#0A2A78!important;border:1.5px solid #1652D9!important;font-weight:800}
 .install-bar{position:relative;z-index:3;display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:12px 12px 12px 14px;border-radius:16px;background:linear-gradient(100deg,#0A2A78,#1652D9);color:#fff;box-shadow:0 10px 24px -14px rgba(10,42,120,.8)}
 .install-bar img{width:42px;height:42px;border-radius:10px;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 .install-bar .ib-t{flex:1;min-width:0;font-size:13px;line-height:1.3}.install-bar .ib-t b{display:block;font-size:14px}
@@ -1022,7 +1025,7 @@ nav.tabs button{position:relative}
 <div id="toast" class="toast" hidden></div>
 <div id="savebadge" class="savebadge" hidden role="status" aria-live="polite"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 <script>
 (function(){
 const COLORS=["#8C2F39","#1F6B52","#2E5B8A","#9A6B2F","#5E3A8C","#1C6F73","#8A3A6A","#56662A"];
@@ -1057,7 +1060,7 @@ async function copy(text){try{await navigator.clipboard.writeText(text);toast("C
 const APP_URL=/\.vercel\.app$/.test(location.hostname)||location.protocol==="file:"?"https://kicker-flax.vercel.app":location.origin;
 const SB_URL="https://qswhsawqhesobdyqcnvq.supabase.co";
 const SB_KEY="sb_publishable_PELSbEu3ZWpMG_VZ5GdCiw_KE2KhzPv";
-const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,experimental:{passkey:true}}});
 const TABLES=["players","games","groups"];
 function sbRow(coll,id,data){const r={id,data,updated_at:new Date().toISOString()};if(coll==="games")r.group_id=data.groupId||null;if(coll==="groups")r.code=data.code||null;return r}
 const LOCAL_TS={},SRV_TS={};
@@ -1325,40 +1328,65 @@ const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const AUTH_ENABLED=true;
 function setSession(){}
 /* ---------- Face ID / Touch ID (déverrouillage de l'appareil) ---------- */
-/* ---------- Face ID v2 : une clé par appareil, réinitialisation complète des anciennes ---------- */
-const FID_KEY="kicker-faceid-v2";
-try{if(!localStorage.getItem("kicker-fid-reset2")){localStorage.removeItem("kicker-faceid");localStorage.removeItem("kicker-fid-asked");localStorage.setItem("kicker-fid-reset2","1")}}catch(e){}
+/* ---------- Face ID v3 : vraies « passkeys » Supabase (connexion + déverrouillage) ----------
+   Règle iPhone : navigator.credentials.* doit partir tout de suite du geste. On prépare donc le défi serveur à l'avance. */
+const FID_KEY="kicker-faceid-v3";
+try{if(!localStorage.getItem("kicker-fid-reset3")){["kicker-faceid","kicker-faceid-v2","kicker-fid-asked","kicker-fid-asked2","kicker-fid-reset2"].forEach(k=>localStorage.removeItem(k));localStorage.setItem("kicker-fid-reset3","1")}}catch(e){}
 function fidGet(){try{return JSON.parse(localStorage.getItem(FID_KEY)||"null")}catch(e){return null}}
 function fidSet(v){try{if(v)localStorage.setItem(FID_KEY,JSON.stringify(v));else localStorage.removeItem(FID_KEY)}catch(e){}}
 function fidMine(){const f=fidGet();return f&&S.me&&f.user===S.me.id?f:null}
-function fidWanted(user){const m=user&&user.user_metadata&&user.user_metadata.fid2;return !!(m&&m.want)}
-function fidSync(want){try{sb.auth.updateUser({data:{fid2:want?{want:true,at:Date.now()}:null}}).catch(e=>console.warn(e))}catch(e){}}
-const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-const unb64u=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")+"==".slice(0,(4-s.length%4)%4)),c=>c.charCodeAt(0));
+const b64u=buf=>{const a=new Uint8Array(buf);let s="";for(let i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
+const unb64u=s=>Uint8Array.from(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")+"==".slice(0,(4-String(s).length%4)%4)),c=>c.charCodeAt(0));
 async function fidAvailable(){try{return !!(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}}
 function fidLabel(){return /iPhone|iPad|iPod/.test(navigator.userAgent)?"Face ID":/Macintosh/.test(navigator.userAgent)?"Touch ID":"empreinte / visage"}
-/* Important : navigator.credentials.* doit être appelé tout de suite dans le geste (sinon Safari refuse). */
+function pkReqOpts(o){if(PublicKeyCredential.parseRequestOptionsFromJSON)return PublicKeyCredential.parseRequestOptionsFromJSON(o);
+  const r=Object.assign({},o,{challenge:unb64u(o.challenge).buffer});if(o.allowCredentials&&o.allowCredentials.length)r.allowCredentials=o.allowCredentials.map(c=>Object.assign({},c,{id:unb64u(c.id).buffer,type:c.type||"public-key"}));else delete r.allowCredentials;return r}
+function pkCreateOpts(o){if(PublicKeyCredential.parseCreationOptionsFromJSON)return PublicKeyCredential.parseCreationOptionsFromJSON(o);
+  const r=Object.assign({},o,{challenge:unb64u(o.challenge).buffer,user:Object.assign({},o.user,{id:unb64u(o.user.id).buffer})});
+  if(o.excludeCredentials&&o.excludeCredentials.length)r.excludeCredentials=o.excludeCredentials.map(c=>Object.assign({},c,{id:unb64u(c.id).buffer,type:c.type||"public-key"}));else delete r.excludeCredentials;return r}
+function pkSer(c,reg){if(typeof c.toJSON==="function")return c.toJSON();const R=c.response;
+  const resp=reg?{attestationObject:b64u(R.attestationObject),clientDataJSON:b64u(R.clientDataJSON)}:{authenticatorData:b64u(R.authenticatorData),clientDataJSON:b64u(R.clientDataJSON),signature:b64u(R.signature),userHandle:R.userHandle?b64u(R.userHandle):undefined};
+  return {id:c.id,rawId:c.id,response:resp,type:"public-key",clientExtensionResults:c.getClientExtensionResults(),authenticatorAttachment:c.authenticatorAttachment||undefined}}
+const PK_TTL=240e3;
+function pkPrefetchAuth(force){if(!window.PublicKeyCredential||!sb.auth.passkey)return;const r=S.pkReq;if(!force&&(S.pkReqBusy||(r&&Date.now()-r.at<PK_TTL)))return;S.pkReqBusy=true;
+  sb.auth.passkey.startAuthentication().then(({data,error})=>{S.pkReqBusy=false;if(error){S.pkErr=error;return}S.pkReq={opts:data.options,id:data.challenge_id,at:Date.now()}}).catch(e=>{S.pkReqBusy=false;S.pkErr=e})}
+function pkPrefetchReg(force){if(!window.PublicKeyCredential||!sb.auth.passkey||S.auth!=="ok")return;const r=S.pkReg;if(!force&&(S.pkRegBusy||(r&&r.user===S.me.id&&Date.now()-r.at<PK_TTL)))return;S.pkRegBusy=true;
+  sb.auth.passkey.startRegistration().then(({data,error})=>{S.pkRegBusy=false;if(error){S.pkErr=error;return}S.pkReg={opts:data.options,id:data.challenge_id,at:Date.now(),user:S.me.id}}).catch(e=>{S.pkRegBusy=false;S.pkErr=e})}
+function pkErrMsg(e,reg){const c=(e&&(e.code||e.error_code))||"",n=e&&e.name,m=String(e&&e.message||"").toLowerCase();
+  if(c==="passkey_disabled"||m.includes("passkey_disabled")||m.includes("passkey") && m.includes("disabled"))return fidLabel()+" n’est pas encore activé sur le serveur Kicker.";
+  if(n==="NotAllowedError")return reg?"Activation annulée.":"Annulé, ou aucun "+fidLabel()+" Kicker sur cet appareil. Connecte-toi avec ton mot de passe puis active "+fidLabel()+".";
+  if(c==="webauthn_credential_not_found")return "Ce "+fidLabel()+" n’est plus enregistré. Connecte-toi avec ton mot de passe puis réactive-le.";
+  if(c==="webauthn_challenge_expired"||c==="webauthn_challenge_not_found")return "Délai dépassé, réessaie.";
+  if(c==="email_not_confirmed")return "Confirme d’abord ton adresse mail.";
+  return (reg?"Impossible d’activer ":"Connexion ")+fidLabel()+(reg?" ici":" impossible")+(n||c?" ("+(c||n)+")":"")+"."}
+/* Inscription : doit être appelée directement dans le clic */
 function fidEnable(){
-  if(!window.PublicKeyCredential||!navigator.credentials){toast("Ton navigateur ne propose pas "+fidLabel()+" pour les sites web.");return Promise.resolve(false)}
-  let p;try{p=navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Kicker",id:location.hostname},
-      user:{id:new TextEncoder().encode(S.me.id),name:(S.account&&S.account.email)||S.me.name,displayName:S.me.name||"Kicker"},
-      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
-      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},timeout:60000,attestation:"none"}})}
-  catch(e){p=Promise.reject(e)}
-  return p.then(cred=>{if(!cred)throw new Error("no credential");
-      fidSet({id:b64u(cred.rawId),user:S.me.id,host:location.hostname,on:Date.now()});fidSync(true);
-      try{localStorage.setItem("kicker-fid-asked2","1")}catch(e){}S.unlockedAt=Date.now();buzz(15);toast(fidLabel()+" activé sur cet appareil ✓");return true})
-    .catch(e=>{console.warn("Face ID create",e);toast(e&&e.name==="NotAllowedError"?"Activation annulée.":e&&e.name==="InvalidStateError"?fidLabel()+" est déjà configuré : réessaie.":"Impossible d’activer "+fidLabel()+" ici ("+((e&&e.name)||"erreur")+").");return false})}
-function fidVerify(){const f=fidGet();if(!f)return Promise.resolve(true);
-  let p;try{p=navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:"public-key",id:unb64u(f.id)}],userVerification:"required",timeout:60000,rpId:location.hostname}})}
-  catch(e){p=Promise.reject(e)}
-  return p.then(()=>true).catch(e=>{console.warn("Face ID get",e);S.fidFails=(S.fidFails||0)+1;return false})}
-function fidLocked(user){const f=fidGet();return !!(f&&f.user===user.id&&f.host===location.hostname&&!S.fresh)}
-function fidUnlock(){if(S.fidBusy)return;S.fidBusy=true;const b=app.querySelector('[data-act="fid-unlock"]');if(b){b.disabled=true;b.lastChild.textContent=" Vérification…"}
-  fidVerify().then(ok=>{S.fidBusy=false;
-    if(ok){const u=S.pendingUser;S.pendingUser=null;S.fresh=true;S.fidFails=0;S.unlockedAt=Date.now();buzz(15);S.auth="checking";onSignedIn(u);setTimeout(()=>{S.fresh=false},500);return}
-    const bb=app.querySelector('[data-act="fid-unlock"]');if(bb){bb.disabled=false;bb.lastChild.textContent=" Réessayer"}
-    authError(S.fidFails>=2?"Ça ne passe pas : utilise ton mot de passe, puis réactive "+fidLabel()+".":"Visage non reconnu ou vérification annulée.")})}
+  if(!window.PublicKeyCredential||!sb.auth.passkey){toast("Ton navigateur ne propose pas "+fidLabel()+" pour les sites web.");return Promise.resolve(false)}
+  const pre=S.pkReg;S.pkReg=null;let p;
+  if(pre&&pre.user===S.me.id&&Date.now()-pre.at<PK_TTL){
+    try{p=navigator.credentials.create({publicKey:pkCreateOpts(pre.opts)})}catch(e){p=Promise.reject(e)}
+    p=p.then(cred=>sb.auth.passkey.verifyRegistration({challengeId:pre.id,credential:pkSer(cred,true)}))}
+  else p=sb.auth.registerPasskey();
+  return p.then(res=>{if(res&&res.error)throw res.error;return true})
+    .catch(e=>{if(e&&e.name==="InvalidStateError")return true;/* déjà enregistré sur cet appareil */console.warn("passkey register",e);toast(pkErrMsg(e,true));return false})
+    .then(ok=>{if(ok){fidSet({user:S.me.id,on:Date.now()});try{localStorage.setItem("kicker-fid-asked3","1")}catch(e){}S.unlockedAt=Date.now();buzz(15);toast(fidLabel()+" activé ✓ Tu peux aussi te connecter avec.")}pkPrefetchReg(true);return ok})}
+/* Connexion / déverrouillage : doit être appelée directement dans le clic */
+function fidSignIn(){
+  if(!window.PublicKeyCredential||!sb.auth.passkey)return Promise.resolve({error:{name:"NotSupported"}});
+  const pre=S.pkReq;S.pkReq=null;let p;
+  if(pre&&Date.now()-pre.at<PK_TTL){
+    try{p=navigator.credentials.get({publicKey:pkReqOpts(pre.opts)})}catch(e){p=Promise.reject(e)}
+    p=p.then(cred=>sb.auth.passkey.verifyAuthentication({challengeId:pre.id,credential:pkSer(cred,false)}))}
+  else p=sb.auth.signInWithPasskey();
+  return p.then(res=>res&&res.error?{error:res.error}:{data:res&&res.data}).catch(e=>({error:e})).then(r=>{pkPrefetchAuth(true);return r})}
+function fidLocked(user){const f=fidGet();return !!(f&&f.user===user.id&&!S.fresh)}
+function fidGo(fromLock){if(S.fidBusy)return;S.fidBusy=true;S.authErr="";const b=app.querySelector('[data-act="fid-unlock"],[data-act="fid-login"]');const lbl=b&&b.lastChild&&b.lastChild.textContent;if(b){b.disabled=true;b.lastChild.textContent=" Vérification…"}
+  S.fresh=true;
+  fidSignIn().then(r=>{S.fidBusy=false;
+    if(!r.error&&r.data&&r.data.session){const u=r.data.user||r.data.session.user;S.pendingUser=null;S.fidFails=0;S.unlockedAt=Date.now();buzz(15);fidSet({user:u.id,on:Date.now()});S.auth="checking";S.me.id=null;onSignedIn(u);setTimeout(()=>{S.fresh=false},800);return}
+    S.fresh=false;S.fidFails=(S.fidFails||0)+1;console.warn("passkey sign-in",r.error);
+    const bb=app.querySelector('[data-act="fid-unlock"],[data-act="fid-login"]');if(bb){bb.disabled=false;bb.lastChild.textContent=lbl||" Réessayer"}
+    authError(pkErrMsg(r.error,false))})}
 function viewLock(){const L=fidLabel();
   return `<div class="auth-tabs" style="display:none"></div><div class="lock-box"><div class="lock-ic" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6"/><path d="M17 18v3M31 18v3M24 19v8h-2M18 33c3.5 3 8.5 3 12 0"/></svg></div>
     <h2 style="margin:6px 0 4px">Kicker est verrouillé</h2><p class="muted" style="margin:0 0 16px;font-size:13.5px">Utilise ${L} pour retrouver tes parties.</p>
@@ -1372,7 +1400,7 @@ async function onSignedIn(user){
   S.account={email:user.email};S.mode="loading-shared";S.auth="ok";render(true);
   try{await loadAll()}catch(e){console.warn(e);S.auth="error";render(true);return}
   S.mode="shared";subscribeAll();ensurePlayer(S.me.name);render(true);autoJoin();
-  fidAvailable().then(av=>{S.fidAvail=av;let asked=false;try{asked=!!localStorage.getItem("kicker-fid-asked2")}catch(e){}if(av&&!fidMine()&&(!asked||fidWanted(user))){S.fidOffer=true}render(true)});
+  fidAvailable().then(av=>{S.fidAvail=av;let asked=false;try{asked=!!localStorage.getItem("kicker-fid-asked3")}catch(e){}if(av&&!fidMine()){pkPrefetchReg();if(!asked)S.fidOffer=true}render(true)});
 }
 async function initAuth(){
   sb.auth.onAuthStateChange((ev,session)=>{
@@ -1385,7 +1413,7 @@ async function initAuth(){
   if(data&&data.session)onSignedIn(data.session.user);else{S.auth="login";render(true)}
 }
 function viewAuth(){
-  let body="";
+  let body="";if(S.fidAvail&&(S.auth==="login"||S.auth==="locked"))pkPrefetchAuth();
   if(S.auth==="locked")body=viewLock();
   else if(S.auth==="checking")body=`<p class="muted" style="margin:0">Ouverture du salon…</p>`;
   else if(S.auth==="error")body=`<h2 style="margin:0 0 6px">Connexion impossible</h2><p class="muted" style="margin:0 0 12px;font-size:14px">Le salon ne répond pas. Vérifie ta connexion puis réessaie.</p><button class="btn primary" data-act="auth-retry" style="width:100%">Réessayer</button>`;
@@ -1409,7 +1437,7 @@ function viewAuth(){
       <div class="stack"><label class="field">Adresse mail<input id="a-email" type="email" inputmode="email" autocomplete="email" placeholder="toi@exemple.com" value="${esc(S.authEmail||"")}"></label>
       <label class="field">Mot de passe<span class="pw-wrap"><input id="a-pw" type="password" autocomplete="current-password"><button type="button" class="pw-eye" data-act="pw-eye" aria-label="Afficher le mot de passe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M3 3l18 18"/></svg></button></span></label></div>
       <div class="auth-err" id="a-err" role="alert">${esc(S.authErr||"")}</div>
-      <button class="btn primary" data-act="auth-login" style="width:100%;margin-top:6px">Se connecter</button>
+      <button class="btn primary" data-act="auth-login" style="width:100%;margin-top:6px">Se connecter</button>${S.fidAvail?`<div class="or-sep"><span>ou</span></div><button class="btn fid-login-btn" data-act="fid-login" style="width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="width:20px;height:20px;vertical-align:-4px"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M9 9v1.5M15 9v1.5M12 9.5V13h-1M9 16c1.7 1.3 4.3 1.3 6 0"/></svg> Se connecter avec ${fidLabel()}</button>`:""}
       <button class="btn small" data-act="auth-forgot" style="margin-top:10px;background:transparent;border-color:transparent;color:var(--gold-2)">Mot de passe oublié ?</button>`;
   return `<div class="join rise">${logo("big")}
     <div class="name" style="font-size:38px;margin-top:18px">KICKER</div><div class="muted" style="margin-top:4px">Poker &amp; jeux de société entre amis</div>
@@ -1837,12 +1865,12 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="auth-newpw"){doNewPw();return}
   if(act==="auth-retry"){S.auth="checking";render(true);sb.auth.getSession().then(({data})=>{if(data&&data.session){S.me.id=null;onSignedIn(data.session.user)}else{S.auth="login";render(true)}});return}
   if(act==="pw-eye"){const inp=b.parentElement.querySelector("input");const show=inp.type==="password";inp.type=show?"text":"password";b.classList.toggle("on",show);b.setAttribute("aria-label",show?"Masquer le mot de passe":"Afficher le mot de passe");inp.focus();try{inp.setSelectionRange(inp.value.length,inp.value.length)}catch(e){}return}
-  if(act==="fid-unlock"){fidUnlock();return}
+  if(act==="fid-unlock"||act==="fid-login"){fidGo(act==="fid-unlock");return}
   if(act==="fid-password"){fidSet(null);S.pendingUser=null;sb.auth.signOut();S.auth="login";render(true);return}
   if(act==="fid-on"){fidEnable().then(()=>render(true));return}
-  if(act==="fid-off"){fidSet(null);fidSync(false);toast(fidLabel()+" désactivé");render(true);return}
-  if(act==="fid-later"){S.fidOffer=false;try{localStorage.setItem("kicker-fid-asked2","1")}catch(e){}render(true);return}
-  if(act==="fid-yes"){const pr=fidEnable();S.fidOffer=false;try{localStorage.setItem("kicker-fid-asked2","1")}catch(e){}pr.then(()=>render(true));return}
+  if(act==="fid-off"){fidSet(null);toast(fidLabel()+" désactivé sur cet appareil");render(true);return}
+  if(act==="fid-later"){S.fidOffer=false;try{localStorage.setItem("kicker-fid-asked3","1")}catch(e){}render(true);return}
+  if(act==="fid-yes"){const pr=fidEnable();S.fidOffer=false;try{localStorage.setItem("kicker-fid-asked3","1")}catch(e){}pr.then(()=>render(true));return}
   if(act==="logout"){S.gameId=null;S.tab="games";S.groupId=null;sb.auth.signOut();window.scrollTo(0,0);return}
   if(act==="copy-join"){copy(`Je t’invite dans notre groupe « ${meta().name} » sur Kicker pour organiser nos soirées poker et jeux. Je viens de te partager la page par mail : ouvre-la, crée ton profil et dis-nous si tu viens à la prochaine soirée.`);return}
   if(act==="goto-board"){S.tab="board";S.boardMode=b.dataset.m;render(true);window.scrollTo(0,0);return}
@@ -1957,6 +1985,7 @@ app.addEventListener("change",e=>{const el=e.target;
 
 /* ---------- boot ---------- */
 render(true);
+fidAvailable().then(av=>{S.fidAvail=av;if(av&&(S.auth==="login"||S.auth==="locked"))render(true)});
 initAuth().catch(e=>{console.warn(e);S.auth="error";render(true)});
 if("serviceWorker" in navigator&&location.protocol==="https:")window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(e=>console.warn("SW",e)));
 })();
