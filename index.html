@@ -422,8 +422,8 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
 .savebadge.error{color:var(--loss)}.savebadge.error::before{background:var(--loss)}
 /* Animations v2 */
 @media (prefers-reduced-motion:no-preference){
-  #app.view-left>*:not(.inv-layer){animation:viewLeft .26s cubic-bezier(.2,.8,.3,1) both}
-  #app.view-right>*:not(.inv-layer){animation:viewRight .26s cubic-bezier(.2,.8,.3,1) both}
+  #app.view-left>*:not(.inv-layer){animation:viewLeft .18s ease-out both}
+  #app.view-right>*:not(.inv-layer){animation:viewRight .18s ease-out both}
   .stag{animation:stagIn .3s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(min(var(--i,0),8) * 28ms + 20ms)}
   #app.view-left>:is(.top,.brand,.hub-hero),#app.view-right>:is(.top,.brand,.hub-hero),#app.view-in>:is(.top,.brand){animation:none!important}
   .pchip.stag{animation-name:chipRoll}
@@ -443,9 +443,10 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
   .avatar{transition:transform .2s}
   .item:active .avatar{transform:scale(.9)}
 }
-@keyframes viewLeft{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
-@keyframes viewRight{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
-@keyframes stagIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes viewLeft{from{opacity:0}to{opacity:1}}
+@keyframes viewRight{from{opacity:0}to{opacity:1}}
+@keyframes stagIn{from{opacity:0}to{opacity:1}}
+#app.view-left .stag,#app.view-right .stag{animation:none!important}
 @keyframes chipRoll{from{opacity:0;transform:translateX(-40px) rotate(-200deg)}to{opacity:1;transform:none}}
 @keyframes lineDraw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,20px) scale(.9)}to{opacity:1;transform:translate(-50%,0)}}
@@ -547,6 +548,32 @@ button,.btn,a,input,select{touch-action:manipulation;-webkit-tap-highlight-color
 .bell b{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--chip);color:#fff;font-size:11px;display:grid;place-items:center;box-shadow:0 0 0 2px var(--bg)}
 .hub-bell{position:absolute;top:0;right:0;display:flex;gap:8px}
 .top-btns{display:flex;gap:8px}
+.pay-row{display:block!important;padding:10px 14px!important}
+.tr-line{display:flex;align-items:center;gap:8px}
+.tr-foot{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tr-acts{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.tr-acts .btn.small{min-height:32px;padding:5px 10px;font-size:12.5px}
+.pst{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.pst.none{background:#EEF2F9;color:#5B6B86}.pst.sent{background:#FFF1D6;color:#9A5B00}.pst.ok{background:#DDF5E6;color:#137A3D}
+.pay-row.ok{opacity:.75}
+.ghost-link{background:transparent!important;border-color:transparent!important;color:#5B6B86!important;font-size:12px!important}
+.pay-rem{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+.pr-item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;background:#fff;border:1px solid #E3E9F3;box-shadow:0 8px 20px -16px rgba(10,42,120,.5);color:#14213D}
+.pr-item.owe{border-color:#F3C7CF;background:#FFF6F7}
+.pr-item b{display:block;font-size:14px}.pr-item small{display:block;font-size:12px;color:#5B6B86;margin-top:2px}
+.pr-ic{font-size:22px;flex:none}
+.pay-sheet{color:#14213D}
+.pay-amt{font-size:36px;font-weight:900;text-align:center;margin:8px 0 14px;color:#0A2A78}
+.pay-opts{display:flex;flex-direction:column;gap:8px}
+.pay-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;border-radius:14px;border:1.5px solid #D5DDEA;background:#F8FAFE;font:inherit;color:#14213D;cursor:pointer}
+.pay-opt b{display:block;font-size:15px}.pay-opt small{display:block;font-size:12px;color:#5B6B86}
+.po-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-weight:900;color:#fff;flex:none;font-size:17px}
+.po-ic.paypal{background:#003087}.po-ic.revolut{background:#191C1F}.po-ic.phone{background:#EEF2F9}
+.pay-me{margin-top:12px;color:#14213D}
+.pm-field{display:block;margin:0 0 10px}.pm-field>span:first-child{display:block;font-size:12px;font-weight:800;color:#5B6B86;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.pm-in{display:flex;align-items:center;border:1.5px solid #D5DDEA;border-radius:12px;background:#fff;overflow:hidden}
+.pm-in i{font-style:normal;color:#8A97AE;padding:0 0 0 12px;font-size:14px;white-space:nowrap}
+.pm-in input{flex:1;min-width:0;border:0!important;outline:0;background:transparent!important;padding:11px 12px 11px 4px!important;font:inherit;font-size:16px;color:#14213D;box-shadow:none!important}
 .or-sep{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:#8A97AE;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
 .or-sep::before,.or-sep::after{content:"";flex:1;height:1px;background:#DCE3EF}
 .fid-login-btn{background:#fff!important;color:#0A2A78!important;border:1.5px solid #1652D9!important;font-weight:800}
@@ -713,6 +740,7 @@ h2{font-size:15px;text-transform:uppercase;letter-spacing:.02em;color:var(--ink)
 .bell{background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.3)!important;color:#fff}
 .bell b{background:var(--red);box-shadow:0 0 0 2px #1652D9}
 .top{background:linear-gradient(100deg,#0A2A78,#1652D9);margin:-18px -16px 16px;padding:calc(16px + env(safe-area-inset-top,0px)) 16px 16px;border-radius:0}
+#app>.brand,#app>.top{min-height:calc(99px + env(safe-area-inset-top,0px));box-sizing:border-box}
 .top h1,.top .muted,.top .eyebrow{color:#fff!important}
 .top .eyebrow{opacity:.8}
 .top .btn{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff}
@@ -1111,7 +1139,9 @@ async function loadAll(){
     const o={};(data||[]).forEach(r=>{o[r.id]=r.data});
     for(const path in pending){const [c,id]=path.split("/");if(c!==t)continue;if(pending[path].data===null)delete o[id];else o[id]=pending[path].data}
     S.data[t]=o}
+  loadPay();
 }
+function loadPay(){if(!sb.from)return Promise.resolve();return sb.from("pay_methods").select("user_id,paypal,revolut,phone").then(({data,error})=>{if(error){console.warn("pay",error);return}const o={};(data||[]).forEach(r=>{o[r.user_id]=r});S.pay=o;render()}).catch(e=>console.warn(e))}
 let sbChannel=null;
 function subscribeAll(){
   if(sbChannel)return;sbChannel=sb.channel("kicker-live");
@@ -1139,6 +1169,52 @@ function gamesSorted(){const gs=Object.entries(S.data.games).filter(([,g])=>g.gr
 function seatsOf(g){return g.seats||{}}
 function playing(g){return Object.entries(seatsOf(g)).filter(([pid,s])=>s.rsvp==="yes"||n(s.in)>0).map(([pid,s])=>Object.assign({pid},s))}
 function results(g){return playing(g).map(s=>({pid:s.pid,in:n(s.in),out:s.out===""||s.out==null?null:n(s.out),net:(s.out===""||s.out==null?0:n(s.out))-n(s.in)}))}
+/* ---------- Remboursements : liens de paiement + suivi (Kicker ne touche jamais l'argent) ---------- */
+const PAY_CUR={"€":"EUR","$":"USD","£":"GBP","CHF":"CHF","B/.":"USD"};
+function payKey(x){return x.from+">"+x.to}
+function payState(g,x){const v=((g&&g.pay)||{})[payKey(x)];return v&&v.s||"none"}
+function payOf(pid){return (S.pay||{})[pid]||null}
+function hasAccount(pid){const p=S.data.players[pid];return !!(p&&(p.userId||pid===S.me.id||payOf(pid)))}
+function payAmt(v){return (Math.round(v*100)/100).toFixed(2)}
+function payLinks(to,v){const m=payOf(to)||{};const out=[];const code=PAY_CUR[cur()]||"EUR";
+  if(m.paypal)out.push({k:"paypal",label:"PayPal",sub:"Montant déjà rempli",url:"https://paypal.me/"+encodeURIComponent(m.paypal)+"/"+payAmt(v)+code});
+  if(m.revolut)out.push({k:"revolut",label:"Revolut",sub:"Le montant est copié, colle-le",url:"https://revolut.me/"+encodeURIComponent(m.revolut),copy:payAmt(v).replace(".",",")});
+  if(m.phone)out.push({k:"phone",label:"Lydia ou Wero",sub:"Envoie "+money(v)+" au "+m.phone,phone:m.phone});
+  return out}
+function payPill(st){return st==="ok"?`<span class="pst ok">Payé ✓</span>`:st==="sent"?`<span class="pst sent">Envoyé</span>`:`<span class="pst none">À payer</span>`}
+function transfersHtml(g,t){return `<div class="list">${t.map(x=>{const st=payState(g,x),meFrom=isMe(x.from),meTo=isMe(x.to),credAcc=hasAccount(x.to);
+  let acts="";
+  if(st!=="ok"){
+    if(meFrom)acts+=`<button class="btn small primary" data-act="pay-open" data-gid="${g.id}" data-from="${x.from}" data-to="${x.to}" data-v="${x.v}">Payer</button>${st==="none"?`<button class="btn small" data-act="pay-mark" data-s="sent" data-gid="${g.id}" data-k="${esc(payKey(x))}">J’ai payé</button>`:""}`;
+    if(meTo||(!credAcc&&S.canWrite))acts+=`<button class="btn small ${st==="sent"?"primary":""}" data-act="pay-mark" data-s="ok" data-gid="${g.id}" data-k="${esc(payKey(x))}">Reçu ✓</button>`;
+    if(meTo&&st==="none")acts+=`<button class="btn small" data-act="pay-remind" data-gid="${g.id}" data-from="${x.from}" data-v="${x.v}">Relancer</button>`;
+  }else if(meTo||meFrom)acts+=`<button class="btn small ghost-link" data-act="pay-mark" data-s="none" data-gid="${g.id}" data-k="${esc(payKey(x))}">Annuler</button>`;
+  return `<div class="transfer pay-row ${st}"><div class="tr-line">${avatar(x.from)}<span class="ellipsis" style="font-weight:600">${esc(pname(x.from))}</span><span class="arrow">→</span>${avatar(x.to)}<span class="grow ellipsis" style="font-weight:600">${esc(pname(x.to))}</span><span class="num" style="font-weight:700">${money(x.v)}</span></div><div class="tr-foot">${payPill(st)}<div class="tr-acts">${acts}</div></div></div>`}).join("")}</div>`}
+function gameDebts(g){if(!g||g.status!=="done")return[];let rs=null;
+  if(g.type==="board"){const bm=typeof boardMoney==="function"?boardMoney(g):null;rs=bm&&bm.rs}else{const r=results(g);if(r.length&&r.every(x=>x.out!=null))rs=r}
+  return rs?settle(rs):[]}
+function payReminders(){if(!S.me.id)return[];const out=[];const now=Date.now();
+  Object.entries(S.data.games).filter(([,g])=>g.groupId===S.groupId&&g.status==="done").forEach(([id,g0])=>{const g=Object.assign({id},g0);
+    const end=g.doneAt||(g.date?Date.parse(g.date+"T23:00:00"):0);const old=now-end>12*3600e3;
+    gameDebts(g).forEach(x=>{const st=payState(g,x);
+      if(isMe(x.from)&&st==="none"&&old)out.push({type:"owe",g,x});
+      else if(isMe(x.to)&&st==="sent")out.push({type:"confirm",g,x});
+      else if(isMe(x.to)&&st==="none"&&old)out.push({type:"owed",g,x})})});
+  const pr={owe:0,confirm:1,owed:2};out.sort((a,b)=>pr[a.type]-pr[b.type]);return out.slice(0,4)}
+function payRemindersHtml(){const r=payReminders();if(!r.length)return"";
+  return `<section class="pay-rem rise">${r.map(({type,g,x})=>{const t=esc(g.title||"Soirée");
+    if(type==="owe")return `<div class="pr-item owe"><span class="pr-ic" aria-hidden="true">💸</span><div class="grow"><b>Tu dois ${money(x.v)} à ${esc(pname(x.to))}</b><small>${t}</small></div><button class="btn small primary" data-act="pay-open" data-gid="${g.id}" data-from="${x.from}" data-to="${x.to}" data-v="${x.v}">Payer</button></div>`;
+    if(type==="confirm")return `<div class="pr-item"><span class="pr-ic" aria-hidden="true">📩</span><div class="grow"><b>${esc(pname(x.from))} dit t’avoir payé ${money(x.v)}</b><small>${t} · confirme quand tu l’as reçu</small></div><button class="btn small primary" data-act="pay-mark" data-s="ok" data-gid="${g.id}" data-k="${esc(payKey(x))}">Reçu ✓</button></div>`;
+    return `<div class="pr-item"><span class="pr-ic" aria-hidden="true">⏳</span><div class="grow"><b>${esc(pname(x.from))} te doit ${money(x.v)}</b><small>${t}</small></div><button class="btn small" data-act="pay-remind" data-gid="${g.id}" data-from="${x.from}" data-v="${x.v}">Relancer</button></div>`}).join("")}</section>`}
+function viewPaySheet(){const ps=S.paySheet;if(!ps)return"";const links=payLinks(ps.to,ps.v);const nm=esc(pname(ps.to));
+  const opts=links.map(l=>l.phone?`<div class="pay-opt"><span class="po-ic ${l.k}" aria-hidden="true">📱</span><div class="grow"><b>${l.label}</b><small>${esc(l.sub)}</small></div><button class="btn small" data-act="pay-copy" data-copy="${esc(l.phone)}" data-what="Numéro">Copier</button></div>`
+    :`<button class="pay-opt" data-act="pay-go" data-url="${esc(l.url)}" ${l.copy?`data-copy="${esc(l.copy)}"`:""}><span class="po-ic ${l.k}" aria-hidden="true">${l.k==="paypal"?"P":"R"}</span><div class="grow"><b>${l.label}</b><small>${esc(l.sub)}</small></div><span aria-hidden="true">›</span></button>`).join("");
+  return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Payer ${nm}"><div class="inv-sheet pay-sheet"><div class="row between" style="margin-bottom:6px"><h2 style="margin:0">Payer ${nm}</h2><button class="btn small" data-act="pay-close">Fermer</button></div>
+    <div class="pay-amt num">${money(ps.v)}</div>
+    ${links.length?`<div class="pay-opts">${opts}</div>`:`<p class="muted" style="font-size:13.5px;margin:4px 0 12px">${nm} n’a pas encore indiqué comment se faire rembourser. Règle-le comme d’habitude, puis appuie sur « J’ai payé ».</p>`}
+    <button class="btn small" data-act="pay-copy" data-copy="${payAmt(ps.v).replace(".",",")}" data-what="Montant" style="margin:10px 0 0">Copier le montant</button>
+    <p class="fb-note" style="margin:12px 0">Kicker ne touche jamais l’argent : le paiement se fait dans l’appli choisie.</p>
+    <button class="btn primary" data-act="pay-mark" data-s="sent" data-gid="${ps.gid}" data-k="${esc(ps.from+">"+ps.to)}" data-close="1" style="width:100%">J’ai payé</button></div></div>`}
 function settle(rs){
   const cred=[],debt=[];rs.forEach(r=>{const v=Math.round(r.net*100)/100;if(v>0)cred.push({pid:r.pid,v});else if(v<0)debt.push({pid:r.pid,v:-v})});
   cred.sort((a,b)=>b.v-a.v);debt.sort((a,b)=>b.v-a.v);const t=[];let i=0,j=0;
@@ -1207,6 +1283,7 @@ function viewGames(){
   const m=meta();const {up,past}=gamesSorted();const next=up[0];
   let h=`<div class="brand rise"><div class="mark">${logo("")}<div style="min-width:0"><div class="name">KICKER</div><button class="grp grp-switch ellipsis" data-act="switch-group" aria-label="Changer de groupe">${esc(m.name)} <span aria-hidden="true">▾</span></button></div></div><div class="row" style="gap:10px">${fbBtn()}${bell()}</div></div>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
+  h+=payRemindersHtml();
   h+=tableHero(next);
   if(S.canWrite)h+=`<div class="quick two rise d2">
     <button class="qa p" data-act="new-game" data-kind="cash"><span class="ic" data-s="♠"><i>♠&#xFE0E;</i></span><b>Soirée poker</b><small>Cash game ou tournoi</small></button>
@@ -1269,7 +1346,7 @@ function viewGame(){
     if(filled)h+=`<div class="check ${Math.abs(diff)<0.01&&filled===rs.length?"ok":"bad"}"><span>${filled===rs.length?(Math.abs(diff)<0.01?"La caisse tombe juste":"Écart de caisse"):`Jetons saisis : ${filled}/${rs.length}`}</span><span class="num">${money(tout)} / ${money(tin)}${Math.abs(diff)>=0.01&&filled===rs.length?` (${money(diff,true)})`:""}</span></div>`;
     // Settlement
     if(filled===rs.length&&rs.length){const t=settle(rs);
-      h+=`<h2 style="margin:12px 0 0">Qui paie qui</h2>${t.length?`<div class="list">${t.map(x=>`<div class="transfer">${avatar(x.from)}<span class="ellipsis" style="font-weight:600">${esc(pname(x.from))}</span><span class="arrow">→</span>${avatar(x.to)}<span class="grow ellipsis" style="font-weight:600">${esc(pname(x.to))}</span><span class="num" style="font-weight:700">${money(x.v)}</span></div>`).join("")}</div>`:`<div class="card empty">Personne ne doit rien.</div>`}
+      h+=`<h2 style="margin:12px 0 0">Qui paie qui</h2>${t.length?transfersHtml(Object.assign({id},g),t):`<div class="card empty">Personne ne doit rien.</div>`}
       <div class="row wrap"><button class="btn small" data-act="copy-results">Copier les résultats</button></div>`}
     if(w)h+=`<div class="row wrap">${g.status==="live"?`<button class="btn primary" data-act="finish" ${filled===rs.length&&rs.length?"":"disabled"}>Terminer la soirée</button>${filled<rs.length?`<span class="muted" style="font-size:13px">Saisis les jetons de fin de chacun pour terminer.</span>`:""}`:`<button class="btn small" data-act="reopen">Rouvrir la caisse</button>`}</div>`;
   }
@@ -1291,7 +1368,7 @@ function scoresSection(g,w,dis){
   if(!sc.length)h+=`<div class="card empty">Marque les présents dans « Qui vient ? ».</div>`;
   const bm=boardMoney(g);
   if(bm){h+=`<div class="row wrap" style="gap:8px"><div class="stat grow"><span class="eyebrow">Mise</span><b>${money(bm.stake)}</b></div><div class="stat grow"><span class="eyebrow">Pot</span><b>${money(bm.pot)}</b></div></div>`;
-    if(bm.rs){const t=settle(bm.rs);h+=`<h2 style="margin:12px 0 0">Qui paie qui</h2>${t.length?`<div class="list">${t.map(x=>`<div class="transfer">${avatar(x.from)}<span class="ellipsis" style="font-weight:600">${esc(pname(x.from))}</span><span class="arrow">→</span>${avatar(x.to)}<span class="grow ellipsis" style="font-weight:600">${esc(pname(x.to))}</span><span class="num" style="font-weight:700">${money(x.v)}</span></div>`).join("")}</div>`:`<div class="card empty">Personne ne doit rien.</div>`}`}}
+    if(bm.rs){const t=settle(bm.rs);h+=`<h2 style="margin:12px 0 0">Qui paie qui</h2>${t.length?transfersHtml(Object.assign({id:S.gameId},g),t):`<div class="card empty">Personne ne doit rien.</div>`}`}}
   if(filled===sc.length&&sc.length)h+=`<div class="row wrap"><button class="btn small" data-act="copy-results">Copier les résultats</button></div>`;
   if(w)h+=`<div class="row wrap">${g.status==="live"?`<button class="btn primary" data-act="finish" ${filled===sc.length&&sc.length?"":"disabled"}>Terminer la partie</button>${filled<sc.length?`<span class="muted" style="font-size:13px">Saisis le score de chacun pour terminer.</span>`:""}`:`<button class="btn small" data-act="reopen">Modifier les scores</button>`}</div>`;
   return h+`</section>`;
@@ -1640,7 +1717,7 @@ function inviteCard(g,big){const host=pname(g.createdBy);
     <div class="inv-host">${avatar(g.createdBy)}<span><b>${esc(host)}</b> t’invite. Tu viens ?</span></div>
     <div class="inv-actions"><button class="btn primary" data-act="inv-answer" data-gid="${g.id}" data-v="yes">Je viens</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="maybe">Peut-être</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="no">Non</button></div></div>`}
 if(/^#(confidentialite|mentions-legales)$/.test(location.hash))S.legal=location.hash==="#confidentialite"?"privacy":"mentions";
-const LEGAL={mentions:"<h3>Éditeur</h3>\n<p>Kicker est édité par <b>Jonah Abbo</b>, à titre personnel et non professionnel.<br>Contact : <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a><br>Directeur de la publication : Jonah Abbo.</p>\n<p class=\"lg-small\">Conformément à l’article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), l’éditeur, non professionnel, a communiqué ses éléments d’identification à l’hébergeur.</p>\n<h3>Hébergement</h3>\n<p><b>Site :</b> Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis — vercel.com</p>\n<p><b>Base de données et comptes :</b> Supabase Pte. Ltd., 65 Chulia Street #38-02/03, OCBC Centre, Singapour 049513 — supabase.com. Les données sont stockées dans l’Union européenne (Irlande).</p>\n<p><b>Envoi des e-mails :</b> Sendinblue SAS (Brevo), 9-17 rue Salneuve, 75017 Paris, France — brevo.com</p>\n<h3>Nature du service</h3>\n<p>Kicker est un outil gratuit pour organiser des soirées poker et jeux de société entre amis : invitations, réponses, minuteur, scores et suivi des comptes.</p>\n<p><b>Kicker ne propose aucun jeu d’argent et ne gère aucun paiement.</b> L’application ne reçoit, ne conserve et ne transfère aucune somme d’argent. Les montants affichés (buy-in, recaves, « qui paie qui ») sont de simples notes saisies par les joueurs. Chaque utilisateur reste responsable des jeux qu’il organise et du respect de la réglementation qui s’y applique.</p>\n<h3>Âge minimum</h3>\n<p>Kicker est réservé aux personnes âgées d’au moins 15 ans.</p>\n<h3>Responsabilité</h3>\n<p>Kicker est en version de test et fourni « en l’état ». L’éditeur fait de son mieux pour que le service fonctionne et que les calculs soient justes, mais ne peut garantir l’absence d’erreur ou d’interruption. Pense à vérifier les comptes avant de régler entre vous.</p>\n<h3>Propriété intellectuelle</h3>\n<p>Le nom Kicker, son logo, son design et son code sont la propriété de l’éditeur. Toute reproduction sans autorisation est interdite. Les contenus que tu saisis (noms de groupes, notes…) restent les tiens.</p>\n<h3>Droit applicable</h3>\n<p>Les présentes mentions sont soumises au droit français.</p>\n",privacy:"<p>Cette page explique, simplement, quelles données Kicker utilise, pourquoi, et comment tu gardes la main dessus.</p>\n<h3>1. Qui est responsable ?</h3>\n<p>Jonah Abbo, éditeur de Kicker. Pour toute question ou demande : <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a>.</p>\n<h3>2. Quelles données ?</h3>\n<ul>\n<li><b>Ton compte :</b> adresse e-mail, pseudo et mot de passe. Le mot de passe est chiffré par notre prestataire : personne, pas même l’éditeur, ne peut le lire.</li>\n<li><b>Ce que tu crées :</b> groupes et leurs membres, soirées (titre, date, heure, lieu, type de jeu), réponses aux invitations, buy-in, recaves, jetons de fin, scores et notes.</li>\n<li><b>Joueurs ajoutés à la main :</b> si tu ajoutes le pseudo d’un ami qui n’a pas de compte, assure-toi qu’il est d’accord.</li>\n<li><b>Tes messages « Un souci ? » :</b> le texte, ton e-mail (pour te répondre) et quelques infos techniques pour reproduire un bug (écran de l’app, navigateur, taille d’écran).</li>\n<li><b>Données techniques :</b> adresse IP et journaux de connexion, conservés par nos hébergeurs pour la sécurité du service.</li>\n<li><b>Face ID / Touch ID :</b> ton visage ou ton empreinte <b>ne quittent jamais ton téléphone</b>. Kicker ne garde qu’un identifiant technique de la clé de déverrouillage.</li>\n</ul>\n<h3>3. Pourquoi ?</h3>\n<ul>\n<li>Faire fonctionner Kicker : ton compte, tes groupes, tes soirées, les e-mails de confirmation et de mot de passe oublié (exécution du service que tu demandes).</li>\n<li>Sécuriser le service et éviter les abus, répondre à tes messages et corriger les bugs (intérêt légitime de l’éditeur).</li>\n</ul>\n<p><b>Pas de publicité, pas de revente, pas de pistage, pas d’outil de mesure d’audience.</b></p>\n<h3>4. Qui voit tes données ?</h3>\n<ul>\n<li><b>Les membres de tes groupes :</b> ton pseudo, tes réponses, tes comptes et scores dans ce groupe. Ton e-mail ne leur est pas montré.</li>\n<li><b>L’éditeur</b>, pour faire fonctionner et améliorer le service.</li>\n<li><b>Nos prestataires techniques</b>, uniquement pour ce service : Supabase (base de données et comptes, stockés en Irlande), Vercel (hébergement du site), Brevo (envoi des e-mails), Google Fonts (police d’écriture : ton adresse IP est transmise à Google au chargement) et jsDelivr (chargement d’une bibliothèque technique).</li>\n</ul>\n<h3>5. Transferts hors de l’Union européenne</h3>\n<p>Tes données sont stockées en Irlande. Certains prestataires (Vercel, Google, Supabase) peuvent y accéder depuis l’étranger, notamment les États-Unis. Ces transferts sont encadrés par des garanties prévues par le RGPD (cadre de protection des données UE–États-Unis ou clauses contractuelles types de la Commission européenne).</p>\n<h3>6. Combien de temps ?</h3>\n<ul>\n<li>Compte et contenus : tant que ton compte existe. Après une demande de suppression, ils sont effacés sous 30 jours.</li>\n<li>Messages « Un souci ? » : 24 mois maximum.</li>\n<li>Journaux techniques : durée limitée fixée par nos hébergeurs.</li>\n</ul>\n<h3>7. Cookies et stockage sur ton appareil</h3>\n<p>Kicker n’utilise <b>aucun cookie publicitaire ni de mesure d’audience</b>. Il enregistre seulement sur ton appareil ce qui est nécessaire pour fonctionner : ta session de connexion, ton dernier groupe ouvert, les réglages du minuteur, Face ID et les fenêtres déjà vues. Ces éléments étant indispensables au service, ils ne nécessitent pas ton consentement.</p>\n<h3>8. Tes droits</h3>\n<p>Tu peux à tout moment demander à <b>accéder</b> à tes données, les <b>corriger</b>, les <b>supprimer</b> (y compris ton compte), les <b>récupérer</b> dans un format lisible, <b>limiter</b> leur utilisation ou t’y <b>opposer</b>. Écris à <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a> depuis l’adresse de ton compte : réponse sous un mois maximum. Ton pseudo se modifie aussi directement dans l’app.</p>\n<p>Si tu estimes que tes droits ne sont pas respectés, tu peux saisir la CNIL (cnil.fr).</p>\n<h3>9. Âge minimum</h3>\n<p>Kicker est réservé aux personnes d’au moins 15 ans.</p>\n<h3>10. Sécurité</h3>\n<p>Connexions chiffrées (HTTPS), mots de passe chiffrés, et règles d’accès qui empêchent quiconque de voir les groupes dont il n’est pas membre.</p>\n<h3>11. Modifications</h3>\n<p>Cette politique peut évoluer avec l’app. La date de mise à jour figure en haut de la page ; en cas de changement important, tu seras prévenu dans l’app.</p>\n",date:"17 octobre 2026"};
+const LEGAL={mentions:"<h3>Éditeur</h3>\n<p>Kicker est édité par <b>Jonah Abbo</b>, à titre personnel et non professionnel.<br>Contact : <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a><br>Directeur de la publication : Jonah Abbo.</p>\n<p class=\"lg-small\">Conformément à l’article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), l’éditeur, non professionnel, a communiqué ses éléments d’identification à l’hébergeur.</p>\n<h3>Hébergement</h3>\n<p><b>Site :</b> Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis — vercel.com</p>\n<p><b>Base de données et comptes :</b> Supabase Pte. Ltd., 65 Chulia Street #38-02/03, OCBC Centre, Singapour 049513 — supabase.com. Les données sont stockées dans l’Union européenne (Irlande).</p>\n<p><b>Envoi des e-mails :</b> Sendinblue SAS (Brevo), 9-17 rue Salneuve, 75017 Paris, France — brevo.com</p>\n<h3>Nature du service</h3>\n<p>Kicker est un outil gratuit pour organiser des soirées poker et jeux de société entre amis : invitations, réponses, minuteur, scores et suivi des comptes.</p>\n<p><b>Kicker ne propose aucun jeu d’argent et ne gère aucun paiement.</b> L’application ne reçoit, ne conserve et ne transfère aucune somme d’argent. Les montants affichés (buy-in, recaves, « qui paie qui ») sont de simples notes saisies par les joueurs. Les boutons de paiement ouvrent simplement des services tiers (PayPal, Revolut, Lydia, Wero), sur lesquels Kicker n’a aucun contrôle. Chaque utilisateur reste responsable des jeux qu’il organise et du respect de la réglementation qui s’y applique.</p>\n<h3>Âge minimum</h3>\n<p>Kicker est réservé aux personnes âgées d’au moins 15 ans.</p>\n<h3>Responsabilité</h3>\n<p>Kicker est en version de test et fourni « en l’état ». L’éditeur fait de son mieux pour que le service fonctionne et que les calculs soient justes, mais ne peut garantir l’absence d’erreur ou d’interruption. Pense à vérifier les comptes avant de régler entre vous.</p>\n<h3>Propriété intellectuelle</h3>\n<p>Le nom Kicker, son logo, son design et son code sont la propriété de l’éditeur. Toute reproduction sans autorisation est interdite. Les contenus que tu saisis (noms de groupes, notes…) restent les tiens.</p>\n<h3>Droit applicable</h3>\n<p>Les présentes mentions sont soumises au droit français.</p>\n",privacy:"<p>Cette page explique, simplement, quelles données Kicker utilise, pourquoi, et comment tu gardes la main dessus.</p>\n<h3>1. Qui est responsable ?</h3>\n<p>Jonah Abbo, éditeur de Kicker. Pour toute question ou demande : <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a>.</p>\n<h3>2. Quelles données ?</h3>\n<ul>\n<li><b>Ton compte :</b> adresse e-mail, pseudo et mot de passe. Le mot de passe est chiffré par notre prestataire : personne, pas même l’éditeur, ne peut le lire.</li>\n<li><b>Ce que tu crées :</b> groupes et leurs membres, soirées (titre, date, heure, lieu, type de jeu), réponses aux invitations, buy-in, recaves, jetons de fin, scores et notes.</li>\n<li><b>Joueurs ajoutés à la main :</b> si tu ajoutes le pseudo d’un ami qui n’a pas de compte, assure-toi qu’il est d’accord.</li>\n<li><b>Moyens de paiement (facultatif) :</b> ton identifiant PayPal.me, ton Revtag Revolut et/ou ton numéro pour Lydia/Wero, seulement si tu choisis de les renseigner, pour que tes amis puissent te rembourser. Tu peux les modifier ou les effacer à tout moment dans l’onglet Joueurs. Kicker ne reçoit, ne conserve et ne transfère <b>aucun argent</b> : le paiement se fait entièrement dans l’application choisie, selon ses propres conditions. Kicker garde seulement le statut « à payer / envoyé / payé ».</li>\n<li><b>Tes messages « Un souci ? » :</b> le texte, ton e-mail (pour te répondre) et quelques infos techniques pour reproduire un bug (écran de l’app, navigateur, taille d’écran).</li>\n<li><b>Données techniques :</b> adresse IP et journaux de connexion, conservés par nos hébergeurs pour la sécurité du service.</li>\n<li><b>Face ID / Touch ID :</b> ton visage ou ton empreinte <b>ne quittent jamais ton téléphone</b>. Kicker ne garde qu’un identifiant technique de la clé de déverrouillage.</li>\n</ul>\n<h3>3. Pourquoi ?</h3>\n<ul>\n<li>Faire fonctionner Kicker : ton compte, tes groupes, tes soirées, les e-mails de confirmation et de mot de passe oublié (exécution du service que tu demandes).</li>\n<li>Sécuriser le service et éviter les abus, répondre à tes messages et corriger les bugs (intérêt légitime de l’éditeur).</li>\n</ul>\n<p><b>Pas de publicité, pas de revente, pas de pistage, pas d’outil de mesure d’audience.</b></p>\n<h3>4. Qui voit tes données ?</h3>\n<ul>\n<li><b>Les membres de tes groupes :</b> ton pseudo, tes réponses, tes comptes et scores dans ce groupe, et tes moyens de paiement si tu en as renseigné. Ton e-mail ne leur est pas montré.</li>\n<li><b>L’éditeur</b>, pour faire fonctionner et améliorer le service.</li>\n<li><b>Nos prestataires techniques</b>, uniquement pour ce service : Supabase (base de données et comptes, stockés en Irlande), Vercel (hébergement du site), Brevo (envoi des e-mails), Google Fonts (police d’écriture : ton adresse IP est transmise à Google au chargement) et jsDelivr (chargement d’une bibliothèque technique).</li>\n</ul>\n<h3>5. Transferts hors de l’Union européenne</h3>\n<p>Tes données sont stockées en Irlande. Certains prestataires (Vercel, Google, Supabase) peuvent y accéder depuis l’étranger, notamment les États-Unis. Ces transferts sont encadrés par des garanties prévues par le RGPD (cadre de protection des données UE–États-Unis ou clauses contractuelles types de la Commission européenne).</p>\n<h3>6. Combien de temps ?</h3>\n<ul>\n<li>Compte et contenus : tant que ton compte existe. Après une demande de suppression, ils sont effacés sous 30 jours.</li>\n<li>Messages « Un souci ? » : 24 mois maximum.</li>\n<li>Journaux techniques : durée limitée fixée par nos hébergeurs.</li>\n</ul>\n<h3>7. Cookies et stockage sur ton appareil</h3>\n<p>Kicker n’utilise <b>aucun cookie publicitaire ni de mesure d’audience</b>. Il enregistre seulement sur ton appareil ce qui est nécessaire pour fonctionner : ta session de connexion, ton dernier groupe ouvert, les réglages du minuteur, Face ID et les fenêtres déjà vues. Ces éléments étant indispensables au service, ils ne nécessitent pas ton consentement.</p>\n<h3>8. Tes droits</h3>\n<p>Tu peux à tout moment demander à <b>accéder</b> à tes données, les <b>corriger</b>, les <b>supprimer</b> (y compris ton compte), les <b>récupérer</b> dans un format lisible, <b>limiter</b> leur utilisation ou t’y <b>opposer</b>. Écris à <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a> depuis l’adresse de ton compte : réponse sous un mois maximum. Ton pseudo se modifie aussi directement dans l’app.</p>\n<p>Si tu estimes que tes droits ne sont pas respectés, tu peux saisir la CNIL (cnil.fr).</p>\n<h3>9. Âge minimum</h3>\n<p>Kicker est réservé aux personnes d’au moins 15 ans.</p>\n<h3>10. Sécurité</h3>\n<p>Connexions chiffrées (HTTPS), mots de passe chiffrés, et règles d’accès qui empêchent quiconque de voir les groupes dont il n’est pas membre.</p>\n<h3>11. Modifications</h3>\n<p>Cette politique peut évoluer avec l’app. La date de mise à jour figure en haut de la page ; en cas de changement important, tu seras prévenu dans l’app.</p>\n",date:"18 octobre 2026"};
 const IS_STANDALONE=(()=>{try{return matchMedia("(display-mode: standalone)").matches||navigator.standalone===true}catch(e){return false}})();
 const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
 const IS_MOBILE=IS_IOS||/Android/i.test(navigator.userAgent);
@@ -1735,7 +1812,14 @@ function viewPlayers(){
   if(mine){const r=lb[S.me.id],b=bs[S.me.id];
     h+=`<div class="card me-card rise"><div class="row">${avatar(S.me.id)}<div class="grow" style="min-width:0"><span class="eyebrow">Mon profil</span>
       <input id="pn-me" data-pname="${S.me.id}" value="${esc(mine.name)}" maxlength="24" ${dis} class="pseudo" aria-label="Mon pseudo"><div class="muted ellipsis" style="font-size:12px">${esc(S.account?.email||"")}</div>${S.fidAvail?`<button class="fid-toggle ${fidMine()?"on":""}" data-act="${fidMine()?"fid-off":"fid-on"}"><span class="fid-dot"></span>${fidLabel()} ${fidMine()?"activé":"désactivé"}</button>`:""}</div><button class="btn small" data-act="logout">Déconnexion</button></div>
-      <div class="stats" style="margin-top:12px"><div class="stat"><span class="eyebrow">Poker</span><b class="${r&&r.net>0?"win":r&&r.net<0?"loss":""}">${r?money(r.net,true):"—"}</b></div><div class="stat"><span class="eyebrow">Victoires jeux</span><b>${b?b.wins:0}</b></div><div class="stat"><span class="eyebrow">Soirées</span><b>${(r?r.games:0)+(b?b.games:0)}</b></div></div></div>`}
+      <div class="stats" style="margin-top:12px"><div class="stat"><span class="eyebrow">Poker</span><b class="${r&&r.net>0?"win":r&&r.net<0?"loss":""}">${r?money(r.net,true):"—"}</b></div><div class="stat"><span class="eyebrow">Victoires jeux</span><b>${b?b.wins:0}</b></div><div class="stat"><span class="eyebrow">Soirées</span><b>${(r?r.games:0)+(b?b.games:0)}</b></div></div></div>`;
+    const pm=payOf(S.me.id)||{};
+    h+=`<div class="card pay-me rise"><span class="eyebrow">Me faire rembourser</span><p class="muted" style="margin:4px 0 10px;font-size:13px">Facultatif. Tes amis pourront te payer en un clic. Visible uniquement par les membres de tes groupes.</p>
+      <label class="pm-field"><span>PayPal.me</span><span class="pm-in"><i>paypal.me/</i><input id="pm-paypal" value="${esc(pm.paypal||"")}" maxlength="40" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="tonpseudo"></span></label>
+      <label class="pm-field"><span>Revolut</span><span class="pm-in"><i>revolut.me/</i><input id="pm-revolut" value="${esc(pm.revolut||"")}" maxlength="40" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="revtag"></span></label>
+      <label class="pm-field"><span>Lydia / Wero</span><span class="pm-in"><i>📱</i><input id="pm-phone" type="tel" inputmode="tel" value="${esc(pm.phone||"")}" maxlength="20" placeholder="06 12 34 56 78"></span></label>
+      <div class="auth-err" id="pm-err" role="alert"></div>
+      <button class="btn small primary" data-act="pay-save" style="margin-top:4px">Enregistrer</button></div>`}
 
   // Membres
   h+=`<section class="block"><div class="sec-title"><h2>Membres</h2><span class="muted" style="font-size:13px">${ps.length}</span></div>${ps.length?`<div class="list">${ps.map(([pid,p])=>{const r=lb[pid],b=bs[pid];
@@ -1801,7 +1885,7 @@ function render(force){
   const liveG=S.liveId&&S.data.games[S.liveId];if(S.liveId&&(!liveG||liveG.status!=="live"))S.liveId=null;
   const layer=(S.fidOffer&&S.auth==="ok"?`<div class="inv-layer" role="dialog" aria-modal="true" aria-label="${fidLabel()}"><div class="inv-pop fid-pop"><div class="lock-ic" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6"/><path d="M17 18v3M31 18v3M24 19v8h-2M18 33c3.5 3 8.5 3 12 0"/></svg></div><div class="inv-title" style="text-align:center">Ouvrir Kicker avec ${fidLabel()} ?</div><p class="muted" style="text-align:center;font-size:13.5px;margin:6px 0 0">Plus besoin de mot de passe sur cet appareil : un regard suffit.</p><div class="del-actions"><button class="btn" data-act="fid-later">Plus tard</button><button class="btn primary" data-act="fid-yes">Activer</button></div></div></div>`:"")||viewCelebrate()||viewStopLayer()||viewDelLayer()||(S.liveId?"":viewInviteLayer());if(layer||S.liveId)document.querySelector("nav.tabs").hidden=true;
   const vkey=S.auth!=="ok"?"auth":S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"");const changed=vkey!==S.lastView;S.lastView=vkey;
-  app.innerHTML=(S.auth!=="ok"?viewAuth():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"");if(S.legal||S.showInstall)document.querySelector("nav.tabs").hidden=true;
+  app.innerHTML=(S.auth!=="ok"?viewAuth():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"");if(S.legal||S.showInstall||S.paySheet)document.querySelector("nav.tabs").hidden=true;
   if(!S.liveId&&!S.showInstall){const ib=installBar();if(ib){const anchor=app.querySelector(".join-card")||app.querySelector(".hub-hero")||app.querySelector(".brand");if(anchor)anchor.insertAdjacentHTML(anchor.classList.contains("join-card")?"beforebegin":"afterend",ib);else app.insertAdjacentHTML("afterbegin",ib)}}
 
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));
@@ -1864,6 +1948,26 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="install"){if(deferredInstall){const ev=deferredInstall;deferredInstall=null;ev.prompt();ev.userChoice.then(c=>{if(c&&c.outcome==="accepted"){try{localStorage.setItem("kicker-installed","1")}catch(e){}}render(true)}).catch(()=>{});return}S.showInstall=true;render(true);return}
   if(act==="install-close"){S.showInstall=false;render(true);return}
   if(act==="install-later"){try{localStorage.setItem("kicker-install-later",String(Date.now()))}catch(e){}render(true);return}
+  if(act==="pay-open"){S.paySheet={gid:b.dataset.gid,from:b.dataset.from,to:b.dataset.to,v:+b.dataset.v};render(true);loadPay();return}
+  if(act==="pay-close"){S.paySheet=null;render(true);return}
+  if(act==="pay-copy"){const t=b.dataset.copy;try{navigator.clipboard.writeText(t).then(()=>toast((b.dataset.what||"Copié")+" copié ✓"),()=>toast(t))}catch(e){toast(t)}return}
+  if(act==="pay-go"){const u=b.dataset.url;if(b.dataset.copy){try{navigator.clipboard.writeText(b.dataset.copy).then(()=>toast("Montant copié : colle-le dans l’appli"),()=>{})}catch(e){}}window.open(u,"_blank","noopener");return}
+  if(act==="pay-mark"){const gid=b.dataset.gid,k=b.dataset.k,st=b.dataset.s;const g0=S.data.games[gid];if(!g0)return;const g=clone(g0);g.pay=g.pay||{};
+    if(st==="none")delete g.pay[k];else g.pay[k]={s:st,at:Date.now(),by:S.me.id};write("games",gid,g);if(b.dataset.close)S.paySheet=null;buzz(12);
+    toast(st==="ok"?"Remboursement confirmé ✓":st==="sent"?"Noté ! On prévient "+pname(k.split(">")[1])+" pour qu’il confirme.":"Statut annulé");render(true);return}
+  if(act==="pay-remind"){const g=S.data.games[b.dataset.gid]||{};const v=+b.dataset.v;const mine=payOf(S.me.id)||{};const code=PAY_CUR[cur()]||"EUR";
+    const how=mine.paypal?`\nPayPal (montant déjà rempli) : https://paypal.me/${mine.paypal}/${payAmt(v)}${code}`:mine.revolut?`\nRevolut : https://revolut.me/${mine.revolut}`:mine.phone?`\nLydia / Wero : ${mine.phone}`:"";
+    const txt=`Salut ${pname(b.dataset.from)} ! Petit rappel Kicker 🃏 : il me reste ${money(v)} à recevoir pour « ${g.title||"la soirée"} ».${how}\nTu peux aussi payer depuis l’appli : ${APP_URL}`;
+    if(navigator.share){navigator.share({text:txt}).catch(()=>{})}else copy(txt);return}
+  if(act==="pay-save"){const v=id=>(document.getElementById(id)||{}).value||"";
+    let pp=v("pm-paypal").trim().replace(/^.*paypal\.me\//i,"").replace(/[\/\s@]/g,""),rv=v("pm-revolut").trim().replace(/^.*revolut\.me\//i,"").replace(/[\/\s@]/g,""),ph=v("pm-phone").trim();
+    const err=m=>{const e=document.getElementById("pm-err");if(e)e.textContent=m};
+    if(pp&&!/^[A-Za-z0-9]{1,40}$/.test(pp))return err("Identifiant PayPal.me invalide (lettres et chiffres uniquement).");
+    if(rv&&!/^[A-Za-z0-9._-]{1,40}$/.test(rv))return err("Revtag Revolut invalide.");
+    if(ph&&!/^\+?[0-9 .]{6,20}$/.test(ph))return err("Numéro de téléphone invalide.");
+    b.disabled=true;const row={user_id:S.me.id,paypal:pp||null,revolut:rv||null,phone:ph||null,updated_at:new Date().toISOString()};
+    const q=(pp||rv||ph)?sb.from("pay_methods").upsert(row):sb.from("pay_methods").delete().eq("user_id",S.me.id);
+    q.then(({error})=>{b.disabled=false;if(error){console.warn(error);return err("Enregistrement impossible. Réessaie.")}S.pay=Object.assign({},S.pay);if(pp||rv||ph)S.pay[S.me.id]=row;else delete S.pay[S.me.id];buzz(12);toast("Moyens de paiement enregistrés ✓");render(true)});return}
   if(act==="legal"){S.legal=b.dataset.p==="privacy"?"privacy":"mentions";try{history.replaceState(null,"",location.pathname+location.search+(S.legal==="privacy"?"#confidentialite":"#mentions-legales"))}catch(e){}render(true);const sh=app.querySelector(".legal-sheet");if(sh)sh.scrollTop=0;return}
   if(act==="legal-close"){S.legal=null;try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}render(true);return}
   if(act==="fb-open"){S.showFb=true;S.showInbox=false;render(true);setTimeout(()=>{const t=document.getElementById("fb-text");if(t&&!/iPhone|iPad|Android/.test(navigator.userAgent))t.focus()},300);return}
@@ -1933,7 +2037,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
     if(!Object.values(seatsOf(S.data.games[sid])).some(s=>s.rsvp==="yes")){toast("Personne n’a répondu oui : marque les présents dans « Qui vient ? ».");return}
     S.liveId=sid;S.gameId=null;render(true);window.scrollTo(0,0);return}
   if(act==="buy"){const pid=b.dataset.pid,d=+b.dataset.d;{const gg=S.data.games[S.gameId],st0=gg&&gg.seats&&gg.seats[pid];if(d>0&&gg&&!rebuyOn(gg)&&st0&&n(st0.in)>=n(gg.buyIn)){toast("Recaves désactivées pour cette soirée");return}}updGame(g=>{const s=g.seats[pid];const step=n(g.buyIn)||10;s.in=Math.max(0,Math.round((n(s.in)+d*step)*100)/100);if(s.in===0&&d<0&&s.rsvp!=="yes")delete g.seats[pid]});return}
-  if(act==="finish"){const gid=S.gameId;updGame(g=>{g.status="done"});S.celebrate=gid;const tt=document.getElementById("toast");if(tt)tt.hidden=true;render(true);buzz([20,40,20]);setTimeout(confetti,60);return}
+  if(act==="finish"){const gid=S.gameId;updGame(g=>{g.status="done";g.doneAt=Date.now()});S.celebrate=gid;const tt=document.getElementById("toast");if(tt)tt.hidden=true;render(true);buzz([20,40,20]);setTimeout(confetti,60);return}
   if(act==="reopen"){updGame(g=>{g.status="live";g.stoppedAt=g.stoppedAt||Date.now()});return}
   if(act==="del-game"){S.confirm="del-game";render(true);return}
   if(act==="del-game-yes"){const id=S.gameId;S.gameId=null;S.confirm=null;write("games",id,null);return}
