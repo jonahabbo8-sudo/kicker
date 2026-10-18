@@ -60,6 +60,49 @@ nav.tabs button.on::before{display:none}
 .live-bar{padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 /* Profil */
 .me-card{background:radial-gradient(120% 120% at 0% 0%,rgba(91,26,42,.75),transparent 60%),var(--surface)}
+
+/* organisation & ludothèque */
+.org .list{margin-top:10px}
+.org-hint{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 14px}
+.org-hint .muted{font-size:13px}
+.poll-opt{flex-wrap:wrap;gap:8px}
+.poll-opt.best{border-color:#C9A25B!important;box-shadow:0 0 0 2px rgba(201,162,91,.25)}
+.poll-opt.best b::after{content:" ★";color:#C9A25B}
+.poll-who{display:flex;align-items:center;gap:4px;margin-top:4px;flex-wrap:wrap}
+.poll-who .avatar{width:22px;height:22px;font-size:11px;margin-right:-6px;border:2px solid #fff}
+.poll-who .muted{font-size:12px;margin-left:10px}
+.poll-pick{min-width:40px}
+.poll-add,.bring-add{display:flex;gap:8px;margin-top:10px;align-items:center}
+.poll-add input,.bring-add input{flex:1;min-width:0}
+.poll-add input[type=time]{flex:0 0 96px}
+.bring-it{gap:10px}.bring-it .bring-ic{font-size:18px;flex:none}
+.bring-it.taken b{color:var(--muted)}
+.bring-it small{display:block;font-size:12px}
+.bring-it .row-del{width:40px;align-self:stretch;font-size:20px}
+.chip-sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip-sug button{padding:7px 11px;border-radius:999px;font-size:13px;font-weight:700;background:var(--blue-soft,#EEF3FF);color:var(--blue-3,#0A2A78);border:1px solid transparent}
+.chip-sug button.on{background:var(--blue,#1E50D2);color:#fff}
+.orga-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 4px}
+@media (max-width:360px){.orga-cards{grid-template-columns:1fr}}
+.host-card{display:flex;align-items:center;gap:10px;padding:12px;border-radius:18px;background:#fff;border:1px solid #E3E9F3;box-shadow:0 8px 20px -16px rgba(10,42,120,.5);color:#14213D;text-align:left;min-width:0;flex-wrap:wrap}
+.host-card .hc-ic{font-size:22px;flex:none}
+.host-card .eyebrow{display:block;font-size:10px}
+.host-card b{display:block;font-size:15px}
+.host-card .btn{width:100%}
+.lib-card{flex-wrap:nowrap}
+.pr-item.eve{border-color:#C9D7F5;background:#F4F8FF}
+.lib-find{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.lib-q{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.lib-q>span{font-weight:700}
+.lib-q .chip-sug{margin-top:0}
+.lib-picked{text-align:center;font-size:20px;padding:12px;border-radius:14px;background:#FFF7E3;animation:segPick .35s ease}
+.lib-it.dim{opacity:.5}
+.lib-it b,.lib-it small{display:block}.lib-it small{font-size:12px;margin-top:2px}
+.poll-opt .grow{flex:1 1 100%}.poll-opt .seg{flex:1}
+.lib-row .field{justify-content:flex-end}
+.lib-it .row-del{width:40px;align-self:stretch;font-size:20px}
+.lib-add{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.lib-row{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px}
 </style>
 <title>Kicker</title>
 <meta name="description" content="Organise tes soirées poker et jeux de société entre amis : invitations, recaves, scores et qui paie qui.">
@@ -1139,7 +1182,8 @@ function write(coll,id,data,silent){
   if(data===null)delete S.data[coll][id];else S.data[coll][id]=data;
   if(!silent)render(true);
   const path=coll+"/"+id;const p=pending[path]||(pending[path]={});LOCAL_TS[path]=Date.now();saveState("saving");
-  if(coll==="games"&&data!==null&&prev&&!p.full&&p.data!==null){(p.ops||(p.ops=[])).push(...jdiff(prev,data,[],[]))}else{p.full=true;p.ops=[]}
+  const PATCH_OK=coll==="games"||coll==="groups";let newOps=null;if(PATCH_OK&&data!==null&&prev&&!p.full&&p.data!==null){newOps=jdiff(prev,data,[],[]);if(coll==="groups"&&newOps.some(o=>["members","createdBy","code"].includes(o.p[0])))newOps=null}
+  if(newOps){(p.ops||(p.ops=[])).push(...newOps)}else{p.full=true;p.ops=[]}
   p.data=data===null?null:clone(data);p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),data===null?0:350);
 }
 async function flush(path){
@@ -1149,11 +1193,11 @@ async function flush(path){
     if(data===null){const {data:del,error}=await sb.from(coll).delete().eq("id",id).select("id");if(error)throw error;
       if(!del||!del.length){const {data:still}=await sb.from(coll).select("id").eq("id",id);
         if(still&&still.length){toast("Suppression refusée par le serveur. Réessaie ou demande à l’organisateur.");p.inflight=false;delete pending[path];loadAll().then(()=>render(true)).catch(()=>{});return}}}
-    else if(coll==="games"&&!p.full){const ops=p.ops||[];p.ops=[];
-      if(ops.length){const {data:res,error}=await sb.rpc("game_apply2",{p_id:id,p_ops:ops});const srv=res&&res.data;if(res&&res.ts)SRV_TS[path]=Math.max(SRV_TS[path]||0,Date.parse(res.ts));
+    else if((coll==="games"||coll==="groups")&&!p.full){const ops=p.ops||[];p.ops=[];
+      if(ops.length){const {data:res,error}=await sb.rpc(coll==="games"?"game_apply2":"group_apply2",{p_id:id,p_ops:ops});const srv=res&&res.data;if(res&&res.ts)SRV_TS[path]=Math.max(SRV_TS[path]||0,Date.parse(res.ts));
         if(error){p.ops=ops.concat(p.ops);throw error}
         if(srv==null){const {error:e2}=await sb.from(coll).insert(sbRow(coll,id,data));if(e2){p.full=true;throw e2}}
-        else if(!p.dirty&&S.data.games[id]){S.data.games[id]=srv;render()}}}
+        else if(!p.dirty&&S.data[coll][id]){S.data[coll][id]=srv;render()}}}
     else{const full=p.full;p.full=false;const row=sbRow(coll,id,data);const {data:upd,error}=await sb.from(coll).update(row).eq("id",id).select("id");if(error){p.full=full;throw error}
       if(!upd||!upd.length){const {error:e2}=await sb.from(coll).insert(row);if(e2){p.full=full;throw e2}}}
   }catch(e){console.warn(e);saveState("error");if(data!==null&&!(e&&e.code==="23505")&&(p.retry=(p.retry||0)+1)<=3){p.inflight=false;p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),2500*p.retry);return}toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
@@ -1175,8 +1219,8 @@ function subscribeAll(){
     const id=(pl.new&&pl.new.id)||(pl.old&&pl.old.id);if(!id||pending[t+"/"+id])return;
     if(pl.new&&pl.new.updated_at){const ts=Date.parse(pl.new.updated_at),k=t+"/"+id;
       if(SRV_TS[k]&&ts<=SRV_TS[k])return;
-      if(t!=="games"&&LOCAL_TS[k]&&ts<LOCAL_TS[k]-50)return;
-      if(t==="games")SRV_TS[k]=Math.max(SRV_TS[k]||0,ts)}
+      if(t!=="games"&&t!=="groups"&&LOCAL_TS[k]&&ts<LOCAL_TS[k]-50)return;
+      if(t==="games"||t==="groups")SRV_TS[k]=Math.max(SRV_TS[k]||0,ts)}
     if(pl.eventType!=="DELETE"&&S.data[t][id]&&JSON.stringify(S.data[t][id])===JSON.stringify(pl.new.data))return;
     const isNew=t==="games"&&pl.eventType==="INSERT"&&!S.data.games[id];
     if(pl.eventType==="DELETE")delete S.data[t][id];else S.data[t][id]=pl.new.data;
@@ -1195,6 +1239,80 @@ function gamesSorted(){const gs=Object.entries(S.data.games).filter(([,g])=>g.gr
 function seatsOf(g){return g.seats||{}}
 function playing(g){return Object.entries(seatsOf(g)).filter(([pid,s])=>s.rsvp==="yes"||n(s.in)>0).map(([pid,s])=>Object.assign({pid},s))}
 function results(g){return playing(g).map(s=>({pid:s.pid,in:n(s.in),out:s.out===""||s.out==null?null:n(s.out),net:(s.out===""||s.out==null?0:n(s.out))-n(s.in)}))}
+/* ---------- Organisation de soirée : sondage de date, qui apporte quoi, rappel agenda, hôte, ludothèque ---------- */
+const BRING_SUG=["Boissons","Chips & apéro","Pizzas","Dessert","Glaçons","Jetons","Cartes","Enceinte"];
+const GAME_CAT=[["Catan",3,4,75],["Skyjo",2,8,30],["Uno",2,10,30],["Dixit",3,8,30],["Codenames",4,8,15],["Les Aventuriers du Rail",2,5,60],["7 Wonders",3,7,30],["Carcassonne",2,5,35],["Splendor",2,4,30],["Azul",2,4,40],["Time's Up",4,12,45],["Loups-Garous",8,18,30],["Dobble",2,8,15],["Blanc Manger Coco",3,12,30],["Monopoly",2,6,120],["Trivial Pursuit",2,6,90],["Scrabble",2,4,60],["Pandemic",2,4,45],["Love Letter",2,6,20],["6 qui prend !",2,10,45],["The Mind",2,4,20],["Unlock!",1,6,60],["Perudo",2,6,30],["Kingdomino",2,4,15],["Jungle Speed",2,10,15],["Cluedo",3,6,45],["Risk",2,6,120],["Wingspan",1,5,60],["Terraforming Mars",1,5,120],["Tarot",3,5,60],["Belote",4,4,45],["Mölkky",2,12,30],["Cortex Challenge",2,6,20],["Just One",3,7,20],["Sushi Go!",2,5,15],["Exploding Kittens",2,5,15]];
+const nid=()=>Math.random().toString(36).slice(2,9);
+function isCreator(g){const G=curGroup();return !!(g&&(g.createdBy===S.me.id||(G&&G.createdBy===S.me.id)))}
+function updG(gid,fn){const g0=S.data.games[gid];if(!g0)return;const g=clone(g0);fn(g);write("games",gid,g)}
+function updGroup(fn){const G0=curGroup();if(!G0)return;const G=clone(G0);fn(G);write("groups",S.groupId,G)}
+function shortDate(d,t){if(!d)return"";const dt=new Date(d+"T12:00:00");return dt.toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})+(t?" · "+t.replace(":","h"):"")}
+/* 1. Sondage de date */
+function pollSection(g,gid){const P=g.poll;const me=S.me.id;const ppl=groupPlayers();
+  if(!P||!P.open){if(g.status==="planned"&&isCreator(g))return `<div class="org-hint"><button class="btn small" data-act="poll-start" data-gid="${gid}">📅 Proposer plusieurs dates</button><span class="muted">Chacun vote, tu gardes la meilleure.</span></div>`;return""}
+  const opts=Object.entries(P.opts||{}).map(([id,o])=>Object.assign({id},o)).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const votes=P.votes||{};const score=o=>{let y=0,m=0;Object.values(votes).forEach(v=>{if(v[o.id]==="yes")y++;else if(v[o.id]==="maybe")m++});return {y,m}};
+  const best=opts.reduce((b,o)=>{const s=score(o);const k=s.y*2+s.m;return k>(b?b.k:-1)?{id:o.id,k}:b},null);
+  let h=`<section class="block org"><div class="row between"><h2 style="margin:0">📅 Quand ?</h2><span class="muted" style="font-size:13px">${Object.keys(votes).length}/${ppl.length} ont voté</span></div><div class="list">`;
+  h+=opts.map(o=>{const s=score(o);const mine=(votes[me]||{})[o.id];const who=Object.entries(votes).filter(([,v])=>v[o.id]==="yes").map(([p])=>p);
+    return `<div class="item poll-opt ${best&&best.id===o.id&&best.k>0?"best":""}"><div class="grow" style="min-width:0"><b>${esc(shortDate(o.date,o.time))}</b><div class="poll-who">${who.slice(0,6).map(p=>avatar(p)).join("")}<span class="muted">${s.y} oui${s.m?` · ${s.m} peut-être`:""}</span></div></div>
+      <div class="seg">${[["yes","Oui"],["maybe","Bof"],["no","Non"]].map(([v,l])=>`<button data-act="poll-vote" data-gid="${gid}" data-o="${o.id}" data-v="${v}" class="${mine===v?"on":""}">${l}</button>`).join("")}</div>
+      ${isCreator(g)?`<button class="btn small poll-pick" data-act="poll-pick" data-gid="${gid}" data-o="${o.id}" title="Choisir cette date">✓</button>`:""}</div>`}).join("");
+  h+=`</div>`;
+  if(isCreator(g))h+=`<div class="poll-add"><input id="poll-d" type="date" value="${esc(g.date||"")}"><input id="poll-t" type="time" value="${esc(g.time||"20:00")}"><button class="btn small" data-act="poll-add" data-gid="${gid}">+ Date</button></div><p class="muted" style="font-size:12px;margin:6px 0 0">Appuie sur ✓ pour fixer la date gagnante : tout le monde est prévenu.</p>`;
+  return h+`</section>`}
+/* 2. Qui apporte quoi */
+function bringSection(g,gid){const B=g.bring||{};const items=Object.entries(B).sort((a,b)=>(a[1].at||0)-(b[1].at||0));const used=new Set(items.map(([,x])=>x.label.toLowerCase()));
+  let h=`<section class="block org"><div class="row between"><h2 style="margin:0">🧺 Qui apporte quoi ?</h2><span class="muted" style="font-size:13px">${items.filter(([,x])=>x.by).length}/${items.length} pris</span></div>`;
+  if(items.length)h+=`<div class="list">${items.map(([id,x])=>{const mine=x.by===S.me.id;
+    return `<div class="item bring-it ${x.by?"taken":""}"><span class="bring-ic" aria-hidden="true">${x.by?"✅":"⬜"}</span><div class="grow" style="min-width:0"><b class="ellipsis">${esc(x.label)}</b><small class="muted">${x.by?(mine?"Toi":esc(pname(x.by))):"Personne pour l’instant"}</small></div>
+      ${x.by?(mine?`<button class="btn small" data-act="bring-unclaim" data-gid="${gid}" data-id="${id}">Annuler</button>`:""):`<button class="btn small primary" data-act="bring-claim" data-gid="${gid}" data-id="${id}">Je m’en occupe</button>`}
+      ${(x.addedBy===S.me.id||isCreator(g))?`<button class="row-del" data-act="bring-del" data-gid="${gid}" data-id="${id}" aria-label="Retirer ${esc(x.label)}">×</button>`:""}</div>`}).join("")}</div>`;
+  h+=`<div class="bring-add"><input id="bring-in" maxlength="40" placeholder="Ajouter (ex. bières, chips…)" enterkeyhint="done"><button class="btn small" data-act="bring-add" data-gid="${gid}">Ajouter</button></div>`;
+  const sug=BRING_SUG.filter(x=>!used.has(x.toLowerCase())).slice(0,6);
+  if(sug.length)h+=`<div class="chip-sug">${sug.map(x=>`<button data-act="bring-sug" data-gid="${gid}" data-l="${esc(x)}">+ ${esc(x)}</button>`).join("")}</div>`;
+  return h+`</section>`}
+/* 3. Rappel : agenda (.ics avec alerte la veille et 2 h avant) + bandeau la veille */
+function icsFor(g,gid){const pad=n=>String(n).padStart(2,"0");const d=new Date((g.date||"")+"T"+(g.time||"20:00")+":00");if(isNaN(d))return null;
+  const f=x=>x.getUTCFullYear()+pad(x.getUTCMonth()+1)+pad(x.getUTCDate())+"T"+pad(x.getUTCHours())+pad(x.getUTCMinutes())+"00Z";const end=new Date(d.getTime()+4*3600e3);
+  const esc2=t=>String(t||"").replace(/[\\,;]/g,m=>"\\"+m).replace(/\n/g,"\\n");
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Kicker//FR","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:"+gid+"@kicker","DTSTAMP:"+f(new Date()),"DTSTART:"+f(d),"DTEND:"+f(end),
+    "SUMMARY:"+esc2((g.title||"Soirée")+" — Kicker"),"LOCATION:"+esc2(g.location||""),"DESCRIPTION:"+esc2("Organisé avec Kicker : "+APP_URL),
+    "BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:"+esc2("Demain : "+(g.title||"Soirée")),"END:VALARM",
+    "BEGIN:VALARM","TRIGGER:-PT2H","ACTION:DISPLAY","DESCRIPTION:"+esc2("Dans 2 h : "+(g.title||"Soirée")),"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n")}
+function eveReminderHtml(){if(!S.me.id)return"";const now=new Date();const tom=new Date(now.getTime()+86400e3);const ymd=x=>x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
+  const list=Object.entries(S.data.games).filter(([,g])=>g.groupId===S.groupId&&g.status==="planned"&&(g.date===ymd(now)||g.date===ymd(tom))).slice(0,2);
+  return list.map(([id,g])=>{const r=((g.seats||{})[S.me.id]||{}).rsvp;if(r==="no")return"";const when=g.date===ymd(now)?"Ce soir":"Demain";
+    const todo=Object.values(g.bring||{}).filter(x=>x.by===S.me.id).map(x=>x.label);
+    return `<div class="pr-item eve"><span class="pr-ic" aria-hidden="true">⏰</span><div class="grow"><b>${when}${g.time?" "+g.time.replace(":","h"):""} : ${esc(g.title||"Soirée")}</b><small>${g.location?esc(g.location)+" · ":""}${r==="yes"?(todo.length?"Tu apportes : "+esc(todo.join(", ")):"Tu as dit oui ✓"):"Tu viens ?"}</small></div>${r==="yes"?`<button class="btn small" data-act="open-game" data-id="${id}">Voir</button>`:`<button class="btn small primary" data-act="rsvp-home" data-id="${id}" data-v="yes">Je viens</button>`}</div>`}).join("")}
+/* 4. Tirage au sort de l'hôte */
+function hostCard(){const G=curGroup();if(!G)return"";const nh=G.nextHost&&S.data.players[G.nextHost.pid]?G.nextHost:null;
+  return `<div class="host-card rise d2"><span class="hc-ic" aria-hidden="true">🏠</span><div class="grow" style="min-width:0"><span class="eyebrow">Prochain hôte</span><b id="host-name" class="ellipsis">${nh?esc(pname(nh.pid)):"Pas encore tiré"}</b></div><button class="btn small ${nh?"":"primary"}" data-act="host-draw">${nh?"Relancer 🎲":"Tirer au sort 🎲"}</button></div>`}
+/* 5. Ludothèque */
+function libGames(){const G=curGroup();return Object.entries((G&&G.library)||{}).map(([id,x])=>Object.assign({id},x)).sort((a,b)=>a.name.localeCompare(b.name))}
+function libCard(){const n=libGames().length;return `<button class="host-card lib-card rise d2" data-act="lib-open"><span class="hc-ic" aria-hidden="true">🎲</span><div class="grow" style="min-width:0"><span class="eyebrow">Ludothèque du groupe</span><b>${n?n+" jeu"+(n>1?"x":""):"Ajoute vos jeux"}</b></div><span aria-hidden="true" class="muted">›</span></button>`}
+function libMatches(n,t){return libGames().filter(x=>(!n||(n>=(+x.min||1)&&n<=(+x.max||99)))&&(!t||(+x.dur||0)<=t))}
+function viewLibrary(){const m=meta();const ps=groupPlayers();const all=libGames();
+  const n=S.libN||Math.max(2,ps.length||2),t=S.libT||0;const ok=libMatches(n,t);
+  let h=`<div class="top"><div><div class="eyebrow">${esc(m.name)}</div><h1>Ludothèque</h1></div></div>${banner()}
+    <div class="row between" style="margin-bottom:12px"><button class="btn small" data-act="lib-close">← Soirées</button><span class="muted" style="font-size:13px">${all.length} jeu${all.length>1?"x":""}</span></div>`;
+  h+=`<section class="card lib-find"><span class="eyebrow">Qu’est-ce qu’on joue ?</span>
+    <div class="lib-q"><span>On est</span><div class="stepper"><button class="btn icon" data-act="lib-n" data-d="-1" aria-label="Moins">−</button><span class="val num">${n}</span><button class="btn icon" data-act="lib-n" data-d="1" aria-label="Plus">+</button></div></div>
+    <div class="lib-q"><span>Temps</span><div class="chip-sug">${[[0,"Peu importe"],[30,"≤ 30 min"],[60,"≤ 1 h"],[120,"≤ 2 h"]].map(([v,l])=>`<button class="${t===v?"on":""}" data-act="lib-t" data-v="${v}">${l}</button>`).join("")}</div></div>
+    ${all.length?`<p class="muted" style="margin:8px 0;font-size:13px">${ok.length} jeu${ok.length>1?"x":""} possible${ok.length>1?"s":""}</p>`:""}
+    ${ok.length?`<button class="btn primary" data-act="lib-pick" style="width:100%">🎲 Choisir pour nous</button>`:""}
+    ${S.libPick&&ok.some(x=>x.id===S.libPick)?`<div class="lib-picked">👉 <b>${esc(ok.find(x=>x.id===S.libPick).name)}</b></div>`:""}</section>`;
+  h+=`<section class="block"><h2 style="margin:0">Nos jeux</h2>${all.length?`<div class="list">${all.map(x=>{const fit=ok.some(y=>y.id===x.id);
+    return `<div class="item lib-it ${fit?"":"dim"}">${x.owner?avatar(x.owner):`<span class="avatar">🎲</span>`}<div class="grow" style="min-width:0"><b class="ellipsis">${esc(x.name)}</b><small class="muted">${x.min||"?"}–${x.max||"?"} joueurs · ${x.dur?x.dur+" min":"durée ?"}${x.owner?" · chez "+esc(pname(x.owner)):""}</small></div>${(x.addedBy===S.me.id||x.owner===S.me.id||(curGroup()||{}).createdBy===S.me.id)?`<button class="row-del" data-act="lib-del" data-id="${x.id}" aria-label="Retirer ${esc(x.name)}">×</button>`:""}</div>`}).join("")}</div>`:`<div class="card empty">Aucun jeu pour l’instant. Ajoute les jeux que chacun possède !</div>`}</section>`;
+  h+=`<section class="card lib-add"><span class="eyebrow">Ajouter un jeu</span>
+    <label class="field">Nom<input id="lib-name" maxlength="40" placeholder="Catan, Skyjo…" list="lib-cat" autocomplete="off"></label><datalist id="lib-cat">${GAME_CAT.map(c=>`<option value="${esc(c[0])}">`).join("")}</datalist>
+    <div class="lib-row"><label class="field">Min joueurs<input id="lib-min" type="number" inputmode="numeric" min="1" max="30" value="2"></label><label class="field">Max<input id="lib-max" type="number" inputmode="numeric" min="1" max="30" value="6"></label><label class="field">Durée<select id="lib-dur">${[15,30,45,60,90,120,180].map(v=>`<option value="${v}" ${v===45?"selected":""}>${v<60?v+" min":v/60+" h"+(v%60?"30":"")}</option>`).join("")}</select></label></div>
+    <label class="field">Il est chez<select id="lib-owner"><option value="">Personne en particulier</option>${ps.map(([pid,p])=>`<option value="${pid}" ${isMe(pid)?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
+    <div class="auth-err" id="lib-err" role="alert"></div><button class="btn primary" data-act="lib-add" style="width:100%">Ajouter à la ludothèque</button>
+    <p class="muted" style="font-size:12px;margin:8px 0 0">Les nombres de joueurs et durées proposés sont indicatifs : ajuste-les si besoin.</p></section>`;
+  return h}
+function libChips(g,gid){const n=Object.values(g.seats||{}).filter(s=>s.rsvp==="yes").length;const L=libMatches(n>=2?n:0,0).slice(0,8);if(!L.length)return"";
+  return `<div class="chip-sug" style="margin-top:8px"><span class="muted" style="font-size:12px;align-self:center">Ludothèque${n>=2?" ("+n+" joueurs)":""} :</span>${L.map(x=>`<button data-act="lib-use" data-gid="${gid}" data-name="${esc(x.name)}" class="${g.gameName===x.name?"on":""}">${esc(x.name)}</button>`).join("")}</div>`}
 /* ---------- Remboursements : liens de paiement + suivi (Kicker ne touche jamais l'argent) ---------- */
 const PAY_CUR={"€":"EUR","$":"USD","£":"GBP","CHF":"CHF","B/.":"USD"};
 function payKey(x){return x.from+">"+x.to}
@@ -1306,11 +1424,14 @@ function tableHero(next){S.seatSel=null;
   return h;
 }
 function viewGames(){
+  if(S.lib&&S.mode!=="loading"&&S.mode!=="loading-shared")return viewLibrary();
   const m=meta();const {up,past}=gamesSorted();const next=up[0];
   let h=`<div class="brand rise"><div class="mark">${logo("")}<div style="min-width:0"><div class="name">KICKER</div><button class="grp grp-switch ellipsis" data-act="switch-group" aria-label="Changer de groupe">${esc(m.name)} <span aria-hidden="true">▾</span></button></div></div><div class="row" style="gap:10px">${fbBtn()}${bell()}</div></div>${banner()}`;
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
+  const eve=eveReminderHtml();if(eve)h+=`<div class="pay-rem rise">${eve}</div>`;
   h+=payRemindersHtml();
   h+=tableHero(next);
+  h+=`<div class="orga-cards">${hostCard()}${libCard()}</div>`;
   if(S.canWrite)h+=`<div class="quick two rise d2">
     <button class="qa p" data-act="new-game" data-kind="cash"><span class="ic" data-s="♠"><i>♠&#xFE0E;</i></span><b>Soirée poker</b><small>Cash game ou tournoi</small></button>
     <button class="qa j" data-act="new-game" data-kind="board"><span class="ic dice-ic">${miniDice()}</span><b>Soirée jeux</b><small>Catan, Skyjo, Uno…</small></button></div>`;
@@ -1342,7 +1463,7 @@ function viewGame(){
     </div></div>`;
   h+=`<section class="block"><div class="sec-title"><h2>Le jeu</h2></div>
     ${isB?"":`<div class="kinds two">${[["cash","♠","Cash game",g.rebuys!==false?"Recaves libres":"Sans recave","p"],["tournoi","♣","Tournoi","Blindes qui montent","t"]].map(([v,s,l,sub,c])=>`<button class="kind ${c} ${((g.type||"cash")===v)?"on":""}" data-act="set-type" data-v="${v}" ${dis} aria-pressed="${(g.type||"cash")===v}">${v==="board"?`<span class="ic dice-ic">${miniDice()}</span>`:`<span class="ic" data-s="${s}"><i>${s}&#xFE0E;</i></span>`}<b>${l}</b><small>${sub}</small></button>`).join("")}</div>`}
-    ${isB?`<label class="field">Nom du jeu<input id="g-gname" data-g="gameName" value="${esc(g.gameName)}" ${dis} placeholder="Catan, Uno, Skyjo…" list="known-games"></label><datalist id="known-games">${["Catan","Uno","Skyjo","Tarot","Belote","Scrabble","Monopoly","Dixit","Codenames","7 Wonders","Les Aventuriers du Rail","Loup-Garou","Rami","Yams","Échecs",...new Set(Object.values(S.data.games).map(x=>x.gameName).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join("")}</datalist>`:""}
+    ${isB?`<label class="field">Nom du jeu<input id="g-gname" data-g="gameName" value="${esc(g.gameName)}" ${dis} placeholder="Catan, Uno, Skyjo…" list="known-games"></label><datalist id="known-games">${["Catan","Uno","Skyjo","Tarot","Belote","Scrabble","Monopoly","Dixit","Codenames","7 Wonders","Les Aventuriers du Rail","Loup-Garou","Rami","Yams","Échecs",...new Set(Object.values(S.data.games).map(x=>x.gameName).filter(Boolean))].map(x=>`<option value="${esc(x)}">`).join("")}</datalist>${libChips(g,id)}`:""}
     ${isB?"":`<div class="stake card"><div class="row between"><span class="eyebrow">Buy-in</span><span class="stake-v num">${isB&&bi===0?"Sans argent":money(bi)}</span></div>
       <div class="pchips">${presets.map(v=>`<button class="pchip ${bi===v?"on":""}" style="--c:${pc(v)}" data-act="set-buy" data-v="${v}" ${dis} aria-label="${v===0?"Sans argent":money(v)}"><span>${v===0?"0":v}</span></button>`).join("")}
         <label class="pcustom"><span class="eyebrow">Autre</span><input id="${isB?"g-stake":"g-buyin"}" type="number" inputmode="decimal" min="0" step="any" data-g="buyIn" value="${presets.includes(bi)?"":esc(bi)}" placeholder="${esc(cur())}" ${dis}></label></div>
@@ -1357,7 +1478,8 @@ function viewGame(){
   else h+=`<div class="list">${players.map(([pid,p])=>{const r=seats[pid]?.rsvp;
     const ok=canAnswer(pid);return `<div class="item">${avatar(pid)}<div class="grow row" style="gap:6px;min-width:0"><span class="ellipsis" style="font-weight:600">${esc(p.name)}</span>${isMe(pid)?`<span class="pill planned" style="flex:none">Toi</span>`:""}</div>
     <div class="seg" role="group" aria-label="Réponse de ${esc(p.name)}">${[["yes","Oui"],["maybe","Peut-être"],["no","Non"]].map(([v,l])=>`<button data-act="rsvp" data-pid="${pid}" data-v="${v}" class="${r===v?"on":""}" ${ok?"":"disabled"} aria-pressed="${r===v}">${l}</button>`).join("")}</div></div>`}).join("")}</div>`;
-  h+=`<div class="row wrap"><button class="btn small" data-act="copy-invite">Copier l’invitation</button></div></section>`;
+  h+=`<div class="row wrap"><button class="btn small" data-act="copy-invite">Copier l’invitation</button>${g.date&&g.status!=="done"?`<button class="btn small" data-act="ics" data-gid="${id}">📆 Ajouter à mon agenda</button>`:""}</div></section>`;
+  if(g.status!=="done"){h+=pollSection(g,id)+bringSection(g,id)}
   if(g.type==="board"){h+=scoresSection(g,w,dis)}else{
   // Cashier
   h+=`<section class="block"><h2 style="margin:0">La caisse</h2>`;
@@ -1917,7 +2039,7 @@ function render(force){
   document.querySelector("nav.tabs").hidden=needJoin;
   const liveG=S.liveId&&S.data.games[S.liveId];if(S.liveId&&(!liveG||liveG.status!=="live"))S.liveId=null;
   const layer=(S.fidOffer&&S.auth==="ok"?`<div class="inv-layer" role="dialog" aria-modal="true" aria-label="${fidLabel()}"><div class="inv-pop fid-pop"><div class="lock-ic" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6"/><path d="M17 18v3M31 18v3M24 19v8h-2M18 33c3.5 3 8.5 3 12 0"/></svg></div><div class="inv-title" style="text-align:center">Ouvrir Kicker avec ${fidLabel()} ?</div><p class="muted" style="text-align:center;font-size:13.5px;margin:6px 0 0">Plus besoin de mot de passe sur cet appareil : un regard suffit.</p><div class="del-actions"><button class="btn" data-act="fid-later">Plus tard</button><button class="btn primary" data-act="fid-yes">Activer</button></div></div></div>`:"")||viewCelebrate()||viewStopLayer()||viewDelLayer()||(S.liveId?"":viewInviteLayer());if(layer||S.liveId)document.querySelector("nav.tabs").hidden=true;
-  const vkey=S.auth!=="ok"?"auth":S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
+  const vkey=S.auth!=="ok"?"auth":S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"")+(S.lib&&S.tab==="games"&&!S.gameId?":lib":"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
   if(!changed){app.classList.remove("view-in","view-up","view-left","view-right");app.classList.add("still")}else app.classList.remove("still");app.classList.toggle("layer-still",layerSame&&!changed);
   const tmp=document.createElement("div");tmp.innerHTML=(S.auth!=="ok"?viewAuth():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"");
   if(!S.liveId&&!S.showInstall){const ib=installBar();if(ib){const anchor=tmp.querySelector(".join-card")||tmp.querySelector(".hub-hero")||tmp.querySelector(".brand");if(anchor)anchor.insertAdjacentHTML(anchor.classList.contains("join-card")?"beforebegin":"afterend",ib);else tmp.insertAdjacentHTML("afterbegin",ib)}}
@@ -1940,7 +2062,7 @@ app.addEventListener("focusout",()=>{if(needsRender)setTimeout(()=>{if(needsRend
 /* ---------- events ---------- */
 document.querySelector("nav.tabs").addEventListener("click",e=>{const b=e.target.closest("button[data-tab]");if(!b)return;
   const order=["games","board","players"];S.tabDir=order.indexOf(b.dataset.tab)>=order.indexOf(S.tab)?"right":"left";buzz(6);
-  if(S.tab===b.dataset.tab&&S.gameId)S.gameId=null;S.tab=b.dataset.tab;S.confirm=null;S.copyFallback=null;render(true);window.scrollTo(0,0)});
+  if(S.tab===b.dataset.tab&&S.gameId)S.gameId=null;S.lib=false;S.tab=b.dataset.tab;S.confirm=null;S.copyFallback=null;render(true);window.scrollTo(0,0)});
 
 function updGame(fn){const g=clone(S.data.games[S.gameId]);g.seats=g.seats||{};fn(g);write("games",S.gameId,g)}
 function inviteText(g){const c=rsvpCounts(g);const yes=Object.entries(seatsOf(g)).filter(([p,s])=>s.rsvp==="yes").map(([p])=>pname(p));
@@ -1988,6 +2110,42 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="install"){if(deferredInstall){const ev=deferredInstall;deferredInstall=null;ev.prompt();ev.userChoice.then(c=>{if(c&&c.outcome==="accepted"){try{localStorage.setItem("kicker-installed","1")}catch(e){}}render(true)}).catch(()=>{});return}S.showInstall=true;render(true);return}
   if(act==="install-close"){S.showInstall=false;render(true);return}
   if(act==="install-later"){try{localStorage.setItem("kicker-install-later",String(Date.now()))}catch(e){}render(true);return}
+  if(act==="poll-start"){updG(b.dataset.gid,g=>{const P={open:true,opts:{},votes:{}};if(g.date)P.opts[nid()]={date:g.date,time:g.time||"20:00"};g.poll=P});return}
+  if(act==="poll-add"){const d=(document.getElementById("poll-d")||{}).value,t=(document.getElementById("poll-t")||{}).value||"20:00";if(!d){toast("Choisis une date");return}
+    const g=S.data.games[b.dataset.gid];if(g&&g.poll&&Object.values(g.poll.opts||{}).some(o=>o.date===d&&o.time===t)){toast("Cette date est déjà proposée");return}
+    updG(b.dataset.gid,g=>{g.poll=g.poll||{open:true,opts:{},votes:{}};g.poll.opts=g.poll.opts||{};g.poll.opts[nid()]={date:d,time:t}});buzz(10);return}
+  if(act==="poll-vote"){const v=b.dataset.v,o=b.dataset.o;updG(b.dataset.gid,g=>{const P=g.poll;if(!P)return;P.votes=P.votes||{};P.votes[S.me.id]=Object.assign({},P.votes[S.me.id],{[o]:v})});buzz(8);return}
+  if(act==="poll-pick"){const g=S.data.games[b.dataset.gid];const o=g&&g.poll&&g.poll.opts[b.dataset.o];if(!o)return;
+    updG(b.dataset.gid,g=>{g.date=o.date;g.time=o.time;g.poll.open=false;g.poll.picked=b.dataset.o;
+      Object.entries(g.poll.votes||{}).forEach(([pid,v])=>{if(g.seats&&g.seats[pid]&&g.seats[pid].rsvp==="invited"){if(v[b.dataset.o]==="yes")g.seats[pid].rsvp="yes";else if(v[b.dataset.o]==="no")g.seats[pid].rsvp="no"}})});
+    toast("Date fixée : "+shortDate(o.date,o.time)+" ✓");buzz(20);return}
+  if(act==="bring-add"||act==="bring-sug"){const inp=document.getElementById("bring-in");const l=(act==="bring-sug"?b.dataset.l:(inp&&inp.value||"")).trim().slice(0,40);if(!l){inp&&inp.focus();return}
+    const g=S.data.games[b.dataset.gid];if(g&&Object.values(g.bring||{}).some(x=>x.label.toLowerCase()===l.toLowerCase())){toast("Déjà dans la liste");return}
+    if(inp&&act==="bring-add")inp.value="";updG(b.dataset.gid,g=>{g.bring=g.bring||{};g.bring[nid()]={label:l,by:null,addedBy:S.me.id,at:Date.now()}});buzz(8);return}
+  if(act==="bring-claim"){updG(b.dataset.gid,g=>{const x=(g.bring||{})[b.dataset.id];if(x&&!x.by)x.by=S.me.id});buzz(12);return}
+  if(act==="bring-unclaim"){updG(b.dataset.gid,g=>{const x=(g.bring||{})[b.dataset.id];if(x&&x.by===S.me.id)x.by=null});return}
+  if(act==="bring-del"){updG(b.dataset.gid,g=>{if(g.bring)delete g.bring[b.dataset.id]});return}
+  if(act==="ics"){const g=S.data.games[b.dataset.gid];const ics=g&&icsFor(g,b.dataset.gid);if(!ics){toast("Fixe d’abord une date");return}
+    const name=(g.title||"soiree").normalize("NFD").replace(/[^\w]+/g,"-").toLowerCase()+".ics";
+    try{const f=new File([ics],name,{type:"text/calendar"});if(navigator.canShare&&navigator.canShare({files:[f]})&&IS_IOS){navigator.share({files:[f],title:g.title||"Soirée"}).catch(()=>{});return}}catch(e){}
+    const url=URL.createObjectURL(new Blob([ics],{type:"text/calendar"}));const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast("Rappel ajouté : la veille et 2 h avant ⏰");return}
+  if(act==="rsvp-home"){const gid=b.dataset.id;updG(gid,g=>{g.seats=g.seats||{};g.seats[S.me.id]=Object.assign({},g.seats[S.me.id],{rsvp:"yes"})});toast("Super, à bientôt !");buzz(15);return}
+  if(act==="host-draw"){const G=curGroup();if(!G)return;let pool=groupPlayers().map(([p])=>p);const avoid=[G.lastHost,G.nextHost&&G.nextHost.pid].filter(Boolean);const f=pool.filter(p=>!avoid.includes(p));if(f.length)pool=f;if(!pool.length)return;
+    const pick=pool[Math.floor(Math.random()*pool.length)];const el=document.getElementById("host-name");b.disabled=true;let i=0;const names=groupPlayers().map(([,p])=>p.name);
+    const spin=setInterval(()=>{if(el)el.textContent=names[i++%names.length]},70);
+    setTimeout(()=>{clearInterval(spin);b.disabled=false;updGroup(G=>{G.nextHost={pid:pick,at:Date.now(),by:S.me.id}});buzz([20,40,20]);toast(`🏠 La prochaine fois, c’est chez ${pname(pick)} !`)},1300);return}
+  if(act==="lib-open"){S.lib=true;S.libPick=null;S.viewAnim="up";render(true);window.scrollTo(0,0);return}
+  if(act==="lib-close"){S.lib=false;render(true);window.scrollTo(0,0);return}
+  if(act==="lib-n"){S.libN=Math.min(30,Math.max(1,(S.libN||Math.max(2,groupPlayers().length||2))+(+b.dataset.d)));S.libPick=null;render();return}
+  if(act==="lib-t"){S.libT=+b.dataset.v;S.libPick=null;render();return}
+  if(act==="lib-pick"){const L=libMatches(S.libN||Math.max(2,groupPlayers().length||2),S.libT||0);if(!L.length)return;let c=L[Math.floor(Math.random()*L.length)];if(L.length>1&&c.id===S.libPick)c=L.find(x=>x.id!==S.libPick);S.libPick=c.id;render();buzz(15);return}
+  if(act==="lib-add"){const v=id=>(document.getElementById(id)||{}).value||"";const name=v("lib-name").trim().slice(0,40);const err=document.getElementById("lib-err");
+    if(!name){if(err)err.textContent="Donne un nom au jeu";return}
+    if(libGames().some(x=>x.name.toLowerCase()===name.toLowerCase()&&x.owner===(v("lib-owner")||null))){if(err)err.textContent="Ce jeu est déjà dans la ludothèque";return}
+    let mn=Math.max(1,Math.min(30,+v("lib-min")||1)),mx=Math.max(1,Math.min(30,+v("lib-max")||mn));if(mx<mn)[mn,mx]=[mx,mn];
+    updGroup(G=>{G.library=G.library||{};G.library[nid()]={name,min:mn,max:mx,dur:+v("lib-dur")||45,owner:v("lib-owner")||null,addedBy:S.me.id,at:Date.now()}});const ni=document.getElementById("lib-name");if(ni)ni.value="";const er=document.getElementById("lib-err");if(er)er.textContent="";toast(name+" ajouté ✓");buzz(12);return}
+  if(act==="lib-del"){updGroup(G=>{if(G.library)delete G.library[b.dataset.id]});return}
+  if(act==="lib-use"){const name=b.dataset.name;updG(b.dataset.gid,g=>{g.gameName=name});return}
   if(act==="pay-open"){S.paySheet={gid:b.dataset.gid,from:b.dataset.from,to:b.dataset.to,v:+b.dataset.v};render(true);loadPay();return}
   if(act==="pay-close"){S.paySheet=null;render(true);return}
   if(act==="pay-copy"){const t=b.dataset.copy;try{navigator.clipboard.writeText(t).then(()=>toast((b.dataset.what||"Copié")+" copié ✓"),()=>toast(t))}catch(e){toast(t)}return}
@@ -2042,7 +2200,8 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="new-game"&&b.dataset.kind==="board"&&!b.dataset.rolled){rollIcon(b.querySelector(".dice-ic"));b.dataset.rolled="1";setTimeout(()=>{b.click();delete b.dataset.rolled},720);return}
   if(act==="new-game"){const id=uid();const kind=b.dataset.kind||"cash";const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));
     const seats={};groupPlayers().forEach(([p])=>seats[p]={rsvp:p===S.me.id?"yes":"invited"});
-    const sd=smartDefaults(kind);
+    const sd=smartDefaults(kind);const G0=curGroup();const nh=G0&&G0.nextHost&&S.data.players[G0.nextHost.pid]?G0.nextHost.pid:null;
+    if(nh){sd.location="Chez "+pname(nh);updGroup(G=>{G.lastHost=nh;delete G.nextHost})}
     write("games",id,{title:sd.title,date:sd.date,time:sd.time,location:sd.location,type:sd.type,buyIn:sd.buyIn,gameName:sd.gameName,lowWins:sd.lowWins,rebuys:sd.rebuys,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId,createdBy:S.me.id});
     S.tab="games";S.gameId=id;S.viewAnim="up";render(true);window.scrollTo(0,0);buzz(15);toast(sd.copied?"Partie préparée avec les réglages de la dernière fois ✓":"Partie créée : tout le groupe est invité");return}
   if(act==="set-type"){const v=b.dataset.v;const roll=v==="board";setTimeout(()=>{if(roll)rollIcon(app.querySelector(".kind.j .dice-ic"))},0);updGame(g=>{const wasB=g.type==="board";g.type=v;if(v==="board"&&g.title==="Soirée poker")g.title="Soirée jeux";if(v!=="board"&&g.title==="Soirée jeux")g.title="Soirée poker";if(v==="board"&&!wasB)g.buyIn=0;if(v!=="board"&&wasB&&!n(g.buyIn))g.buyIn=20});return}
@@ -2135,7 +2294,9 @@ app.addEventListener("keydown",e=>{if(e.key!=="Enter")return;
   if(/^a-/.test(e.target.id||"")){e.preventDefault();const bt=app.querySelector('[data-act="auth-signup"],[data-act="auth-login"],[data-act="auth-newpw"]');if(bt)bt.click();return}
   if(e.target.id==="new-player"){e.preventDefault();app.querySelector('[data-act="add-player"]').click()}
   if(e.target.id==="quick-player"){e.preventDefault();app.querySelector('[data-act="quick-add"]').click()}});
-app.addEventListener("input",e=>{if(e.target.id==="fb-text")S.fbText=e.target.value});
+app.addEventListener("input",e=>{if(e.target.id==="fb-text")S.fbText=e.target.value;
+  if(e.target.id==="lib-name"){const c=GAME_CAT.find(x=>x[0].toLowerCase()===e.target.value.trim().toLowerCase());if(c){const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v};set("lib-min",c[1]);set("lib-max",c[2]);const d=document.getElementById("lib-dur");if(d){d.value=[...d.options].map(o=>+o.value).reduce((a,b)=>Math.abs(b-c[3])<Math.abs(a-c[3])?b:a)}}}});
+app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="bring-in"){e.preventDefault();const b=e.target.parentNode.querySelector('[data-act="bring-add"]');if(b)b.click()}});
 app.addEventListener("change",e=>{const el=e.target;
   if(el.dataset.score){const pid=el.dataset.score;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{score:el.value===""?null:n(el.value)})});return}
   if(el.dataset.g==="rebuys"){const on=el.checked;const sw=el.closest(".rb-switch");if(sw){sw.querySelector(".rb-no").classList.toggle("on",!on);sw.querySelector(".rb-yes").classList.toggle("on",on)}const h=document.getElementById("rb-hint");if(h)h.textContent=on?"Montant de chaque buy-in et de chaque recave.":"Montant du buy-in. Recaves désactivées.";buzz(10);
