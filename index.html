@@ -968,11 +968,18 @@ nav.tabs{border-color:#E2C88E!important}
 /* décor : symboles qui flottent en fond */
 .suit-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;clip-path:inset(0);contain:strict}
 html,body{overflow-x:clip;max-width:100%}
+/* Re-rendu d'un même écran (après un tap) : aucune animation d'entrée ne doit rejouer */
+#app.still :is(.rise,.stag,.seat.deal,.bar i,.cel-crown,.sec-title h2,section.block>h2,section.block>.row>h2){animation:none!important}
+#app.still .table-wrap::after,#app.still .sec-title::after{animation:none!important}
+#app.layer-still :is(.inv-layer,.inv-sheet,.inv-pop){animation:none!important}
+/* Encoche / heure : les pages sans bandeau bleu laissent la place en haut */
+#app{padding-top:calc(18px + env(safe-area-inset-top,0px))!important}
+#app>.brand,#app>.top,#app>.hub-hero{margin-top:calc(-18px - env(safe-area-inset-top,0px))!important}
 /* Bandeau bleu bord à bord : sous l'encoche / la barre d'état, et sur toute la largeur */
 html{background:#0A2A78!important;overscroll-behavior-y:none}
 body{min-height:100vh;min-height:100dvh;overscroll-behavior-y:none}
 #app>.brand,#app>.top,#app>.hub-hero{margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important;padding-left:max(calc(50vw - 50%),env(safe-area-inset-left,0px))!important;padding-right:max(calc(50vw - 50%),env(safe-area-inset-right,0px))!important}
-.join{padding-top:env(safe-area-inset-top,0px)}
+
 .suit-sky span{position:absolute;bottom:-60px;font-size:var(--s,28px);color:var(--c,#1652D9);opacity:.07;animation:floatUp var(--d,22s) linear infinite;animation-delay:var(--dl,0s)}
 @keyframes floatUp{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(-120vh) rotate(var(--r,180deg))}}
 #app{position:relative;z-index:1}
@@ -1141,7 +1148,8 @@ async function loadAll(){
     S.data[t]=o}
   loadPay();
 }
-function loadPay(){if(!sb.from)return Promise.resolve();return sb.from("pay_methods").select("user_id,paypal,revolut,phone").then(({data,error})=>{if(error){console.warn("pay",error);return}const o={};(data||[]).forEach(r=>{o[r.user_id]=r});S.pay=o;render()}).catch(e=>console.warn(e))}
+function loadPay(){try{return _loadPay()}catch(e){console.warn("pay",e);return Promise.resolve()}}
+function _loadPay(){if(!sb.from)return Promise.resolve();return sb.from("pay_methods").select("user_id,paypal,revolut,phone").then(({data,error})=>{if(error){console.warn("pay",error);return}const o={};(data||[]).forEach(r=>{o[r.user_id]=r});S.pay=o;render()}).catch(e=>console.warn(e))}
 let sbChannel=null;
 function subscribeAll(){
   if(sbChannel)return;sbChannel=sb.channel("kicker-live");
@@ -1884,7 +1892,8 @@ function render(force){
   document.querySelector("nav.tabs").hidden=needJoin;
   const liveG=S.liveId&&S.data.games[S.liveId];if(S.liveId&&(!liveG||liveG.status!=="live"))S.liveId=null;
   const layer=(S.fidOffer&&S.auth==="ok"?`<div class="inv-layer" role="dialog" aria-modal="true" aria-label="${fidLabel()}"><div class="inv-pop fid-pop"><div class="lock-ic" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6"/><path d="M17 18v3M31 18v3M24 19v8h-2M18 33c3.5 3 8.5 3 12 0"/></svg></div><div class="inv-title" style="text-align:center">Ouvrir Kicker avec ${fidLabel()} ?</div><p class="muted" style="text-align:center;font-size:13.5px;margin:6px 0 0">Plus besoin de mot de passe sur cet appareil : un regard suffit.</p><div class="del-actions"><button class="btn" data-act="fid-later">Plus tard</button><button class="btn primary" data-act="fid-yes">Activer</button></div></div></div>`:"")||viewCelebrate()||viewStopLayer()||viewDelLayer()||(S.liveId?"":viewInviteLayer());if(layer||S.liveId)document.querySelector("nav.tabs").hidden=true;
-  const vkey=S.auth!=="ok"?"auth":S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"");const changed=vkey!==S.lastView;S.lastView=vkey;
+  const vkey=S.auth!=="ok"?"auth":S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
+  if(!changed){app.classList.remove("view-in","view-up","view-left","view-right");app.classList.add("still")}else app.classList.remove("still");app.classList.toggle("layer-still",layerSame&&!changed);
   app.innerHTML=(S.auth!=="ok"?viewAuth():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"");if(S.legal||S.showInstall||S.paySheet)document.querySelector("nav.tabs").hidden=true;
   if(!S.liveId&&!S.showInstall){const ib=installBar();if(ib){const anchor=app.querySelector(".join-card")||app.querySelector(".hub-hero")||app.querySelector(".brand");if(anchor)anchor.insertAdjacentHTML(anchor.classList.contains("join-card")?"beforebegin":"afterend",ib);else app.insertAdjacentHTML("afterbegin",ib)}}
 
