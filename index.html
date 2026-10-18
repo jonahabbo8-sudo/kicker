@@ -80,7 +80,8 @@ nav.tabs button.on::before{display:none}
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,800;1,900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,800;1,900&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,600;0,700;0,800;0,900;1,800;1,900&display=swap"></noscript>
 <style>
 /* Kicker — salon privé : nuit profonde, feutre émeraude, velours bordeaux, laiton */
 :root{
@@ -968,6 +969,19 @@ nav.tabs{border-color:#E2C88E!important}
 /* décor : symboles qui flottent en fond */
 .suit-sky{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;clip-path:inset(0);contain:strict}
 html,body{overflow-x:clip;max-width:100%}
+/* ---------- Écran de chargement : le logo s'anime en transparence ---------- */
+#splash{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;background:transparent;pointer-events:none;transition:opacity .35s ease,transform .35s ease}
+#splash.hide{opacity:0;transform:scale(1.08)}
+body.splashing #app,body.splashing nav.tabs{visibility:hidden}
+.sp-stack{transform:scale(2.4);opacity:.92;animation:spFloat 1.5s ease-in-out 1.15s infinite}
+#splash .chipstack i:nth-child(1){animation:chipA .9s cubic-bezier(.22,1.25,.4,1) both}
+#splash .chipstack i:nth-child(2){animation:chipB .9s cubic-bezier(.22,1.25,.4,1) .12s both}
+#splash .chipstack i:nth-child(3){animation:chipC .75s cubic-bezier(.3,1.5,.45,1) .38s both,spSpin 1.5s ease-in-out 1.15s infinite}
+.sp-shadow{width:70px;height:12px;margin-top:54px;border-radius:50%;background:radial-gradient(closest-side,rgba(10,42,120,.22),transparent);animation:spShadow 1.5s ease-in-out 1.15s infinite}
+@keyframes spFloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@keyframes spSpin{0%,100%{rotate:0deg}50%{rotate:14deg}}
+@keyframes spShadow{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.8);opacity:.6}}
+@media (prefers-reduced-motion:reduce){#splash *{animation:none!important}}
 /* Re-rendu d'un même écran (après un tap) : aucune animation d'entrée ne doit rejouer */
 #app.still :is(.rise,.stag,.seat.deal,.bar i,.cel-crown,.sec-title h2,section.block>h2,section.block>.row>h2){animation:none!important}
 #app.still .table-wrap::after,#app.still .sec-title::after{animation:none!important}
@@ -1053,7 +1067,8 @@ nav.tabs button{position:relative}
 </style>
 
 </head>
-<body>
+<body class="splashing">
+<div id="splash" aria-hidden="true"><div class="sp-stack"><div class="chipstack"><i></i><i></i><i></i></div></div><div class="sp-shadow"></div></div>
 <div class="suit-sky" aria-hidden="true"><span style="left:6%;--s:26px;--d:24s;--dl:-3s;--r:160deg;--c:#1652D9">♠</span><span style="left:22%;--s:40px;--d:30s;--dl:-12s;--r:-200deg;--c:#E3173E">♥</span><span style="left:41%;--s:22px;--d:20s;--dl:-7s;--r:220deg;--c:#D2AC67">♦</span><span style="left:58%;--s:34px;--d:27s;--dl:-18s;--r:-150deg;--c:#1652D9">♣</span><span style="left:74%;--s:28px;--d:23s;--dl:-1s;--r:190deg;--c:#E3173E">♦</span><span style="left:88%;--s:44px;--d:32s;--dl:-22s;--r:-220deg;--c:#D2AC67">♠</span><span style="left:33%;--s:18px;--d:19s;--dl:-14s;--r:140deg;--c:#1652D9">♥</span><span style="left:65%;--s:20px;--d:21s;--dl:-9s;--r:-170deg;--c:#0A2A78">♣</span></div>
 <div id="app"></div>
 <nav class="tabs" aria-label="Navigation"><div class="in">
@@ -1885,7 +1900,14 @@ setInterval(()=>{const lc=document.getElementById("live-clock");if(lc&&S.liveId&
   const c=document.getElementById("t-clock"),b=document.getElementById("t-bar");if(c)c.textContent=fmtT(r);if(b)b.style.width=Math.min(100,(1-r/(t.levels[t.idx][2]*60))*100)+"%"},250);
 
 /* ---------- render ---------- */
+const SPLASH_T0=Date.now();
+function splashReady(){return S.auth&&S.auth!=="checking"&&!(S.auth==="ok"&&(S.mode==="loading"||S.mode==="loading-shared"))}
+function hideSplash(){const sp=document.getElementById("splash");if(!sp||sp.dataset.out)return;sp.dataset.out="1";
+  const wait=Math.max(0,1150-(Date.now()-SPLASH_T0));
+  setTimeout(()=>{S.logoDone=true;document.body.classList.remove("splashing");sp.classList.add("hide");setTimeout(()=>sp.remove(),400)},wait)}
+setTimeout(hideSplash,9000);
 function render(force){
+  if(document.getElementById("splash")){S.logoDone=true;if(splashReady())hideSplash()}
   const a=document.activeElement;
   if(!force&&a&&app.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){needsRender=true;return}
   needsRender=false;
