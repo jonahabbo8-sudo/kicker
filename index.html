@@ -103,6 +103,27 @@ nav.tabs button.on::before{display:none}
 .lib-it .row-del{width:40px;align-self:stretch;font-size:20px}
 .lib-add{display:flex;flex-direction:column;gap:10px;margin-top:16px}
 .lib-row{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:8px}
+
+/* guide */
+#tour{position:fixed;inset:0;z-index:9000;pointer-events:auto;animation:tourIn .25s ease}
+#tour.out{opacity:0;transition:opacity .2s}
+@keyframes tourIn{from{opacity:0}}
+.tour-hole{position:fixed;border-radius:18px;box-shadow:0 0 0 9999px rgba(6,18,52,.72),0 0 0 3px #F3DDA6,0 0 24px 4px rgba(243,221,166,.45);transition:all .32s cubic-bezier(.3,1.2,.4,1);pointer-events:none}
+#tour.center .tour-hole{top:50%!important;left:50%!important;width:0!important;height:0!important;box-shadow:0 0 0 9999px rgba(6,18,52,.78)}
+.tour-card{position:fixed;left:16px;right:16px;max-width:440px;margin:0 auto;background:#fff;color:#14213D;border-radius:20px;padding:16px 16px 12px;box-shadow:0 24px 60px -20px rgba(0,0,0,.6);transition:top .32s cubic-bezier(.3,1.2,.4,1),bottom .32s cubic-bezier(.3,1.2,.4,1)}
+#tour.center .tour-card{top:50%!important;bottom:auto!important;transform:translateY(-50%)}
+.tour-card.in{animation:tourCard .3s cubic-bezier(.3,1.3,.5,1)}
+@keyframes tourCard{from{opacity:0;scale:.94}}
+.tour-step{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#1652D9;min-height:4px}
+.tour-t{display:block;font-size:19px;margin:4px 0 6px}
+.tour-d{margin:0;font-size:15px;line-height:1.45;color:#3B4A66}
+.tour-dots{display:flex;gap:5px;justify-content:center;margin:12px 0 10px}
+.tour-dots i{width:6px;height:6px;border-radius:9px;background:#D5DEEE;transition:all .25s}
+.tour-dots i.on{width:18px;background:#1652D9}
+.tour-btns{display:flex;align-items:center;gap:8px}
+.tour-skip{color:#5B6B86;font-weight:700;font-size:14px;padding:8px 4px}
+.tour-replay{display:flex;justify-content:center;margin:18px 0 4px}
+@media (prefers-reduced-motion:reduce){.tour-hole,.tour-card{transition:none}.tour-card.in{animation:none}}
 </style>
 <title>Kicker</title>
 <meta name="description" content="Organise tes soirées poker et jeux de société entre amis : invitations, recaves, scores et qui paie qui.">
@@ -1239,6 +1260,70 @@ function gamesSorted(){const gs=Object.entries(S.data.games).filter(([,g])=>g.gr
 function seatsOf(g){return g.seats||{}}
 function playing(g){return Object.entries(seatsOf(g)).filter(([pid,s])=>s.rsvp==="yes"||n(s.in)>0).map(([pid,s])=>Object.assign({pid},s))}
 function results(g){return playing(g).map(s=>({pid:s.pid,in:n(s.in),out:s.out===""||s.out==null?null:n(s.out),net:(s.out===""||s.out==null?0:n(s.out))-n(s.in)}))}
+/* ---------- Guide des nouveaux arrivants (visite guidée) ---------- */
+const TOUR_KEY="kicker-tour-v1";
+function tourSec(...words){return ()=>[...app.querySelectorAll("section,.card")].find(s=>{const t=(s.querySelector("h2,.eyebrow,.inv-title")||{}).textContent||"";return words.some(w=>t.toLowerCase().includes(w))})}
+function tourNextGame(){try{const {up,past}=gamesSorted();return (up[0]||past[0]||{}).id||null}catch(e){return null}}
+const TOUR=[
+  {t:"Bienvenue sur Kicker 👋",d:"En une minute, on fait le tour : comment s’organise une soirée, de l’invitation jusqu’au remboursement. Tu peux passer à tout moment."},
+  {tab:"games",el:".grp-switch",t:"Ton groupe",d:"Tu es dans ce groupe d’amis. Touche son nom pour changer de groupe ou en rejoindre un autre."},
+  {tab:"games",el:".quick",t:"Créer une soirée",d:"Soirée poker ou soirée jeux : un tap et tout le groupe est invité. Kicker reprend les réglages de la dernière fois."},
+  {tab:"games",el:".table-wrap,.oval",t:"La prochaine soirée",d:"Elle s’affiche ici avec le compte à rebours et qui vient. Touche-la pour ouvrir tous les détails."},
+  {tab:"games",game:true,el:tourSec("qui vient"),t:"Qui vient ?",d:"Chacun répond Oui, Peut-être ou Non. « Copier l’invitation » permet de l’envoyer sur WhatsApp ou par SMS."},
+  {tab:"games",game:true,el:()=>tourSec("quand")()||app.querySelector('[data-act="poll-start"]'),t:"Trouver la date",d:"Pas encore de date ? L’organisateur propose plusieurs dates, chacun vote et on garde celle qui arrange le plus de monde."},
+  {tab:"games",game:true,el:tourSec("apporte"),t:"Qui apporte quoi ?",d:"Ajoute ce qu’il faut (boissons, pizzas, jetons…) et touche « Je m’en occupe » pour ce que tu apportes."},
+  {tab:"games",game:true,el:'[data-act="ics"]',t:"Le rappel",d:"Ajoute la soirée à ton agenda : ton téléphone te prévient la veille et 2 h avant. Kicker t’affiche aussi un rappel la veille."},
+  {tab:"games",game:true,el:tourSec("caisse","scores"),t:"Le jour J",d:"Au poker, la caisse note les cavers et recaves de chacun. Aux jeux, on saisit les scores. Tout est enregistré en direct."},
+  {tab:"games",el:".pay-rem,.table-wrap,.oval",t:"Qui paie qui",d:"À la fin, Kicker calcule le moins de virements possible. Un bouton « Payer » ouvre PayPal, Revolut ou Lydia, et on coche quand c’est réglé."},
+  {tab:"games",el:".orga-cards .host-card:not(.lib-card)",t:"Qui reçoit la prochaine fois ?",d:"Tire au sort l’hôte de la prochaine soirée. Celui qui vient de recevoir est épargné !"},
+  {tab:"games",el:".lib-card",t:"La ludothèque",d:"Ajoutez les jeux que chacun possède. Kicker propose quoi jouer selon le nombre de joueurs et le temps disponible."},
+  {tab:"games",el:'nav.tabs button[data-tab="board"]',t:"Le classement",d:"Gains, victoires, séries : le classement du groupe se met à jour après chaque soirée."},
+  {tab:"games",el:'nav.tabs button[data-tab="players"]',t:"Ton profil",d:"Dans Joueurs : ton pseudo, Face ID et tes moyens de remboursement (PayPal, Revolut, Lydia) pour être payé en un clic."},
+  {tab:"games",el:".brand .row",t:"Besoin d’aide ?",d:"La cloche montre tes invitations. La bulle à côté sert à signaler un bug ou proposer une idée : on lit tout !"},
+  {t:"C’est parti ! 🎉",d:"Tu peux revoir ce guide à tout moment depuis l’onglet Joueurs.",end:true}
+];
+let TR=null;
+function tourStart(){if(TR)return;TR={i:0,prevTab:S.tab,prevGame:S.gameId};S.lib=false;S.paySheet=null;S.showFb=false;S.showInbox=false;
+  const o=document.createElement("div");o.id="tour";o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label","Guide de Kicker");
+  o.innerHTML=`<div class="tour-hole"></div><div class="tour-card" aria-live="polite"></div>`;document.body.appendChild(o);
+  o.addEventListener("click",e=>{const b=e.target.closest("[data-tour]");if(!b)return;const a=b.dataset.tour;if(a==="next")tourGo(1);else if(a==="prev")tourGo(-1);else tourEnd()});
+  TR.mo=new MutationObserver(()=>{cancelAnimationFrame(TR.raf);TR.raf=requestAnimationFrame(tourPlace)});TR.mo.observe(app,{childList:true,subtree:true});
+  TR.onr=()=>tourPlace();window.addEventListener("resize",TR.onr);window.addEventListener("scroll",TR.onr,{passive:true});
+  tourShow(0,1)}
+function tourEl(st){if(!st.el)return null;const e=typeof st.el==="function"?st.el():app.querySelector(st.el)||document.querySelector(st.el);return e&&e.getClientRects().length?e:null}
+function tourGo(d){tourShow(TR.i+d,d)}
+function tourShow(i,dir){if(!TR)return;if(i<0)i=0;if(i>=TOUR.length){tourEnd();return}
+  const st=TOUR[i];const gid=st.game?tourNextGame():null;
+  if(st.game&&!gid){tourShow(i+dir,dir);return}
+  const want={tab:st.tab||S.tab,gameId:st.game?gid:null};
+  if(st.tab&&(S.tab!==want.tab||S.gameId!==want.gameId)){S.tab=want.tab;S.gameId=want.gameId;S.lib=false;render(true)}
+  const el=tourEl(st);if(st.el&&!el){tourShow(i+dir,dir);return}
+  TR.i=i;TR.el=el;
+  const n=TOUR.length;const card=document.querySelector("#tour .tour-card");
+  card.innerHTML=`<div class="tour-step">${i&&!st.end?`Étape ${i} / ${n-2}`:""}</div><b class="tour-t">${st.t}</b><p class="tour-d">${st.d}</p>
+    <div class="tour-dots" aria-hidden="true">${TOUR.map((_,k)=>`<i class="${k===i?"on":""}"></i>`).join("")}</div>
+    <div class="tour-btns">${st.end?"":`<button class="tour-skip" data-tour="skip">Passer</button>`}<span class="grow"></span>${i>0&&!st.end?`<button class="btn small" data-tour="prev">Retour</button>`:""}<button class="btn small primary" data-tour="${st.end?"skip":"next"}">${st.end?"Terminer":i===0?"C’est parti":"Suivant"}</button></div>`;
+  card.classList.remove("in");void card.offsetWidth;card.classList.add("in");
+  if(el){const r=el.getBoundingClientRect();const navH=(document.querySelector("nav.tabs")||{}).offsetHeight||0;const fixed=getComputedStyle(el).position==="fixed"||el.closest("nav.tabs");
+    if(!fixed&&(r.top<90||r.bottom>innerHeight-navH-200||r.height>innerHeight*.5)){const y=scrollY+r.top-Math.max(90,Math.min(innerHeight*.18,(innerHeight-navH-r.height)/2));window.scrollTo({top:Math.max(0,y),behavior:"smooth"})}}
+  else window.scrollTo({top:0,behavior:"smooth"});
+  tourPlace();setTimeout(tourPlace,380);buzz(8);const nb=card.querySelector('[data-tour="next"],[data-tour="skip"]:last-child');if(nb)nb.focus({preventScroll:true})}
+function tourPlace(){if(!TR)return;const o=document.getElementById("tour");if(!o)return;const hole=o.querySelector(".tour-hole"),card=o.querySelector(".tour-card");
+  const st=TOUR[TR.i];let el=TR.el;if(el&&!el.isConnected){el=TR.el=tourEl(st)}
+  if(!el){o.classList.add("center");hole.style.cssText="";card.style.top=card.style.bottom="";return}
+  o.classList.remove("center");const r=el.getBoundingClientRect();const pad=8;const maxH=Math.min(r.height,innerHeight*.5);
+  hole.style.cssText=`top:${r.top-pad}px;left:${Math.max(6,r.left-pad)}px;width:${Math.min(innerWidth-12,r.width+pad*2)}px;height:${maxH+pad*2}px`;
+  const below=r.top+maxH/2<innerHeight*.5;const ch=card.offsetHeight;
+  if(below){card.style.bottom="";card.style.top=Math.min(innerHeight-ch-12,r.top+maxH+pad+14)+"px"}else{card.style.top="";card.style.bottom=Math.min(innerHeight-ch-12,innerHeight-r.top+pad+14)+"px"}}
+function tourEnd(){if(!TR)return;try{localStorage.setItem(TOUR_KEY+":"+(S.me.id||""),"1")}catch(e){}
+  TR.mo.disconnect();window.removeEventListener("resize",TR.onr);window.removeEventListener("scroll",TR.onr);
+  const o=document.getElementById("tour");if(o){o.classList.add("out");setTimeout(()=>o.remove(),220)}
+  TR=null;S.tab="games";S.gameId=null;render(true);window.scrollTo({top:0,behavior:"smooth"})}
+function tourMaybeAuto(){if(TR||S.auth!=="ok"||!S.me.id||!curGroup()||S.liveId||S.mode==="loading"||S.mode==="loading-shared"||S.fidOffer)return;
+  if(document.body.classList.contains("splashing")||document.querySelector(".inv-layer,.legal-layer"))return;
+  let seen=false;try{seen=!!localStorage.getItem(TOUR_KEY+":"+S.me.id)}catch(e){seen=true}if(seen)return;
+  if(S.tourTimer)return;S.tourTimer=setTimeout(()=>{S.tourTimer=null;if(!TR&&S.tab==="games"&&!S.gameId&&!S.liveId&&!document.querySelector(".inv-layer")&&!document.body.classList.contains("splashing"))tourStart()},700)}
+function tourReplayHtml(){return `<div class="tour-replay"><button class="btn small" data-act="tour-start">🧭 Revoir le guide de Kicker</button></div>`}
 /* ---------- Organisation de soirée : sondage de date, qui apporte quoi, rappel agenda, hôte, ludothèque ---------- */
 const BRING_SUG=["Boissons","Chips & apéro","Pizzas","Dessert","Glaçons","Jetons","Cartes","Enceinte"];
 const GAME_CAT=[["Catan",3,4,75],["Skyjo",2,8,30],["Uno",2,10,30],["Dixit",3,8,30],["Codenames",4,8,15],["Les Aventuriers du Rail",2,5,60],["7 Wonders",3,7,30],["Carcassonne",2,5,35],["Splendor",2,4,30],["Azul",2,4,40],["Time's Up",4,12,45],["Loups-Garous",8,18,30],["Dobble",2,8,15],["Blanc Manger Coco",3,12,30],["Monopoly",2,6,120],["Trivial Pursuit",2,6,90],["Scrabble",2,4,60],["Pandemic",2,4,45],["Love Letter",2,6,20],["6 qui prend !",2,10,45],["The Mind",2,4,20],["Unlock!",1,6,60],["Perudo",2,6,30],["Kingdomino",2,4,15],["Jungle Speed",2,10,15],["Cluedo",3,6,45],["Risk",2,6,120],["Wingspan",1,5,60],["Terraforming Mars",1,5,120],["Tarot",3,5,60],["Belote",4,4,45],["Mölkky",2,12,30],["Cortex Challenge",2,6,20],["Just One",3,7,20],["Sushi Go!",2,5,15],["Exploding Kittens",2,5,15]];
@@ -2026,7 +2111,7 @@ const SPLASH_T0=Date.now();
 function splashReady(){return S.auth&&S.auth!=="checking"&&!(S.auth==="ok"&&(S.mode==="loading"||S.mode==="loading-shared"))}
 function hideSplash(){const sp=document.getElementById("splash");if(!sp||sp.dataset.out)return;sp.dataset.out="1";
   const wait=Math.max(0,1150-(Date.now()-SPLASH_T0));
-  setTimeout(()=>{S.logoDone=true;document.body.classList.remove("splashing");sp.classList.add("hide");setTimeout(()=>sp.remove(),400)},wait)}
+  setTimeout(()=>{S.logoDone=true;document.body.classList.remove("splashing");sp.classList.add("hide");setTimeout(tourMaybeAuto,300);setTimeout(()=>sp.remove(),400)},wait)}
 setTimeout(hideSplash,9000);
 function render(force){
   if(document.getElementById("splash")){S.logoDone=true;if(splashReady())hideSplash()}
@@ -2041,8 +2126,9 @@ function render(force){
   const layer=(S.fidOffer&&S.auth==="ok"?`<div class="inv-layer" role="dialog" aria-modal="true" aria-label="${fidLabel()}"><div class="inv-pop fid-pop"><div class="lock-ic" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6"/><path d="M17 18v3M31 18v3M24 19v8h-2M18 33c3.5 3 8.5 3 12 0"/></svg></div><div class="inv-title" style="text-align:center">Ouvrir Kicker avec ${fidLabel()} ?</div><p class="muted" style="text-align:center;font-size:13.5px;margin:6px 0 0">Plus besoin de mot de passe sur cet appareil : un regard suffit.</p><div class="del-actions"><button class="btn" data-act="fid-later">Plus tard</button><button class="btn primary" data-act="fid-yes">Activer</button></div></div></div>`:"")||viewCelebrate()||viewStopLayer()||viewDelLayer()||(S.liveId?"":viewInviteLayer());if(layer||S.liveId)document.querySelector("nav.tabs").hidden=true;
   const vkey=S.auth!=="ok"?"auth":S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"")+(S.lib&&S.tab==="games"&&!S.gameId?":lib":"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
   if(!changed){app.classList.remove("view-in","view-up","view-left","view-right");app.classList.add("still")}else app.classList.remove("still");app.classList.toggle("layer-still",layerSame&&!changed);
-  const tmp=document.createElement("div");tmp.innerHTML=(S.auth!=="ok"?viewAuth():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"");
+  const tmp=document.createElement("div");tmp.innerHTML=(S.auth!=="ok"?viewAuth():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+tourReplayHtml()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"");
   if(!S.liveId&&!S.showInstall){const ib=installBar();if(ib){const anchor=tmp.querySelector(".join-card")||tmp.querySelector(".hub-hero")||tmp.querySelector(".brand");if(anchor)anchor.insertAdjacentHTML(anchor.classList.contains("join-card")?"beforebegin":"afterend",ib);else tmp.insertAdjacentHTML("afterbegin",ib)}}
+  if(!TR&&!S.tourTimer)setTimeout(tourMaybeAuto,60);
   if(changed||!window.morphdom||!app.firstChild){app.replaceChildren(...tmp.childNodes)}
   else{try{morphdom(app,tmp,{childrenOnly:true,
       onBeforeElUpdated:(a,b)=>{if(a===document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return false;return !a.isEqualNode(b)},
@@ -2110,6 +2196,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="install"){if(deferredInstall){const ev=deferredInstall;deferredInstall=null;ev.prompt();ev.userChoice.then(c=>{if(c&&c.outcome==="accepted"){try{localStorage.setItem("kicker-installed","1")}catch(e){}}render(true)}).catch(()=>{});return}S.showInstall=true;render(true);return}
   if(act==="install-close"){S.showInstall=false;render(true);return}
   if(act==="install-later"){try{localStorage.setItem("kicker-install-later",String(Date.now()))}catch(e){}render(true);return}
+  if(act==="tour-start"){tourStart();return}
   if(act==="poll-start"){updG(b.dataset.gid,g=>{const P={open:true,opts:{},votes:{}};if(g.date)P.opts[nid()]={date:g.date,time:g.time||"20:00"};g.poll=P});return}
   if(act==="poll-add"){const d=(document.getElementById("poll-d")||{}).value,t=(document.getElementById("poll-t")||{}).value||"20:00";if(!d){toast("Choisis une date");return}
     const g=S.data.games[b.dataset.gid];if(g&&g.poll&&Object.values(g.poll.opts||{}).some(o=>o.date===d&&o.time===t)){toast("Cette date est déjà proposée");return}
