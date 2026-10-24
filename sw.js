@@ -1,9 +1,9 @@
 /* Kicker — service worker : rend l'app installable et l'ouvre même avec un réseau faible.
    Les pages passent toujours d'abord par le réseau, pour toujours avoir la dernière version. */
-const CACHE = "kicker-v1";
+const CACHE = "kicker-v2";
 self.addEventListener("install", e => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(["/", "/manifest.json", "/icon-192.png", "/apple-touch-icon.png"])).catch(() => {}));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(["/", "/manifest.json", "/icon-192.png", "/apple-touch-icon.png", "/supabase-2.118.0.js", "/montserrat.woff2", "/montserrat-italic.woff2"])).catch(() => {}));
 });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
