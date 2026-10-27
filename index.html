@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<script>(function(){var h=location.hostname;if(h==="kicker-flax.vercel.app"||h==="www.kicker-game.com"){location.replace("https://kicker-game.com"+location.pathname+location.search+location.hash)}})();</script>
+<script>(function(){var h=location.hostname;if(h==="kicker-flax.vercel.app"){location.replace("https://www.kicker-game.com"+location.pathname+location.search+location.hash)}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0A2A78">
 <link rel="preload" href="/montserrat.woff2" as="font" type="font/woff2" crossorigin>
@@ -142,8 +142,8 @@ nav.tabs button.on::before{display:none}
 <meta property="og:site_name" content="Kicker">
 <meta property="og:title" content="Kicker — Poker & jeux de société entre amis">
 <meta property="og:description" content="Invitations, qui vient, recaves, scores… et à la fin, qui paie qui. Gratuit.">
-<meta property="og:url" content="https://kicker-game.com/">
-<meta property="og:image" content="https://kicker-game.com/icon-512.png">
+<meta property="og:url" content="https://www.kicker-game.com/">
+<meta property="og:image" content="https://www.kicker-game.com/icon-512.png">
 <meta name="twitter:card" content="summary">
 <noscript></noscript>
 <style>
@@ -1226,7 +1226,7 @@ async function copy(text){try{await navigator.clipboard.writeText(text);toast("C
   S.copyFallback=text;render(true);}}
 
 /* ---------- stockage : Supabase ---------- */
-const APP_URL=/\.vercel\.app$/.test(location.hostname)||/^www\./.test(location.hostname)||location.protocol==="file:"?"https://kicker-game.com":location.origin;
+const APP_URL=/\.vercel\.app$/.test(location.hostname)||location.hostname==="kicker-game.com"||location.protocol==="file:"?"https://www.kicker-game.com":location.origin;
 const SB_URL="https://qswhsawqhesobdyqcnvq.supabase.co";
 const SB_KEY="sb_publishable_PELSbEu3ZWpMG_VZ5GdCiw_KE2KhzPv";
 const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,experimental:{passkey:true}}});
