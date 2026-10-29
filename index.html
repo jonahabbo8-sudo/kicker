@@ -1509,17 +1509,17 @@ function libGames(){const G=curGroup();return Object.entries((G&&G.library)||{})
 function libCard(){const n=libGames().length;return `<button class="host-card lib-card rise d2" data-act="lib-open"><span class="hc-ic" aria-hidden="true">🎲</span><div class="grow" style="min-width:0"><span class="eyebrow">Ludothèque du groupe</span><b>${n?n+" jeu"+(n>1?"x":""):"Ajoute vos jeux"}</b></div><span aria-hidden="true" class="muted">›</span></button>`}
 function libMatches(n,t){return libGames().filter(x=>(!n||(n>=(+x.min||1)&&n<=(+x.max||99)))&&(!t||(+x.dur||0)<=t))}
 function viewLibrary(){const m=meta();const ps=groupPlayers();const all=libGames();
-  const n=S.libN||Math.max(2,ps.length||2),t=S.libT||0;const ok=libMatches(n,t);
+  const n=S.libN||Math.max(2,ps.length||2);const ok=libMatches(n,0);
   let h=`<div class="top"><div><div class="eyebrow">${esc(m.name)}</div><h1>Ludothèque</h1></div></div>${banner()}
     <div class="row between" style="margin-bottom:12px"><button class="btn small" data-act="lib-close">← Soirées</button><span class="muted" style="font-size:13px">${all.length} jeu${all.length>1?"x":""}</span></div>`;
   h+=`<section class="card lib-find"><span class="eyebrow">Qu’est-ce qu’on joue ?</span>
     <div class="lib-q"><span>On est</span><div class="stepper"><button class="btn icon" data-act="lib-n" data-d="-1" aria-label="Moins">−</button><span class="val num">${n}</span><button class="btn icon" data-act="lib-n" data-d="1" aria-label="Plus">+</button></div></div>
-    <div class="lib-q"><span>Temps</span><div class="chip-sug">${[[0,"Peu importe"],[30,"≤ 30 min"],[60,"≤ 1 h"],[120,"≤ 2 h"]].map(([v,l])=>`<button class="${t===v?"on":""}" data-act="lib-t" data-v="${v}">${l}</button>`).join("")}</div></div>
+    
     ${all.length?`<p class="muted" style="margin:8px 0;font-size:13px">${ok.length} jeu${ok.length>1?"x":""} possible${ok.length>1?"s":""}</p>`:""}
     ${ok.length?`<button class="btn primary" data-act="lib-pick" style="width:100%">🎲 Choisir pour nous</button>`:""}
     ${S.libPick&&ok.some(x=>x.id===S.libPick)?`<div class="lib-picked">👉 <b>${esc(ok.find(x=>x.id===S.libPick).name)}</b></div>`:""}</section>`;
   h+=`<section class="block"><h2 style="margin:0">Nos jeux</h2>${all.length?`<div class="list">${all.map(x=>{const fit=ok.some(y=>y.id===x.id);
-    return `<div class="item lib-it ${fit?"":"dim"}">${x.owner?avatar(x.owner):`<span class="avatar">🎲</span>`}<div class="grow" style="min-width:0"><b class="ellipsis">${esc(x.name)}</b><small class="muted">${[x.min&&x.max?`${x.min}–${x.max} joueurs`:"",x.dur?x.dur+" min":"",x.owner?"chez "+esc(pname(x.owner)):""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>${(x.addedBy===S.me.id||x.owner===S.me.id||(curGroup()||{}).createdBy===S.me.id)?`<button class="row-del" data-act="lib-del" data-id="${x.id}" aria-label="Retirer ${esc(x.name)}">×</button>`:""}</div>`}).join("")}</div>`:`<div class="card empty">Aucun jeu pour l’instant. Ajoute les jeux que chacun possède !</div>`}</section>`;
+    return `<div class="item lib-it ${fit?"":"dim"}">${x.owner?avatar(x.owner):`<span class="avatar">🎲</span>`}<div class="grow" style="min-width:0"><b class="ellipsis">${esc(x.name)}</b><small class="muted">${[x.min&&x.max?`${x.min}–${x.max} joueurs`:"",x.owner?"chez "+esc(pname(x.owner)):""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>${(x.addedBy===S.me.id||x.owner===S.me.id||(curGroup()||{}).createdBy===S.me.id)?`<button class="row-del" data-act="lib-del" data-id="${x.id}" aria-label="Retirer ${esc(x.name)}">×</button>`:""}</div>`}).join("")}</div>`:`<div class="card empty">Aucun jeu pour l’instant. Ajoute les jeux que chacun possède !</div>`}</section>`;
   h+=`<section class="card lib-add"><span class="eyebrow">Ajouter un jeu</span>
     <label class="field">Nom<input id="lib-name" maxlength="40" placeholder="Catan, Skyjo…" list="lib-cat" autocomplete="off"></label><datalist id="lib-cat">${GAME_CAT.map(c=>`<option value="${esc(c[0])}">`).join("")}</datalist>
     <label class="field">Il est chez<select id="lib-owner"><option value="">Personne en particulier</option>${ps.map(([pid,p])=>`<option value="${pid}" ${isMe(pid)?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
@@ -2370,8 +2370,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="lib-open"){S.lib=true;S.libPick=null;S.viewAnim="up";render(true);window.scrollTo(0,0);return}
   if(act==="lib-close"){S.lib=false;render(true);window.scrollTo(0,0);return}
   if(act==="lib-n"){S.libN=Math.min(30,Math.max(1,(S.libN||Math.max(2,groupPlayers().length||2))+(+b.dataset.d)));S.libPick=null;render();return}
-  if(act==="lib-t"){S.libT=+b.dataset.v;S.libPick=null;render();return}
-  if(act==="lib-pick"){const L=libMatches(S.libN||Math.max(2,groupPlayers().length||2),S.libT||0);if(!L.length)return;let c=L[Math.floor(Math.random()*L.length)];if(L.length>1&&c.id===S.libPick)c=L.find(x=>x.id!==S.libPick);S.libPick=c.id;render();buzz(15);return}
+  if(act==="lib-pick"){const L=libMatches(S.libN||Math.max(2,groupPlayers().length||2),0);if(!L.length)return;let c=L[Math.floor(Math.random()*L.length)];if(L.length>1&&c.id===S.libPick)c=L.find(x=>x.id!==S.libPick);S.libPick=c.id;render();buzz(15);return}
   if(act==="lib-add"){const v=id=>(document.getElementById(id)||{}).value||"";const name=v("lib-name").trim().slice(0,40);const err=document.getElementById("lib-err");
     if(!name){if(err)err.textContent="Donne un nom au jeu";return}
     if(libGames().some(x=>x.name.toLowerCase()===name.toLowerCase()&&x.owner===(v("lib-owner")||null))){if(err)err.textContent="Ce jeu est déjà dans la ludothèque";return}
