@@ -1519,13 +1519,11 @@ function viewLibrary(){const m=meta();const ps=groupPlayers();const all=libGames
     ${ok.length?`<button class="btn primary" data-act="lib-pick" style="width:100%">🎲 Choisir pour nous</button>`:""}
     ${S.libPick&&ok.some(x=>x.id===S.libPick)?`<div class="lib-picked">👉 <b>${esc(ok.find(x=>x.id===S.libPick).name)}</b></div>`:""}</section>`;
   h+=`<section class="block"><h2 style="margin:0">Nos jeux</h2>${all.length?`<div class="list">${all.map(x=>{const fit=ok.some(y=>y.id===x.id);
-    return `<div class="item lib-it ${fit?"":"dim"}">${x.owner?avatar(x.owner):`<span class="avatar">🎲</span>`}<div class="grow" style="min-width:0"><b class="ellipsis">${esc(x.name)}</b><small class="muted">${x.min||"?"}–${x.max||"?"} joueurs · ${x.dur?x.dur+" min":"durée ?"}${x.owner?" · chez "+esc(pname(x.owner)):""}</small></div>${(x.addedBy===S.me.id||x.owner===S.me.id||(curGroup()||{}).createdBy===S.me.id)?`<button class="row-del" data-act="lib-del" data-id="${x.id}" aria-label="Retirer ${esc(x.name)}">×</button>`:""}</div>`}).join("")}</div>`:`<div class="card empty">Aucun jeu pour l’instant. Ajoute les jeux que chacun possède !</div>`}</section>`;
+    return `<div class="item lib-it ${fit?"":"dim"}">${x.owner?avatar(x.owner):`<span class="avatar">🎲</span>`}<div class="grow" style="min-width:0"><b class="ellipsis">${esc(x.name)}</b><small class="muted">${[x.min&&x.max?`${x.min}–${x.max} joueurs`:"",x.dur?x.dur+" min":"",x.owner?"chez "+esc(pname(x.owner)):""].filter(Boolean).join(" · ")||"&nbsp;"}</small></div>${(x.addedBy===S.me.id||x.owner===S.me.id||(curGroup()||{}).createdBy===S.me.id)?`<button class="row-del" data-act="lib-del" data-id="${x.id}" aria-label="Retirer ${esc(x.name)}">×</button>`:""}</div>`}).join("")}</div>`:`<div class="card empty">Aucun jeu pour l’instant. Ajoute les jeux que chacun possède !</div>`}</section>`;
   h+=`<section class="card lib-add"><span class="eyebrow">Ajouter un jeu</span>
     <label class="field">Nom<input id="lib-name" maxlength="40" placeholder="Catan, Skyjo…" list="lib-cat" autocomplete="off"></label><datalist id="lib-cat">${GAME_CAT.map(c=>`<option value="${esc(c[0])}">`).join("")}</datalist>
-    <div class="lib-row"><label class="field">Min joueurs<input id="lib-min" type="number" inputmode="numeric" min="1" max="30" value="2"></label><label class="field">Max<input id="lib-max" type="number" inputmode="numeric" min="1" max="30" value="6"></label><label class="field">Durée<select id="lib-dur">${[15,30,45,60,90,120,180].map(v=>`<option value="${v}" ${v===45?"selected":""}>${v<60?v+" min":v/60+" h"+(v%60?"30":"")}</option>`).join("")}</select></label></div>
     <label class="field">Il est chez<select id="lib-owner"><option value="">Personne en particulier</option>${ps.map(([pid,p])=>`<option value="${pid}" ${isMe(pid)?"selected":""}>${esc(p.name)}</option>`).join("")}</select></label>
-    <div class="auth-err" id="lib-err" role="alert"></div><button class="btn primary" data-act="lib-add" style="width:100%">Ajouter à la ludothèque</button>
-    <p class="muted" style="font-size:12px;margin:8px 0 0">Les nombres de joueurs et durées proposés sont indicatifs : ajuste-les si besoin.</p></section>`;
+    <div class="auth-err" id="lib-err" role="alert"></div><button class="btn primary" data-act="lib-add" style="width:100%">Ajouter à la ludothèque</button></section>`;
   return h}
 function libChips(g,gid){const n=Object.values(g.seats||{}).filter(s=>s.rsvp==="yes").length;const L=libMatches(n>=2?n:0,0).slice(0,8);if(!L.length)return"";
   return `<div class="chip-sug" style="margin-top:8px"><span class="muted" style="font-size:12px;align-self:center">Ludothèque${n>=2?" ("+n+" joueurs)":""} :</span>${L.map(x=>`<button data-act="lib-use" data-gid="${gid}" data-name="${esc(x.name)}" class="${g.gameName===x.name?"on":""}">${esc(x.name)}</button>`).join("")}</div>`}
@@ -2377,8 +2375,8 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="lib-add"){const v=id=>(document.getElementById(id)||{}).value||"";const name=v("lib-name").trim().slice(0,40);const err=document.getElementById("lib-err");
     if(!name){if(err)err.textContent="Donne un nom au jeu";return}
     if(libGames().some(x=>x.name.toLowerCase()===name.toLowerCase()&&x.owner===(v("lib-owner")||null))){if(err)err.textContent="Ce jeu est déjà dans la ludothèque";return}
-    let mn=Math.max(1,Math.min(30,+v("lib-min")||1)),mx=Math.max(1,Math.min(30,+v("lib-max")||mn));if(mx<mn)[mn,mx]=[mx,mn];
-    updGroup(G=>{G.library=G.library||{};G.library[nid()]={name,min:mn,max:mx,dur:+v("lib-dur")||45,owner:v("lib-owner")||null,addedBy:S.me.id,at:Date.now()}});const ni=document.getElementById("lib-name");if(ni)ni.value="";const er=document.getElementById("lib-err");if(er)er.textContent="";toast(name+" ajouté ✓");buzz(12);return}
+    const cat=GAME_CAT.find(x=>x[0].toLowerCase()===name.toLowerCase());
+    updGroup(G=>{G.library=G.library||{};const it={name,owner:v("lib-owner")||null,addedBy:S.me.id,at:Date.now()};if(cat){it.min=cat[1];it.max=cat[2];it.dur=cat[3]}G.library[nid()]=it});const ni=document.getElementById("lib-name");if(ni)ni.value="";const er=document.getElementById("lib-err");if(er)er.textContent="";toast(name+" ajouté ✓");buzz(12);return}
   if(act==="lib-del"){updGroup(G=>{if(G.library)delete G.library[b.dataset.id]});return}
   if(act==="lib-use"){const name=b.dataset.name;updG(b.dataset.gid,g=>{g.gameName=name});return}
   if(act==="pay-open"){S.paySheet={gid:b.dataset.gid,from:b.dataset.from,to:b.dataset.to,v:+b.dataset.v};render(true);loadPay();return}
@@ -2541,7 +2539,7 @@ app.addEventListener("keydown",e=>{if(e.key===" "&&e.target.matches&&e.target.ma
   if(e.target.id==="new-player"){e.preventDefault();app.querySelector('[data-act="add-player"]').click()}
   if(e.target.id==="quick-player"){e.preventDefault();app.querySelector('[data-act="quick-add"]').click()}});
 app.addEventListener("input",e=>{if(e.target.id==="fb-text")S.fbText=e.target.value;
-  if(e.target.id==="lib-name"){const c=GAME_CAT.find(x=>x[0].toLowerCase()===e.target.value.trim().toLowerCase());if(c){const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v};set("lib-min",c[1]);set("lib-max",c[2]);const d=document.getElementById("lib-dur");if(d){d.value=[...d.options].map(o=>+o.value).reduce((a,b)=>Math.abs(b-c[3])<Math.abs(a-c[3])?b:a)}}}});
+});
 app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="bring-in"){e.preventDefault();const b=e.target.parentNode.querySelector('[data-act="bring-add"]');if(b)b.click()}});
 app.addEventListener("change",e=>{const el=e.target;if(el.id==="ph-file"){const f=el.files&&el.files[0];el.value="";photoUpload(f);return}if(el.dataset&&el.dataset.notif){const k=el.dataset.notif;S.notif=Object.assign(notifPrefs(),{[k]:el.checked});sb.auth.updateUser({data:{notif:S.notif}}).then(({error})=>{if(error)toast("Réglage non enregistré, réessaie")});return}
   if(el.dataset.score){const pid=el.dataset.score;updGame(g=>{g.seats[pid]=Object.assign({},g.seats[pid],{score:el.value===""?null:n(el.value)})});return}
