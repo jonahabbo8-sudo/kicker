@@ -1226,6 +1226,44 @@ nav.tabs button{position:relative}
 .pk-log{margin-top:14px;font-size:12.5px;color:#56637D;display:flex;flex-direction:column;gap:3px;text-align:center}
 .pk-log div:first-child{color:#14213D;font-weight:700}
 @media (prefers-reduced-motion:reduce){.pc{animation:none}}
+
+/* accueil : jeu en ligne mis en avant */
+.pk-home{display:flex;align-items:center;gap:14px;width:100%;margin:14px 0 16px;padding:16px;border-radius:20px;border:0;text-align:left;color:#fff;cursor:pointer;
+  background:radial-gradient(120% 140% at 0% 0%,#1F8A5B 0%,#0E5A3A 55%,#0A3F29 100%);box-shadow:0 14px 30px -14px rgba(14,90,58,.7),inset 0 0 0 1px rgba(243,221,166,.35)}
+.pk-home .grow{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pk-home .eyebrow{color:#F3DDA6;font-size:10.5px;display:flex;align-items:center;gap:6px}
+.pk-home b{font-size:17px;font-weight:900;font-family:var(--f-display)}
+.pk-home small{font-size:12.5px;opacity:.9}
+.pk-home-cards{display:flex;flex:none}
+.pk-home-cards .pc{width:32px;height:46px;animation:none}
+.pk-home-cards .pc:first-child{transform:rotate(-10deg) translateX(4px)}.pk-home-cards .pc:last-child{transform:rotate(8deg) translateY(2px)}
+.pk-home-go{flex:none;background:linear-gradient(180deg,#F3DDA6,#C9A25B);color:#1B1307;font-weight:900;font-size:14px;padding:9px 14px;border-radius:12px}
+.pk-home.live{background:radial-gradient(120% 140% at 0% 0%,#C8102E 0%,#7A0F22 60%,#4E0A16 100%)}
+.pk-home .dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 0 3px rgba(74,222,128,.3)}
+@media (prefers-reduced-motion:no-preference){.pk-home .dot{animation:blinkP 1.2s steps(2) infinite}}
+.pkq-opts{display:flex;flex-direction:column;gap:10px}
+.pkq-opt{display:flex;flex-direction:column;gap:3px;text-align:left;padding:14px;border-radius:16px;border:1.5px solid #D5DDEA;background:#fff;cursor:pointer;color:#14213D}
+.pkq-opt b{font-size:16px}.pkq-opt small{font-size:13px;color:#56637D}
+.pkq-opt:active{border-color:#1652D9}
+
+.pk-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.pk-top .btn{flex:none;width:40px;padding:0}
+.pk-ttl{flex:1;min-width:0;display:flex;flex-direction:column}.pk-ttl b{font-family:var(--f-display);font-weight:900;font-style:italic;font-size:18px;color:#0A2A78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-ttl small{font-size:12px;color:#56637D}
+.pk-table{padding:16px 6px 22px!important}
+.pk-table .oval{aspect-ratio:1.18/1!important;max-width:460px}
+.pk-center{inset:22% 12% 30%!important}
+.pc.md{width:40px;height:56px;border-radius:7px}.pc.md b{font-size:17px}.pc.md i{font-size:17px}
+.pk-seat.big{width:110px}
+.pk-mycards{display:flex;gap:4px}.pk-mycards .pc:first-child{transform:rotate(-6deg)}.pk-mycards .pc:last-child{transform:rotate(6deg)}
+.pk-seat.big em{margin-top:2px}
+.pk-seat.big.act .pk-mycards .pc{box-shadow:0 0 0 2px #F3DDA6,0 4px 10px rgba(0,0,0,.4)}
+.pk-seat.big .pk-ring{top:-10px}
+.pk-mine-line{text-align:center;font-size:12.5px;margin:8px 0 0}
+.pk-actions{position:static!important;margin-top:10px;padding:10px!important}
+.pk-turn{margin-bottom:6px!important}
+.pk-pres{margin:0 0 6px!important}
+.pk-raise input{margin:2px 0 8px}
 </style>
 
 </head>
@@ -1477,20 +1515,23 @@ function pkResultHtml(st){
   const r=Object.values(st.results||{}).sort((a,b)=>b.net-a.net);
   return `<div class="pk-res"><span class="eyebrow">Cash game en ligne · jetons</span>${r.length?`<ul>${r.map(x=>`<li><b>${esc(x.name)}</b><span class="num ${x.net>0?"win":x.net<0?"loss":""}">${x.net>0?"+":""}${pkChips(x.net)}</span></li>`).join("")}</ul>`:`<p class="muted">Aucun résultat</p>`}</div>`}
 /* La table */
-function pkPos(k,N){const ang=(90+k*360/N)*Math.PI/180;return{x:(50+46*Math.cos(ang)).toFixed(1),y:(50+44*Math.sin(ang)).toFixed(1)}}
+function pkPos(k,N){if(k===0)return{x:"50.0",y:"84.0"};const ang=(90+k*360/N)*Math.PI/180;return{x:(50+46*Math.cos(ang)).toFixed(1),y:(50+42*Math.sin(ang)).toFixed(1)}}
 function viewPoker(){const id=S.pokerId;const st=PK.tables[id];
   if(!st){pkLoadTable(id);return `<div class="row between" style="margin-bottom:14px"><button class="btn small" data-act="pk-back">← Soirée</button></div><div class="card empty">Ouverture de la table…</div>`}
   const me=pkMe(st);const h=st.hand;const now=Date.now();const [sb_,bb_]=pkBlinds(st);const creator=st.createdBy===S.me.id;
   const occ=st.seats.map((s,i)=>[s,i]).filter(([s])=>s);const N=Math.max(occ.length,2);
   const order=me>=0?[...occ.filter(([,i])=>i>=me),...occ.filter(([,i])=>i<me)]:occ;
   const myHole=PK.holes[id]&&h&&PK.holes[id].no===st.handNo?PK.holes[id].cards:null;
-  let head=`<div class="row between" style="margin-bottom:12px"><button class="btn small" data-act="pk-back">← Soirée</button><span class="pill ${st.status==="running"?"live":""}">${st.status==="waiting"?"En attente":st.status==="running"?"En cours":"Terminée"}</span></div>
-    <div class="pk-head"><span class="eyebrow">${st.mode==="tourney"?"Tournoi en ligne":"Cash game en ligne"} · jetons fictifs</span><div class="pk-title">${esc(st.title||"Table en ligne")}</div>
-    <div class="pk-meta">Blindes <b class="num">${sb_}/${bb_}</b>${st.mode==="tourney"&&st.status==="running"?` · niveau ${st.level+1}${st.levelEndsAt?` · <span class="num" id="pk-lvl">${fmtMMSS(st.levelEndsAt-now)}</span>`:""}`:""}${st.handNo?` · main n°${st.handNo}`:""}</div></div>`;
+  let head=`<div class="pk-top"><button class="btn small" data-act="pk-back" aria-label="Retour à la soirée">←</button><div class="pk-ttl"><b>${esc(st.title||"Table en ligne")}</b><small>${st.mode==="tourney"?"Tournoi":"Cash game"} · blindes <span class="num">${sb_}/${bb_}</span>${st.mode==="tourney"&&st.status==="running"?` · niv. ${st.level+1}${st.levelEndsAt?` <span class="num" id="pk-lvl">${fmtMMSS(st.levelEndsAt-now)}</span>`:""}`:""}${st.handNo?` · main ${st.handNo}`:""}</small></div><span class="pill ${st.status==="running"?"live":""}">${st.status==="waiting"?"En attente":st.status==="running"?"En cours":"Terminée"}</span></div>`;
   const seatHtml=order.map(([s,i],k)=>{const q=pkPos(k,N);const act=h&&h.toAct===i&&h.street!=="done";const shown=h&&h.shown&&h.shown[i];const isMe=i===me;
     const win=h&&h.street==="done"&&(h.winners||[]).find(w=>w.i===i);
     const cards=h&&s.inHand&&!s.folded?(shown?shown.map(c=>pkCard(c,"sm")).join(""):isMe?"":pkCard(null,"sm")+pkCard(null,"sm")):"";
     const tag=s.place?`${s.place}e`:st.status!=="running"?"":s.folded&&s.inHand?"Couché":s.allin?"Tapis":s.away?"Absent":s.stack===0&&st.mode==="cash"?"Recave ?":"";
+    if(isMe&&myHole&&s.inHand)return `<div class="pk-seat me big ${act?"act":""} ${s.folded?"fold":""} ${win?"win":""}" style="left:${q.x}%;top:${q.y}%">
+      ${act?`<span class="pk-ring"><i id="tm-${h.deadline}" style="animation-duration:${Math.max(0,(h.deadline-now)/1000).toFixed(1)}s"></i></span>`:""}
+      <span class="pk-mycards">${myHole.map(c=>pkCard(c,"md")).join("")}</span>${st.dealer===i&&st.status==="running"?`<span class="pk-dealer" aria-label="Donneur">D</span>`:""}
+      <em>Toi · <span class="num">${pkChips(s.stack)}</span></em>${tag?`<span class="pk-tag">${tag}</span>`:""}
+      ${s.bet>0&&h&&h.street!=="done"?`<span class="pk-bet num">${pkChips(s.bet)}</span>`:""}${win?`<span class="pk-bet win num">+${pkChips(win.amount)}</span>`:""}</div>`;
     return `<div class="pk-seat ${act?"act":""} ${s.folded?"fold":""} ${win?"win":""} ${isMe?"me":""}" style="left:${q.x}%;top:${q.y}%">
       ${act?`<span class="pk-ring"><i id="tm-${h.deadline}" style="animation-duration:${Math.max(0,(h.deadline-now)/1000).toFixed(1)}s"></i></span>`:""}
       ${avatar(s.uid)}${st.dealer===i&&st.status==="running"?`<span class="pk-dealer" aria-label="Donneur">D</span>`:""}
@@ -1506,13 +1547,13 @@ function viewPoker(){const id=S.pokerId;const st=PK.tables[id];
   let html=head+`<div class="table-wrap pk-table"><div class="oval">${center}${seatHtml}</div></div>`;
   // ma main
   if(me>=0&&st.status==="running"){const s=st.seats[me];
-    html+=`<div class="pk-mine">${myHole&&s.inHand?`<div class="pk-hole ${s.folded?"fold":""}">${myHole.map(c=>pkCard(c,"lg")).join("")}</div>`:`<div class="pk-hole muted" style="font-size:13px">${s.stack===0&&st.mode==="cash"?"Plus de jetons":"Tu joueras la main suivante"}</div>`}
-      <div class="pk-mystack"><span class="eyebrow">Ton tapis</span><b class="num">${pkChips(s.stack)}</b>${st.mode==="cash"?`<small class="muted">${s.buyins} cave${s.buyins>1?"s":""} · ${(s.stack-s.buyins*st.settings.stack)>=0?"+":""}${pkChips(s.stack-s.buyins*st.settings.stack)}</small>`:""}</div></div>`;
+    if(st.mode==="cash"){const net=s.stack-s.buyins*st.settings.stack;html+=`<p class="pk-mine-line muted">${s.buyins} cave${s.buyins>1?"s":""} · ${net>=0?"+":""}${pkChips(net)} jetons${!(myHole&&s.inHand)?" · tu joueras la main suivante":""}</p>`}
+    else if(!(myHole&&s.inHand)&&s.stack>0)html+=`<p class="pk-mine-line muted">Tu joueras la main suivante</p>`;
     const L=pkLegal(st,me);
     if(L){const pot2=pkPot(st);const r=PK.raise==null?L.minTo:Math.min(L.maxTo,Math.max(L.minTo,PK.raise));
       const pres=[["Min",L.minTo],["½ pot",Math.round(h.currentBet+(pot2+L.toCall)/2)],["Pot",h.currentBet+pot2+L.toCall],["Tapis",L.maxTo]].filter(([,v])=>v>=L.minTo&&v<=L.maxTo);
-      html+=`<div class="pk-actions" role="group" aria-label="À toi de jouer"><div class="pk-turn">À toi de jouer · <span id="pk-sec" class="num">${Math.max(0,Math.ceil((h.deadline-now)/1000))}</span> s</div>
-        ${L.canRaise?`<div class="pk-raise"><input id="pk-amt" type="range" min="${L.minTo}" max="${L.maxTo}" step="${Math.max(1,Math.min(bb_,5))}" value="${r}" aria-label="Montant de la relance"><div class="pk-pres">${pres.map(([l,v])=>`<button class="btn small" data-act="pk-preset" data-v="${v}">${l}</button>`).join("")}</div></div>`:""}
+      html+=`<div class="pk-actions" role="group" aria-label="À toi de jouer"><div class="pk-turn">À toi · <span id="pk-sec" class="num">${Math.max(0,Math.ceil((h.deadline-now)/1000))}</span> s</div>
+        ${L.canRaise?`<div class="pk-raise"><div class="pk-pres">${pres.map(([l,v])=>`<button class="btn small" data-act="pk-preset" data-v="${v}">${l}</button>`).join("")}</div><input id="pk-amt" type="range" min="${L.minTo}" max="${L.maxTo}" step="${Math.max(1,Math.min(bb_,5))}" value="${r}" aria-label="Montant de la relance"></div>`:""}
         <div class="pk-btns"><button class="btn pk-fold" data-act="pk-act" data-m="fold">Se coucher</button>
         <button class="btn pk-call" data-act="pk-act" data-m="call">${L.canCheck?"Checker":L.toCall>=st.seats[me].stack?"Tapis "+pkChips(L.toCall):"Suivre "+pkChips(L.toCall)}</button>
         ${L.canRaise?`<button class="btn primary pk-rz" data-act="pk-act" data-m="raise">${r>=L.maxTo?"Tapis":h.currentBet?"Relancer":"Miser"} <span class="num" id="pk-rv">${pkChips(r)}</span></button>`:""}</div></div>`}
@@ -1551,6 +1592,22 @@ function onlineBoard(h){const W={},C={};let nT=0,nC=0;
   return h+`<p class="muted" style="font-size:12px;text-align:center">Jetons fictifs : ces résultats ne comptent pas dans « qui paie qui ».</p>`}
 function pkRaiseLabel(){const st=PK.tables[S.pokerId];const me=pkMe(st);const L=st&&pkLegal(st,me);const el=document.getElementById("pk-amt");const lab=app.querySelector(".pk-rz");if(!L||!el||!lab)return;const v=+el.value;
   lab.innerHTML=`${v>=L.maxTo?"Tapis":st.hand.currentBet?"Relancer":"Miser"} <span class="num" id="pk-rv">${pkChips(v)}</span>`}
+
+/* Mise en avant du jeu en ligne sur l'accueil */
+let PK_GRP=null;
+async function pkLoadGroup(gid){if(!gid||PK_GRP===gid)return;PK_GRP=gid;const {data}=await sb.from("poker_tables").select("id,game_id,state").eq("group_id",gid);
+  (data||[]).forEach(r=>{PK.tables[r.id]=r.state;if(r.game_id)PK.byGame[r.game_id]=Object.assign({},PK.byGame[r.game_id],{[r.id]:1})});pkSub();render()}
+function pkGroupLive(){return Object.entries(PK.tables).filter(([,st])=>st&&st.groupId===S.groupId&&st.status!=="done").sort((a,b)=>(b[1].startedAt||0)-(a[1].startedAt||0))}
+function onlineHomeHtml(){pkLoadGroup(S.groupId);const live=pkGroupLive();
+  if(live.length){const [id,st]=live[0];const n=st.seats.filter(Boolean).length;const seated=pkMe(st)>=0;
+    return `<button class="pk-home live rise d2" data-act="pk-open" data-id="${id}"><span class="pk-home-cards" aria-hidden="true">${pkCard("Ah")}${pkCard("Ks")}</span><span class="grow"><span class="eyebrow"><i class="dot"></i>${st.status==="waiting"?"Table ouverte":"Partie en cours"}</span><b>${st.mode==="tourney"?"Tournoi":"Cash game"} en ligne · ${n} joueur${n>1?"s":""}</b><small>${seated?"Retourne à ta place":"Rejoins la table depuis ton téléphone"}</small></span><span class="pk-home-go">${seated?"Ouvrir":"Rejoindre"}</span></button>`}
+  return `<button class="pk-home rise d2" data-act="pk-quick"><span class="pk-home-cards" aria-hidden="true">${pkCard("Ah")}${pkCard("Ks")}</span><span class="grow"><span class="eyebrow">Nouveau</span><b>Jouer au poker en ligne</b><small>Avec tes amis, chacun sur son téléphone · jetons fictifs</small></span><span class="pk-home-go">Jouer</span></button>`}
+function viewPkQuick(){if(!S.pkQuick)return"";const busy=PK.busy;
+  return `<div class="inv-layer" role="dialog" aria-modal="true" aria-labelledby="pkq-t"><div class="inv-sheet"><div class="row between" style="margin-bottom:6px"><h2 id="pkq-t" style="margin:0">Jouer en ligne</h2><button class="btn small" data-act="pk-quick-close">Fermer</button></div>
+    <p class="muted" style="font-size:13px;margin:0 0 12px">Une table s’ouvre pour ton groupe. Tes amis la rejoignent depuis l’accueil de Kicker.</p>
+    <div class="pkq-opts"><button class="pkq-opt" data-act="pk-quick-go" data-mode="cash" ${busy?"disabled":""}><b>Cash game</b><small>1 000 jetons, blindes 5/10, recaves libres. Chacun part quand il veut.</small></button>
+    <button class="pkq-opt" data-act="pk-quick-go" data-mode="tourney" ${busy?"disabled":""}><b>Tournoi</b><small>1 500 jetons, blindes qui montent toutes les 8 min. Le dernier en jeu gagne.</small></button></div>
+    <p class="muted" style="font-size:12px;margin:12px 0 0;text-align:center">${busy?"Ouverture de la table…":"Jetons fictifs uniquement · 60 secondes par coup"}</p></div></div>`}
 /* ---------- Personnalisation : photo de profil, couleur de table, emblème du groupe ---------- */
 const TABLE_THEMES=[["","Vert classique","#127A4B"],["blue","Bleu nuit","#1F4FA8"],["red","Bordeaux","#8E1F33"],["black","Noir","#2A2D34"],["purple","Violet","#5B2D8E"]];
 const EMBLEMS=["♠️","🃏","🎲","👑","🦈","🔥","🍕","🍻","⭐","🐺","🎯","🏆"];
@@ -1821,6 +1878,7 @@ function viewGames(){
   if(S.mode==="loading"||S.mode==="loading-shared")return h+`<div class="empty">Ouverture du salon…</div>`;
   const eve=eveReminderHtml()+pushNudgeHtml();if(eve)h+=`<div class="pay-rem rise">${eve}</div>`;
   h+=payRemindersHtml();
+  h+=onlineHomeHtml();
   h+=tableHero(next);
   h+=`<div class="orga-cards">${hostCard()}${libCard()}</div>`;
   if(S.canWrite)h+=`<div class="quick two rise d2">
@@ -1870,8 +1928,8 @@ function viewGame(){
     const ok=canAnswer(pid);return `<div class="item">${avatar(pid)}<div class="grow row" style="gap:6px;min-width:0"><span class="ellipsis" style="font-weight:600">${esc(p.name)}</span>${isMe(pid)?`<span class="pill planned" style="flex:none">Toi</span>`:""}</div>
     <div class="seg" role="group" aria-label="Réponse de ${esc(p.name)}">${[["yes","Oui"],["maybe","Peut-être"],["no","Non"]].map(([v,l])=>`<button data-act="rsvp" data-pid="${pid}" data-v="${v}" class="${r===v?"on":""}" ${ok?"":"disabled"} aria-pressed="${r===v}">${l}</button>`).join("")}</div></div>`}).join("")}</div>`;
   h+=`<div class="row wrap"><button class="btn small" data-act="copy-invite">Copier l’invitation</button>${g.date&&g.status!=="done"?`<button class="btn small" data-act="ics" data-gid="${id}">📆 Ajouter à mon agenda</button>`:""}</div></section>`;
-  if(g.status!=="done"){h+=pollSection(g,id)+bringSection(g,id)}
   h+=onlineSection(g,id);
+  if(g.status!=="done"){h+=pollSection(g,id)+bringSection(g,id)}
   if(g.type==="board"){h+=scoresSection(g,w,dis)}else{
   // Cashier
   h+=`<section class="block"><h2 style="margin:0">La caisse</h2>`;
@@ -2441,9 +2499,9 @@ function render(force){
   document.querySelector("nav.tabs").hidden=needJoin;
   const liveG=S.liveId&&S.data.games[S.liveId];if(S.liveId&&(!liveG||liveG.status!=="live"))S.liveId=null;
   const layer=(S.fidOffer&&S.auth==="ok"?`<div class="inv-layer" role="dialog" aria-modal="true" aria-label="${fidLabel()}"><div class="inv-pop fid-pop"><div class="lock-ic" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6"/><path d="M17 18v3M31 18v3M24 19v8h-2M18 33c3.5 3 8.5 3 12 0"/></svg></div><div class="inv-title" style="text-align:center">Ouvrir Kicker avec ${fidLabel()} ?</div><p class="muted" style="text-align:center;font-size:13.5px;margin:6px 0 0">Plus besoin de mot de passe sur cet appareil : un regard suffit.</p><div class="del-actions"><button class="btn" data-act="fid-later">Plus tard</button><button class="btn primary" data-act="fid-yes">Activer</button></div></div></div>`:"")||viewCelebrate()||viewStopLayer()||viewDelLayer()||(S.liveId?"":viewInviteLayer());if(layer||S.liveId)document.querySelector("nav.tabs").hidden=true;
-  const vkey=S.auth!=="ok"?"auth":S.pokerId?"poker:"+S.pokerId:S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"")+(S.lib&&S.tab==="games"&&!S.gameId?":lib":"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
+  const vkey=S.auth!=="ok"?"auth":S.pokerId?"poker:"+S.pokerId:S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"")+(S.lib&&S.tab==="games"&&!S.gameId?":lib":"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.pkQuick?"Q":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
   if(!changed){app.classList.remove("view-in","view-up","view-left","view-right");app.classList.add("still")}else app.classList.remove("still");app.classList.toggle("layer-still",layerSame&&!changed);
-  const tmp=document.createElement("div");tmp.innerHTML=(S.auth!=="ok"?viewAuth():(S.pokerId&&!noGroup)?viewPoker():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+tourReplayHtml()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"");
+  const tmp=document.createElement("div");tmp.innerHTML=(S.auth!=="ok"?viewAuth():(S.pokerId&&!noGroup)?viewPoker():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+tourReplayHtml()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"")+(S.pkQuick&&S.auth==="ok"?viewPkQuick():"");
   if(!S.liveId&&!S.showInstall){const ib=installBar();if(ib){const anchor=tmp.querySelector(".join-card")||tmp.querySelector(".hub-hero")||tmp.querySelector(".brand");if(anchor)anchor.insertAdjacentHTML(anchor.classList.contains("join-card")?"beforebegin":"afterend",ib);else tmp.insertAdjacentHTML("afterbegin",ib)}}
   if(!TR&&!S.tourTimer)setTimeout(tourMaybeAuto,60);schedDebtSync();applyTheme();
   if(changed||!window.morphdom||!app.firstChild){app.replaceChildren(...tmp.childNodes)}
@@ -2515,6 +2573,15 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="install-later"){try{localStorage.setItem("kicker-install-later",String(Date.now()))}catch(e){}render(true);return}
   if(act==="tour-start"){tourStart();return}
   if(act==="push-on"){pushEnable();return}
+  if(act==="pk-quick"){S.pkQuick=true;render(true);return}
+  if(act==="pk-quick-close"){S.pkQuick=false;render(true);return}
+  if(act==="pk-quick-go"){if(PK.busy)return;const mode=b.dataset.mode;PK.busy=true;render();(async()=>{
+    const today=new Date();const ymd=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");const hm=String(today.getHours()).padStart(2,"0")+":"+String(today.getMinutes()).padStart(2,"0");
+    let gid=Object.entries(S.data.games).filter(([,g])=>g.groupId===S.groupId&&g.type!=="board"&&g.status!=="done"&&g.date===ymd).map(([k])=>k)[0];
+    if(!gid){gid=uid();const seats={};groupPlayers().forEach(([p])=>seats[p]={rsvp:p===S.me.id?"yes":"invited"});
+      const data={title:"Poker en ligne",date:ymd,time:hm,location:"En ligne",type:mode==="tourney"?"tournoi":"cash",buyIn:0,gameName:"",lowWins:false,rebuys:true,status:"planned",notes:"",seats,createdAt:Date.now(),groupId:S.groupId,createdBy:S.me.id,tz:(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){return "Europe/Paris"}})()};
+      const {error}=await sb.from("games").insert(sbRow("games",gid,data));if(error){PK.busy=false;toast("Impossible de créer la partie, réessaie");render();return}S.data.games[gid]=data}
+    const d=await pkCall("create",{gameId:gid,mode});PK.busy=false;S.pkQuick=false;if(d&&d.tableId){S.pokerId=d.tableId;pkLoadTable(d.tableId);window.scrollTo(0,0)}render(true)})();return}
   if(act==="pk-mode"){S.pkMode=b.dataset.mode;render();return}
   if(act==="pk-create"){if(PK.busy)return;PK.busy=true;render();pkCall("create",{gameId:b.dataset.gid,mode:S.pkMode||"cash"}).then(d=>{PK.busy=false;if(d&&d.tableId){S.pokerId=d.tableId;pkLoadTable(d.tableId);window.scrollTo(0,0)}render(true)});return}
   if(act==="pk-open"){S.pokerId=b.dataset.id;PK.raise=null;pkLoadTable(b.dataset.id);render(true);window.scrollTo(0,0);return}
