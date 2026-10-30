@@ -14,6 +14,27 @@ const PRICES: Record<string, string | undefined> = {
   year: Deno.env.get("STRIPE_PRICE_YEAR"),
 };
 
+// Configuration du portail client : créée une fois puis réutilisée, sans passer par le Dashboard.
+async function portalConfig(): Promise<string> {
+  const list = await stripe.billingPortal.configurations.list({ active: true, limit: 10 });
+  const mine = list.data.find((c) => c.metadata?.app === "kicker-plus") || list.data.find((c) => c.is_default);
+  if (mine) return mine.id;
+  const prices = [PRICES.month, PRICES.year].filter(Boolean) as string[];
+  const product = prices.length ? (await stripe.prices.retrieve(prices[0])).product as string : undefined;
+  const c = await stripe.billingPortal.configurations.create({
+    metadata: { app: "kicker-plus" },
+    business_profile: { headline: "Gère ton abonnement Kicker+" },
+    default_return_url: `${APP_URL}/?plus=portal`,
+    features: {
+      invoice_history: { enabled: true },
+      payment_method_update: { enabled: true },
+      subscription_cancel: { enabled: true, mode: "at_period_end" },
+      ...(product ? { subscription_update: { enabled: true, default_allowed_updates: ["price"], proration_behavior: "create_prorations", products: [{ product, prices }] } } : {}),
+    },
+  });
+  return c.id;
+}
+
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -41,6 +62,7 @@ Deno.serve(async (req) => {
       if (!sub?.stripe_customer_id) return json({ error: "no_customer" }, 400);
       const s = await stripe.billingPortal.sessions.create({
         customer: sub.stripe_customer_id, return_url: `${APP_URL}/?plus=portal`,
+        configuration: await portalConfig(),
       });
       return json({ url: s.url });
     }
