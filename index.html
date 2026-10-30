@@ -1266,6 +1266,169 @@ nav.tabs button{position:relative}
 .pk-raise input{margin:2px 0 8px}
 </style>
 
+<style id="kplus-css">
+/* =====================================================================
+   Kicker+ — composants (valables dans les deux thèmes)
+   ===================================================================== */
+:root{--kp-gold:#D9B56E;--kp-gold-2:#F4E2B3;--kp-gold-3:#9C7A3C;--kp-line:#1652D9}
+html.kplus{--kp-line:#E2C285}
+/* Monogramme K+ */
+.kp-crest{position:relative;width:58px;height:58px;margin:0 auto;border-radius:16px;display:grid;place-items:center;flex:none;
+  background:radial-gradient(120% 120% at 30% 15%,#2A2419 0%,#0D0C0A 70%);box-shadow:inset 0 0 0 1px rgba(244,226,179,.35),0 10px 24px -10px rgba(0,0,0,.6)}
+.kp-crest span{font:italic 900 32px/1 "Montserrat",sans-serif;letter-spacing:-.04em;background:linear-gradient(170deg,#FFF3D1 10%,#E2C285 45%,#9C7A3C 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kp-crest i{position:absolute;right:7px;top:5px;font:900 17px/1 "Montserrat",sans-serif;font-style:normal;color:#F4E2B3}
+.kp-card .kp-crest,.kp-card-crest .kp-crest,.kp-teaser-cta .kp-crest{width:44px;height:44px;border-radius:13px;margin:0}
+.kp-card .kp-crest span,.kp-teaser-cta .kp-crest span{font-size:24px}.kp-card .kp-crest i,.kp-teaser-cta .kp-crest i{font-size:13px;right:5px;top:4px}
+/* Badge */
+.kp-pill{display:inline-flex;align-items:center;flex:none;height:18px;padding:0 6px;border-radius:6px;font:italic 900 10.5px/1 "Montserrat",sans-serif;letter-spacing:.02em;color:#1A1408!important;
+  background:linear-gradient(170deg,#FFF0C9,#E2C285 55%,#B8924F);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4),0 1px 3px rgba(0,0,0,.25)}
+.kp-pill i{font-style:normal;margin-left:1px}
+.avatar.kp{box-shadow:0 0 0 2px var(--surface,#fff),0 0 0 3.5px #D9B56E!important}
+/* Onglet Stats+ */
+.seg .kp-seg i{font-style:normal;color:var(--kp-gold-3);margin-left:1px}.seg .kp-seg.on i{color:inherit}
+/* Feuille Kicker+ */
+.inv-sheet.kp-sheet{position:relative;text-align:center;border-top:0!important;padding-top:26px!important;
+  background:radial-gradient(130% 60% at 50% 0%,#2A2419 0%,#111013 55%,#0B0B0D 100%)!important;color:#F3EDE0!important;box-shadow:0 0 0 1px rgba(226,194,133,.25),0 -20px 60px -20px rgba(0,0,0,.6)!important}
+.kp-sheet::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(135deg,rgba(226,194,133,.05) 0 1px,transparent 1px 14px)}
+.kp-sheet>*{position:relative}
+.kp-x{position:absolute!important;top:10px;right:12px;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:#F3EDE0;font-size:20px;line-height:1;cursor:pointer}
+.kp-title{font:italic 900 22px/1.15 "Montserrat",sans-serif!important;text-transform:none!important;letter-spacing:-.01em!important;margin:14px 0 6px!important;
+  background:linear-gradient(170deg,#FFF6DD,#E2C285 60%,#B8924F);-webkit-background-clip:text;background-clip:text;color:transparent!important}
+.kp-lead{color:#CFC7B6;font-size:14px;margin:4px 0 0}
+.kp-why{margin:8px auto 4px;max-width:330px;font-size:13px;color:#F4E2B3;background:rgba(226,194,133,.1);border:1px solid rgba(226,194,133,.28);border-radius:12px;padding:8px 12px}
+.kp-why b{color:#fff}
+.kp-perks{list-style:none;margin:14px 0 6px;padding:0;text-align:left;display:grid;gap:10px}
+.kp-perks li{display:flex;gap:12px;align-items:flex-start}
+.kp-perks b{display:block;color:#F7F1E3;font-size:14.5px}.kp-perks small{display:block;color:#A9A293;font-size:12.5px;line-height:1.35;margin-top:1px}
+.kp-ic{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#E2C285;font-size:15px;background:rgba(226,194,133,.1);box-shadow:inset 0 0 0 1px rgba(226,194,133,.3)}
+.kp-plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 12px}
+.kp-plan{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px 12px 12px;border-radius:16px;cursor:pointer;text-align:left;font:inherit;
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.12);color:#F3EDE0}
+.kp-plan b{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#CFC7B6}
+.kp-plan .kp-price{font:900 22px/1.1 "Montserrat",sans-serif;color:#fff;font-variant-numeric:tabular-nums}.kp-plan .kp-price small{font-size:12px;font-weight:700;color:#A9A293;margin-left:2px}
+.kp-plan>small{font-size:11.5px;color:#A9A293}
+.kp-plan.on{border-color:#E2C285;background:linear-gradient(180deg,rgba(226,194,133,.16),rgba(226,194,133,.04));box-shadow:0 0 0 3px rgba(226,194,133,.14)}
+.kp-save{position:absolute;top:-9px;right:10px;padding:3px 7px;border-radius:999px;font-size:10.5px;font-weight:900;color:#1A1408;background:linear-gradient(170deg,#FFF0C9,#E2C285)}
+.kp-check{display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:12.5px;line-height:1.4;color:#CFC7B6;margin:4px 0 6px}
+.kp-check span{cursor:pointer}
+.kp-box{flex:none;width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(226,194,133,.6);background:transparent;color:#1A1408;font-weight:900;font-size:13px;line-height:1;cursor:pointer;padding:0}
+.kp-check.on .kp-box{background:linear-gradient(170deg,#FFF0C9,#E2C285);border-color:#E2C285}
+.kp-check .lg-link{color:#F4E2B3!important;text-decoration:underline;background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.kp-sheet .auth-err{color:#F29A8E;min-height:0}
+.btn.primary.kp-go{width:100%}
+.btn.primary.kp-go,.kp-sheet .btn.primary,.kp-teaser-cta .btn.primary,html.kplus .btn.primary{background:linear-gradient(170deg,#FFF0C9 0%,#E2C285 45%,#B8924F 100%)!important;color:#1A1408!important;border:0!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 10px 24px -10px rgba(226,194,133,.75)!important;font-weight:900}
+.kp-teaser-cta .btn.primary{width:auto}
+.kp-fine{font-size:11.5px;color:#8E887B;margin:10px 0 0}
+.kp-actions{margin-top:18px}
+/* Carte Joueurs */
+.kp-card{display:block;margin-top:12px;text-align:left}
+.kp-card b{display:block;font-size:15px}.kp-card small{display:block;font-size:12.5px;color:var(--muted);line-height:1.35}
+button.kp-upsell{display:flex!important;gap:12px;align-items:center;width:100%;cursor:pointer;font:inherit;color:#F3EDE0!important;
+  background:linear-gradient(115deg,#18150F 0%,#0D0C0E 70%)!important;border:1px solid rgba(226,194,133,.35)!important}
+button.kp-upsell b{color:#F7EBCB}button.kp-upsell small{color:#B7AF9E}button.kp-upsell .go{color:#E2C285;font-size:22px}
+.kp-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-weight:700;font-size:14px}
+.kp-switch{position:relative;width:46px;height:28px;border-radius:999px;border:0;cursor:pointer;background:#C7CFDC;padding:0;transition:background .2s}
+.kp-switch i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
+.kp-switch.on{background:linear-gradient(170deg,#F4E2B3,#C9A25B)}.kp-switch.on i{transform:translateX(18px)}
+/* Stats avancées */
+.kp-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:none}.kp-chips::-webkit-scrollbar{display:none}
+.kp-chip{flex:none;display:flex;align-items:center;gap:7px;padding:4px 12px 4px 4px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:800;font-size:13px;cursor:pointer}
+.kp-chip .avatar{width:28px!important;height:28px!important;min-width:28px;font-size:13px!important}
+.kp-chip.on{border-color:var(--kp-line);box-shadow:0 0 0 3px color-mix(in srgb,var(--kp-line) 18%,transparent)}
+.kp-span,.kp-sort{margin-bottom:12px}
+.kp-panel{padding:16px!important}
+.kp-big{font-size:28px;font-weight:900;letter-spacing:-.02em;line-height:1.1;margin-top:2px}
+.kp-roi{text-align:right}.kp-roi b{display:block;font-size:20px;font-weight:900}
+.kp-chart{margin:12px 0 0}.kp-chart svg{display:block;width:100%;height:150px;overflow:visible}
+.kp-path{fill:none;stroke:var(--kp-line);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.kp-zero{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}
+.kp-dot-w{fill:var(--win);stroke:var(--surface);stroke-width:1.5;vector-effect:non-scaling-stroke}.kp-dot-l{fill:var(--loss);stroke:var(--surface);stroke-width:1.5;vector-effect:non-scaling-stroke}
+.kp-chart figcaption{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:6px;text-transform:capitalize}
+.kp-chart figcaption b{font-size:13px;text-transform:none}
+.kp-chart-empty{padding:28px 8px;text-align:center;font-size:13px}
+.kp-types{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kp-type{display:flex;flex-direction:column;gap:3px;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.kp-type b{font-size:24px;font-weight:900;letter-spacing:-.02em}.kp-type small{font-size:12px;color:var(--muted)}
+.kp-grid{grid-template-columns:repeat(3,1fr)!important}
+.kp-grid .stat b{font-size:17px}
+.item.kp-me{box-shadow:inset 3px 0 0 var(--kp-line)}
+.kp-teaser{position:relative;border-radius:20px;overflow:hidden}
+.kp-teaser-blur{filter:blur(6px) saturate(.6);opacity:.55;pointer-events:none;padding:8px 4px}
+.kp-teaser-cta{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:20px;
+  background:linear-gradient(180deg,rgba(11,11,13,.55),rgba(11,11,13,.88));color:#F3EDE0}
+.kp-teaser-cta b{font-size:18px;color:#F7EBCB}.kp-teaser-cta span{font-size:13px;color:#CFC7B6;max-width:300px}
+
+/* =====================================================================
+   Thème Kicker+ « Salon noir » — réservé aux abonnés
+   ===================================================================== */
+html.kplus{color-scheme:dark;
+  --bg:#0B0B0D;--bg-2:#111114;--surface:#16161A;--surface-2:#1D1D22;--surface-3:#26262C;
+  --ink:#F3EDE0;--muted:#9C978B;--line:#2A2A31;--line-soft:rgba(226,194,133,.06);
+  --blue:#E2C285;--blue-2:#F4E2B3;--blue-3:#F7EBCB;--blue-soft:rgba(226,194,133,.1);
+  --gold:#E2C285;--gold-2:#F4E2B3;--gold-deep:#9C7A3C;
+  --win:#57D08F;--loss:#F07A6E;--red:#E0475E;--title:#F7EBCB;
+  --shadow:0 1px 0 rgba(255,255,255,.03) inset,0 14px 30px -18px rgba(0,0,0,.9);
+  --glow-gold:0 0 0 1px rgba(226,194,133,.4),0 8px 30px -8px rgba(226,194,133,.35)}
+html.kplus,html.kplus body{background:#0B0B0D!important}
+html.kplus body{background:
+  radial-gradient(90% 40% at 50% -5%,rgba(226,194,133,.13),transparent 70%),
+  repeating-linear-gradient(135deg,rgba(226,194,133,.025) 0 1px,transparent 1px 22px),
+  #0B0B0D!important;background-attachment:fixed!important;color:var(--ink)}
+/* Bandeaux : laque noire + filet or */
+html.kplus .brand,html.kplus .top,html.kplus .hub-hero{background:linear-gradient(165deg,#1C1912 0%,#0E0D0C 62%,#0B0B0D 100%)!important;
+  box-shadow:inset 0 -1px 0 rgba(226,194,133,.45),0 14px 30px -18px rgba(0,0,0,.9)!important}
+html.kplus .top h1{background:linear-gradient(170deg,#FFF6DD,#E2C285 60%,#B8924F);-webkit-background-clip:text;background-clip:text;color:transparent!important;font-style:italic}
+html.kplus .top .eyebrow{color:#C9B48A!important}
+html.kplus .brand .name,html.kplus .hub-name{background:linear-gradient(170deg,#FFF6DD 10%,#E2C285 55%,#A8843F 95%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+html.kplus .brand .name::after,html.kplus .hub-name::after{content:"+";margin-left:2px;color:#F4E2B3;-webkit-text-fill-color:#F4E2B3}
+html.kplus .grp-switch,html.kplus .bell,html.kplus .top .btn{background:rgba(226,194,133,.08)!important;border:1px solid rgba(226,194,133,.35)!important;color:#F4E2B3!important}
+html.kplus .bell b{box-shadow:0 0 0 2px #0E0D0C}
+/* Matières */
+html.kplus .card,html.kplus .list,html.kplus .stat,html.kplus .qa,html.kplus .kind,html.kplus .stake,html.kplus .notes,html.kplus .wz-opt,html.kplus .table-wrap,html.kplus .join-card,html.kplus .pr-item,html.kplus .live-btn{
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0) 40%),var(--surface)!important;border:1px solid rgba(226,194,133,.13)!important;color:var(--ink)!important;box-shadow:var(--shadow)!important}
+html.kplus button.item:hover{background:rgba(226,194,133,.05)}
+html.kplus .item{border-color:var(--line)!important}
+html.kplus .ticket,html.kplus .me-card,html.kplus .mini-clock,html.kplus .clock,html.kplus .hub-card.create,html.kplus .hub-card.rejoin{
+  background:linear-gradient(145deg,#211D15 0%,#121114 70%)!important;border:1px solid rgba(226,194,133,.3)!important;box-shadow:0 14px 30px -18px rgba(0,0,0,.9)!important}
+html.kplus .hub-item .grp-ic,html.kplus .grp-ic{background:linear-gradient(160deg,#F4E2B3,#B8924F)!important;color:#1A1408!important}
+html.kplus .sec-title h2::before,html.kplus section.block>h2::before,html.kplus section.block>.row>h2::before{background:linear-gradient(180deg,#F4E2B3,#B8924F)!important}
+html.kplus h1,html.kplus h2,html.kplus h3{color:var(--title)}
+html.kplus .sec-title h2,html.kplus section.block>h2,html.kplus section.block>.row>h2{background:linear-gradient(100deg,#2A2419,#16140F)!important;color:#F4E2B3!important;box-shadow:inset 0 0 0 1px rgba(226,194,133,.4),3px 3px 0 #9C7A3C!important}
+html.kplus .sec-title::after{background:repeating-linear-gradient(90deg,rgba(226,194,133,.35) 0 8px,transparent 8px 14px)!important}
+/* Boutons & contrôles */
+html.kplus .btn{background:rgba(226,194,133,.08)!important;color:#F4E2B3!important;border:1px solid rgba(226,194,133,.22)!important}
+html.kplus .btn:hover{background:rgba(226,194,133,.14)!important}
+html.kplus .btn.danger{background:transparent!important;color:var(--loss)!important;border-color:rgba(240,122,110,.45)!important}
+html.kplus .btn.icon{background:rgba(226,194,133,.08)!important;color:#F4E2B3!important}
+html.kplus .seg button{background:rgba(255,255,255,.05)!important;color:#CFC7B6!important}
+html.kplus .seg button.on[data-v="yes"]{background:linear-gradient(170deg,#F4E2B3,#C9A25B)!important;color:#1A1408!important}
+html.kplus input,html.kplus select,html.kplus textarea{background:#101013!important;border-color:#2E2E36!important;color:var(--ink)!important}
+html.kplus input:focus,html.kplus select:focus,html.kplus textarea:focus{border-color:#E2C285!important;box-shadow:0 0 0 3px rgba(226,194,133,.18)!important}
+html.kplus .pill.planned{background:rgba(226,194,133,.12);color:#F4E2B3}
+html.kplus .date-tile{background:rgba(226,194,133,.1)!important}html.kplus .date-tile b{color:#F7EBCB!important}html.kplus .date-tile span{color:#C9B48A}
+html.kplus .rank{color:var(--muted)}html.kplus .rank.r1{color:#E2C285}
+html.kplus .bar{background:rgba(255,255,255,.06)}
+html.kplus .list::before{background:radial-gradient(circle at 0 50%,var(--bg) 4px,transparent 4.5px) 0 0/6px 16px repeat-y,linear-gradient(180deg,#F4E2B3,#9C7A3C)!important}
+html.kplus .banner{background:rgba(226,194,133,.08);border-color:rgba(226,194,133,.3);color:#F4E2B3}
+/* Table de jeu : feutre noir, rail or */
+html.kplus .oval{box-shadow:0 0 0 7px #1A1712,0 0 0 9px #C9A25B,0 12px 26px -8px rgba(0,0,0,.8),inset 0 0 40px rgba(0,0,0,.45)!important}
+html.kplus .table-wrap::before{background:linear-gradient(90deg,#B8924F,#E2C285)!important;color:#1A1408!important}
+html.kplus .seat em{background:#1D1D22!important;color:var(--ink)!important;box-shadow:inset 0 0 0 1px rgba(226,194,133,.3)!important}
+html.kplus .seat.yes .avatar{box-shadow:0 0 0 2px #0B0B0D,0 0 0 4px #E2C285!important}
+/* Navigation */
+html.kplus nav.tabs{background:rgba(17,17,20,.92)!important;border:1px solid rgba(226,194,133,.28)!important;box-shadow:0 14px 36px -12px rgba(0,0,0,.95)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+html.kplus nav.tabs button{color:#8E887B!important}
+html.kplus nav.tabs button.on{background:linear-gradient(170deg,#F4E2B3,#C9A25B)!important;color:#1A1408!important;box-shadow:0 6px 16px -6px rgba(226,194,133,.6)!important}
+html.kplus nav.tabs button.on svg{color:#1A1408}
+/* Feuilles & couches */
+html.kplus .inv-pop,html.kplus .inv-sheet{background:#141417!important;color:var(--ink);border-top-color:#E2C285!important}
+html.kplus .toast{background:#F4E2B3!important;color:#1A1408!important}
+html.kplus .avatar.kp{box-shadow:0 0 0 2px #0B0B0D,0 0 0 3.5px #E2C285!important}
+html.kplus .kp-switch:not(.on){background:#3A3A42}
+html.kplus button.kp-upsell{background:linear-gradient(115deg,#211D15,#121114)!important}
+</style>
 </head>
 <body class="splashing">
 <div id="splash" aria-hidden="true"><div class="sp-stack"><div class="chipstack"><i></i><i></i><i></i></div></div><div class="sp-shadow"></div></div>
@@ -1304,7 +1467,7 @@ const n=v=>{const x=parseFloat(String(v).replace(",","."));return isFinite(x)?x:
 function money(v,signed){const a=Math.abs(v);const s=a.toLocaleString("fr-FR",{maximumFractionDigits:2});
   const sign=signed?(v>0.004?"+":v<-0.004?"−":""):(v<0?"−":"");return sign+s+" "+cur();}
 function colorFor(id){let h=0;for(const c of id)h=(h*31+c.charCodeAt(0))>>>0;return COLORS[h%COLORS.length]}
-function avatar(pid){const p=S.data.players[pid];const nm=p?p.name:"?";if(p&&p.photo&&/^https:\/\/qswhsawqhesobdyqcnvq\.supabase\.co\/storage\/v1\/object\/public\/avatars\//.test(p.photo))return `<span class="avatar ph" style="background:${colorFor(pid)}"><img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.remove('ph');this.replaceWith(${esc(JSON.stringify(nm.trim().charAt(0).toUpperCase()||"?"))})"></span>`;return `<span class="avatar" style="background:${colorFor(pid)}">${esc(nm.trim().charAt(0).toUpperCase()||"?")}</span>`}
+function avatar(pid){const p=S.data.players[pid];const nm=p?p.name:"?";if(p&&p.photo&&/^https:\/\/qswhsawqhesobdyqcnvq\.supabase\.co\/storage\/v1\/object\/public\/avatars\//.test(p.photo))return `<span class="avatar ph${userPlus(pid)?" kp":""}" style="background:${colorFor(pid)}"><img src="${esc(p.photo)}" alt="" loading="lazy" decoding="async" onerror="this.parentNode.classList.remove('ph');this.replaceWith(${esc(JSON.stringify(nm.trim().charAt(0).toUpperCase()||"?"))})"></span>`;return `<span class="avatar${userPlus(pid)?" kp":""}" style="background:${colorFor(pid)}">${esc(nm.trim().charAt(0).toUpperCase()||"?")}</span>`}
 const pname=pid=>S.data.players[pid]?.name||"Joueur supprimé";
 function dateParts(d){if(!d)return{day:"?",mon:""};const dt=new Date(d+"T12:00:00");return{day:dt.getDate(),mon:dt.toLocaleDateString("fr-FR",{month:"short"}).replace(".","")}}
 function longDate(g){if(!g.date)return"Date à fixer";const dt=new Date(g.date+"T12:00:00");
@@ -1358,7 +1521,7 @@ async function flush(path){
         else if(!p.dirty&&S.data[coll][id]){S.data[coll][id]=srv;render()}}}
     else{const full=p.full;p.full=false;const row=sbRow(coll,id,data);const {data:upd,error}=await sb.from(coll).update(row).eq("id",id).select("id");if(error){p.full=full;throw error}
       if(!upd||!upd.length){const {error:e2}=await sb.from(coll).insert(row);if(e2){p.full=full;throw e2}}}
-  }catch(e){console.warn(e);saveState("error");if(data!==null&&!(e&&e.code==="23505")&&(p.retry=(p.retry||0)+1)<=3){p.inflight=false;p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),2500*p.retry);return}toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
+  }catch(e){console.warn(e);if(data!==null&&plusDenied(e,path)){p.inflight=false;delete pending[path];render(true);return}saveState("error");if(data!==null&&!(e&&e.code==="23505")&&(p.retry=(p.retry||0)+1)<=3){p.inflight=false;p.dirty=true;clearTimeout(p.t);p.t=setTimeout(()=>flush(path),2500*p.retry);return}toast(e&&e.code==="23505"?"Ce code existe déjà, réessaie.":"Échec de l’enregistrement. Vérifie ta connexion.")}
   p.inflight=false;if(p.dirty)flush(path);else{delete pending[path];if(!Object.keys(pending).length)saveState("saved")}
 }
 async function loadAll(){
@@ -1612,7 +1775,7 @@ function viewPkQuick(){if(!S.pkQuick)return"";const busy=PK.busy;
 const TABLE_THEMES=[["","Vert classique","#127A4B"],["blue","Bleu nuit","#1F4FA8"],["red","Bordeaux","#8E1F33"],["black","Noir","#2A2D34"],["purple","Violet","#5B2D8E"]];
 const EMBLEMS=["♠️","🃏","🎲","👑","🦈","🔥","🍕","🍻","⭐","🐺","🎯","🏆"];
 function groupEmblem(G){return G&&G.emblem&&EMBLEMS.includes(G.emblem)?G.emblem:""}
-function applyTheme(){const G=curGroup();const t=G&&TABLE_THEMES.some(x=>x[0]===G.theme)?G.theme:"";if((document.documentElement.dataset.felt||"")!==t){if(t)document.documentElement.dataset.felt=t;else delete document.documentElement.dataset.felt}}
+function applyTheme(){plusTheme();const G=curGroup();const t=G&&TABLE_THEMES.some(x=>x[0]===G.theme)?G.theme:"";if((document.documentElement.dataset.felt||"")!==t){if(t)document.documentElement.dataset.felt=t;else delete document.documentElement.dataset.felt}}
 function persoCard(isCreator){const G=curGroup();if(!G)return"";const th=G.theme||"",em=groupEmblem(G);
   if(!isCreator)return "";
   return `<div class="card perso-card"><span class="eyebrow">Personnaliser le groupe</span>
@@ -1978,7 +2141,7 @@ function viewBoardGames(h){
   h+=`<div class="stats"><div class="stat"><span class="eyebrow">Parties</span><b>${count}</b></div><div class="stat"><span class="eyebrow">Jeux</span><b>${nGames}</b></div><div class="stat"><span class="eyebrow">Le plus joué</span><b style="font-family:var(--f-body);font-weight:700" class="ellipsis">${fav?esc(fav[0]):"—"}</b></div></div>`;
   h+=`<section class="block"><div class="list">${rows.map((r,i)=>{const top=Object.entries(r.byGame).sort((a,b)=>b[1]-a[1])[0];
     return `<div class="item"><span class="rank ${i===0?"r1":""}">${i+1}</span>${avatar(r.pid)}<div class="grow" style="min-width:0">
-      <div class="row between"><span class="ellipsis" style="font-weight:600">${esc(pname(r.pid))}</span><span class="num" style="font-weight:700">${r.wins} victoire${r.wins>1?"s":""}</span></div>
+      <div class="row between"><span class="row" style="gap:6px;min-width:0;flex-wrap:nowrap"><span class="ellipsis" style="font-weight:600">${esc(pname(r.pid))}</span>${plusPill(r.pid)}</span><span class="num" style="font-weight:700">${r.wins} victoire${r.wins>1?"s":""}</span></div>
       <div class="bar"><i style="left:0;width:${r.wins/max*100}%;background:var(--gold)"></i></div>
       <div class="muted" style="font-size:12px;margin-top:4px">${r.games} partie${r.games>1?"s":""} · <span class="num">${Math.round(r.wins/r.games*100)}%</span> de victoires${top?` · fort à ${esc(top[0])}`:""}</div></div></div>`}).join("")}</div></section>`;
   return h;
@@ -1987,15 +2150,16 @@ function viewBoard(){
   const {rows,biggest,count}=leaderboard();const max=Math.max(1,...rows.map(r=>Math.abs(r.net)));
   const mode=S.boardMode||"poker";
   let h=`<div class="top"><div><div class="eyebrow">${esc(meta().name)}</div><h1>Classement</h1></div></div>${banner()}
-   <div class="seg" style="margin-bottom:14px"><button data-act="bmode" data-m="poker" class="${mode==="poker"?"on":""}" data-v="yes">Poker</button><button data-act="bmode" data-m="board" class="${mode==="board"?"on":""}" data-v="yes">Jeux de société</button><button data-act="bmode" data-m="online" class="${mode==="online"?"on":""}" data-v="yes">En ligne</button></div>`;
+   <div class="seg" style="margin-bottom:14px"><button data-act="bmode" data-m="poker" class="${mode==="poker"?"on":""}" data-v="yes">Poker</button><button data-act="bmode" data-m="board" class="${mode==="board"?"on":""}" data-v="yes">Jeux de société</button><button data-act="bmode" data-m="online" class="${mode==="online"?"on":""}" data-v="yes">En ligne</button><button data-act="bmode" data-m="plus" class="kp-seg ${mode==="plus"?"on":""}" data-v="yes">Stats<i>+</i></button></div>`;
   if(mode==="board")return viewBoardGames(h);
   if(mode==="online")return onlineBoard(h);
+  if(mode==="plus")return viewPlusStats(h);
   if(!rows.length)return h+`<div class="card empty">Le classement poker se remplit dès qu’une soirée poker est terminée.</div>`;
   const vol=rows.reduce((a,r)=>a+r.in,0);
   h+=`<div class="stats"><div class="stat"><span class="eyebrow">Soirées</span><b>${count}</b></div><div class="stat"><span class="eyebrow">Argent joué</span><b>${money(vol)}</b></div><div class="stat"><span class="eyebrow">Record</span><b class="win">${biggest?money(biggest.net,true):"—"}</b><span class="muted" style="font-size:12px">${biggest?esc(pname(biggest.pid)):""}</span></div></div>`;
   h+=`<section class="block"><div class="list">${rows.map((r,i)=>{const pct=Math.abs(r.net)/max*50;
     return `<div class="item"><span class="rank ${i===0?"r1":""}">${i+1}</span>${avatar(r.pid)}<div class="grow" style="min-width:0">
-      <div class="row between"><span class="ellipsis" style="font-weight:600">${esc(pname(r.pid))}</span><span class="num ${r.net>0?"win":r.net<0?"loss":"muted"}" style="font-weight:700">${money(r.net,true)}</span></div>
+      <div class="row between"><span class="row" style="gap:6px;min-width:0;flex-wrap:nowrap"><span class="ellipsis" style="font-weight:600">${esc(pname(r.pid))}</span>${plusPill(r.pid)}</span><span class="num ${r.net>0?"win":r.net<0?"loss":"muted"}" style="font-weight:700">${money(r.net,true)}</span></div>
       <div class="bar"><i style="left:${r.net>=0?50:50-pct}%;width:${pct}%;background:${r.net>=0?"var(--win)":"var(--loss)"}"></i><i style="left:50%;width:1px;background:var(--line)"></i></div>
       <div class="muted" style="font-size:12px;margin-top:4px">${r.games} soirée${r.games>1?"s":""} · ${r.wins} victoire${r.wins>1?"s":""} · ROI <span class="num">${r.in?Math.round(r.net/r.in*100):0}%</span></div></div></div>`}).join("")}</div>
     <p class="muted" style="font-size:12px;margin:0">Victoire = meilleur gain de la soirée. ROI = gains nets ÷ total misé.</p></section>`;
@@ -2094,7 +2258,7 @@ async function onSignedIn(user){
   S.me={id:user.id,name:(user.user_metadata&&user.user_metadata.pseudo)||user.email.split("@")[0],avatarUrl:""};
   S.account={email:user.email};S.notif=(user.user_metadata&&user.user_metadata.notif)||{};S.firstLogin=!(user.user_metadata&&user.user_metadata.tour_done)&&!!user.created_at&&Date.parse(user.created_at)>=TOUR_SINCE;S.mode="loading-shared";S.auth="ok";render(true);
   try{await loadAll()}catch(e){console.warn(e);S.auth="error";render(true);return}
-  S.mode="shared";subscribeAll();ensurePlayer(S.me.name);render(true);autoJoin();
+  S.mode="shared";subscribeAll();ensurePlayer(S.me.name);render(true);autoJoin();loadPlan().then(kpReturn);
   if(S.pendingGame){const pg=S.pendingGame;S.pendingGame=null;openGameId(pg)}
   pushRefresh();
   fidAvailable().then(av=>{S.fidAvail=av;let asked=false;try{asked=!!localStorage.getItem("kicker-fid-asked3")}catch(e){}if(av&&!fidMine()){pkPrefetchReg();if(!asked)S.fidOffer=true}render(true)});
@@ -2320,7 +2484,7 @@ function inviteCard(g,big){const host=pname(g.createdBy);
     <div class="inv-host">${avatar(g.createdBy)}<span><b>${esc(host)}</b> t’invite. Tu viens ?</span></div>
     <div class="inv-actions"><button class="btn primary" data-act="inv-answer" data-gid="${g.id}" data-v="yes">Je viens</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="maybe">Peut-être</button><button class="btn" data-act="inv-answer" data-gid="${g.id}" data-v="no">Non</button></div></div>`}
 try{const gq=new URLSearchParams(location.search).get("game");if(gq){S.pendingGame=gq;history.replaceState(null,"",location.pathname+location.hash)}}catch(e){}
-{const LH={"#mentions-legales":"mentions","#confidentialite":"privacy","#cgu":"cgu","#cookies":"cookies","#remboursement":"refund"};if(LH[location.hash])S.legal=LH[location.hash]}
+{const LH={"#mentions-legales":"mentions","#confidentialite":"privacy","#cgu":"cgu","#cookies":"cookies","#remboursement":"refund","#cgv":"cgv"};if(LH[location.hash])S.legal=LH[location.hash]}
 const LEGAL={"mentions": "<h3>Éditeur</h3>\n<p>Kicker est édité par <b>Jonah Abbo</b>, à titre personnel et non professionnel.<br>Contact : <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a><br>Directeur de la publication : Jonah Abbo.</p>\n<p class=\"lg-small\">Conformément à l’article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 (LCEN), l’éditeur, non professionnel, a communiqué ses éléments d’identification à l’hébergeur.</p>\n<h3>Hébergement</h3>\n<p><b>Site :</b> Vercel Inc., 440 N Barranca Avenue #4133, Covina, CA 91723, États-Unis — vercel.com</p>\n<p><b>Base de données et comptes :</b> Supabase Pte. Ltd., 65 Chulia Street #38-02/03, OCBC Centre, Singapour 049513 — supabase.com. Les données sont stockées dans l’Union européenne (Irlande).</p>\n<p><b>Envoi des e-mails :</b> Sendinblue SAS (Brevo), 9-17 rue Salneuve, 75017 Paris, France — brevo.com</p>\n<h3>Nature du service</h3>\n<p>Kicker est un outil gratuit pour organiser des soirées poker et jeux de société entre amis : invitations, réponses, minuteur, scores et suivi des comptes.</p>\n<p><b>Kicker ne propose aucun jeu d’argent et ne gère aucun paiement.</b> L’application ne reçoit, ne conserve et ne transfère aucune somme d’argent. Les montants affichés (buy-in, recaves, « qui paie qui ») sont de simples notes saisies par les joueurs. Les boutons de paiement ouvrent simplement des services tiers (PayPal, Revolut, Lydia, Wero), sur lesquels Kicker n’a aucun contrôle. Chaque utilisateur reste responsable des jeux qu’il organise et du respect de la réglementation qui s’y applique.</p>\n<h3>Âge minimum</h3>\n<p>Kicker est réservé aux personnes âgées d’au moins 15 ans.</p>\n<h3>Responsabilité</h3>\n<p>Kicker est en version de test et fourni « en l’état ». L’éditeur fait de son mieux pour que le service fonctionne et que les calculs soient justes, mais ne peut garantir l’absence d’erreur ou d’interruption. Pense à vérifier les comptes avant de régler entre vous.</p>\n<h3>Statut de l’éditeur</h3>\n<p>Kicker est un projet personnel, gratuit et sans activité commerciale : il n’est pas édité par une société et ne dispose donc pas de numéro SIREN/RCS ni de numéro de TVA. Si une offre payante est proposée un jour, ces mentions seront complétées avec les informations de l’entreprise qui l’éditera.</p>\n<h3>Propriété intellectuelle</h3>\n<p>Le nom Kicker, son logo, son design et son code sont la propriété de l’éditeur. Toute reproduction sans autorisation est interdite. Les contenus que tu saisis (noms de groupes, notes…) restent les tiens.</p>\n<h3>Crédits et licences</h3>\n<ul>\n<li>Logo, icônes et illustrations : créés pour Kicker, propriété de l’éditeur. Aucune photo ni image de banque d’images n’est utilisée.</li>\n<li>Emojis : affichés par le système de ton téléphone (Apple, Google…), selon leurs propres licences.</li>\n<li>Police Montserrat : © The Montserrat Project Authors, licence SIL Open Font License 1.1, hébergée avec l’app.</li>\n<li>Bibliothèque supabase-js : © Supabase, licence MIT. Bibliothèque morphdom : © Patrick Steele-Idem, licence MIT.</li>\n<li>Noms de jeux cités (Catan, Skyjo, Dixit…) : marques de leurs éditeurs respectifs, cités uniquement pour aider à organiser vos parties. Kicker n’est affilié à aucun d’eux, ni à PayPal, Revolut, Lydia ou Wero.</li>\n</ul>\n<h3>Droit applicable</h3>\n<p>Les présentes mentions sont soumises au droit français.</p>\n", "privacy": "<p>Cette page explique, simplement, quelles données Kicker utilise, pourquoi, et comment tu gardes la main dessus.</p>\n<h3>1. Qui est responsable ?</h3>\n<p>Jonah Abbo, éditeur de Kicker. Pour toute question ou demande : <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a>.</p>\n<h3>2. Quelles données ?</h3>\n<ul>\n<li><b>Ton compte :</b> adresse e-mail, pseudo et mot de passe. Le mot de passe est enregistré sous une forme protégée (hachée) par notre prestataire : l’éditeur ne peut pas le lire. Lors de l’inscription, Kicker enregistre aussi la date à laquelle tu as accepté les CGU, pour pouvoir le prouver.</li>\n<li><b>Ce que tu crées :</b> groupes et leurs membres, soirées (titre, date, heure, lieu, type de jeu), réponses aux invitations, buy-in, recaves, jetons de fin, scores et notes.</li>\n<li><b>Poker en ligne :</b> si tu joues sur une table en ligne, Kicker enregistre tes actions, tes cartes de la main en cours (visibles par toi seul jusqu’à l’abattage) et tes résultats en jetons fictifs. Les cartes sont effacées à chaque nouvelle main ; les résultats restent dans l’historique de la soirée.</li>\n<li><b>Joueurs ajoutés à la main :</b> si tu ajoutes le pseudo d’un ami qui n’a pas de compte, assure-toi qu’il est d’accord.</li>\n<li><b>Moyens de paiement (facultatif) :</b> ton identifiant PayPal.me, ton Revtag Revolut et/ou ton numéro pour Lydia/Wero, seulement si tu choisis de les renseigner, pour que tes amis puissent te rembourser. Tu peux les modifier ou les effacer à tout moment dans l’onglet Joueurs. Kicker ne reçoit, ne conserve et ne transfère <b>aucun argent</b> : le paiement se fait entièrement dans l’application choisie, selon ses propres conditions. Kicker garde seulement le statut « à payer / envoyé / payé ».</li>\n<li><b>Photo de profil (facultative) :</b> si tu en ajoutes une, elle est réduite sur ton téléphone puis stockée chez Supabase. Elle est visible par les membres de tes groupes, à une adresse non devinable. Tu peux la retirer à tout moment dans l’onglet Joueurs.</li>\n<li><b>Notifications (facultatives) :</b> si tu les actives, Kicker enregistre l’adresse technique d’envoi fournie par ton navigateur (Apple, Google ou Mozilla selon ton appareil) et tes choix de rappels. Le contenu des notifications est chiffré de bout en bout jusqu’à ton téléphone. Tu peux les désactiver à tout moment dans l’onglet Joueurs ; elles sont aussi supprimées à la déconnexion.</li>\n<li><b>Tes messages « Un souci ? » :</b> le texte, ton e-mail (pour te répondre) et quelques infos techniques pour reproduire un bug (écran de l’app ouvert, navigateur, taille d’écran). Rien d’autre n’est joint..</li>\n<li><b>Données techniques :</b> adresse IP et journaux de connexion, conservés par nos hébergeurs pour la sécurité du service.</li>\n<li><b>Face ID / Touch ID :</b> ton visage ou ton empreinte <b>ne quittent jamais ton téléphone</b>. Kicker ne garde qu’un identifiant technique de la clé de déverrouillage.</li>\n</ul>\n<h3>3. Pourquoi ?</h3>\n<ul>\n<li>Faire fonctionner Kicker : ton compte, tes groupes, tes soirées, les e-mails de confirmation et de mot de passe oublié (exécution du service que tu demandes).</li>\n<li>Sécuriser le service et éviter les abus, répondre à tes messages et corriger les bugs (intérêt légitime de l’éditeur).</li>\n</ul>\n<p><b>Pas de publicité, pas de revente, pas de pistage, pas d’outil de mesure d’audience.</b></p>\n<h3>4. Qui voit tes données ?</h3>\n<ul>\n<li><b>Les membres de tes groupes :</b> ton pseudo, tes réponses, tes comptes et scores dans ce groupe, et tes moyens de paiement si tu en as renseigné. Ton e-mail ne leur est pas montré.</li>\n<li><b>L’éditeur</b>, pour faire fonctionner et améliorer le service.</li>\n<li><b>Nos prestataires techniques</b>, uniquement pour ce service : Supabase (base de données, comptes et photos, stockés en Irlande), Vercel (hébergement du site), Brevo (envoi des e-mails, en France) et, si tu actives les notifications, le service de notification de ton appareil (Apple, Google ou Mozilla), qui ne reçoit que des messages chiffrés. La police d’écriture et les bibliothèques techniques sont hébergées avec l’app : aucune donnée n’est envoyée à Google ou à un autre service pour les charger.</li>\n</ul>\n<h3>5. Transferts hors de l’Union européenne</h3>\n<p>Tes données sont stockées en Irlande. Certains prestataires (Vercel, Supabase) peuvent y accéder depuis l’étranger, notamment les États-Unis. Ces transferts sont encadrés par des garanties prévues par le RGPD (cadre de protection des données UE–États-Unis ou clauses contractuelles types de la Commission européenne).</p>\n<h3>6. Combien de temps ?</h3>\n<ul>\n<li>Compte et contenus : tant que ton compte existe. Après une demande de suppression, ils sont effacés sous 30 jours.</li>\n<li>Messages « Un souci ? » : 24 mois maximum.</li>\n<li>Journaux techniques : durée limitée fixée par nos hébergeurs.</li>\n</ul>\n<h3>7. Cookies et stockage sur ton appareil</h3>\n<p>Kicker n’utilise <b>aucun cookie publicitaire ni de mesure d’audience</b>. Il enregistre seulement sur ton appareil ce qui est indispensable au service, ce qui ne nécessite pas ton consentement. Le détail est dans la <button class=\"lg-link\" data-act=\"legal\" data-p=\"cookies\">politique de cookies</button>.</p>\n<h3>8. Tes droits</h3>\n<p>Tu peux à tout moment demander à <b>accéder</b> à tes données, les <b>corriger</b>, les <b>supprimer</b> (y compris ton compte), les <b>récupérer</b> dans un format lisible, <b>limiter</b> leur utilisation ou t’y <b>opposer</b>. Écris à <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a> depuis l’adresse de ton compte : réponse sous un mois maximum. Ton pseudo se modifie aussi directement dans l’app.</p>\n<p>Si tu estimes que tes droits ne sont pas respectés, tu peux saisir la CNIL (cnil.fr).</p>\n<h3>9. Âge minimum</h3>\n<p>Kicker est réservé aux personnes d’au moins 15 ans.</p>\n<h3>10. Sécurité</h3>\n<p>Connexions chiffrées (HTTPS), mots de passe protégés (hachés), et règles d’accès qui empêchent quiconque de voir les groupes dont il n’est pas membre.</p>\n<h3>11. Modifications</h3>\n<p>Cette politique peut évoluer avec l’app. La date de mise à jour figure en haut de la page ; en cas de changement important, tu seras prévenu dans l’app.</p>\n", "date": "26 octobre 2026", "cgu": "<p>Ces conditions générales d’utilisation (CGU) fixent les règles d’utilisation de Kicker. En créant un compte, tu les acceptes.</p>\n<h3>1. Le service</h3>\n<p>Kicker est une application web gratuite pour organiser des soirées poker et jeux de société entre amis : groupes, invitations, sondage de date, liste « qui apporte quoi », minuteur, scores, caisse, classement et suivi des remboursements entre joueurs. Il est édité par Jonah Abbo (voir les <button class=\"lg-link\" data-act=\"legal\" data-p=\"mentions\">mentions légales</button>).</p>\n<h3>2. Ton compte</h3>\n<ul>\n<li>Il faut avoir <b>au moins 15 ans</b> pour créer un compte.</li>\n<li>Tu donnes une adresse e-mail valide et tu gardes ton mot de passe pour toi. Tu es responsable de ce qui est fait depuis ton compte.</li>\n<li>Un compte est personnel : un compte par personne.</li>\n</ul>\n<h3>3. Les groupes</h3>\n<p>Le créateur d’un groupe en est l’organisateur : il partage le code d’invitation et peut modifier ou supprimer les soirées du groupe. Les membres d’un groupe voient les pseudos, les réponses, les comptes, les scores et, s’ils sont renseignés, les moyens de remboursement des autres membres.</p>\n<h3>4. Ce que tu t’engages à faire</h3>\n<ul>\n<li>Utiliser Kicker pour organiser des soirées entre personnes qui se connaissent, dans le respect de la loi.</li>\n<li>Ne pas publier de contenu illégal, insultant, discriminatoire ou portant atteinte aux droits d’autrui (dans les noms de groupe, de soirée, les notes, les messages…).</li>\n<li>N’ajouter le pseudo d’un ami qui n’a pas de compte qu’avec son accord.</li>\n<li>Ne pas tenter d’accéder aux données d’autres groupes, de perturber le service ou de l’utiliser de façon automatisée.</li>\n</ul>\n<h3>5. Argent et jeux</h3>\n<p><b>Kicker n’organise aucun jeu d’argent et ne manipule aucune somme.</b> Les montants (buy-in, recaves, « qui paie qui ») sont de simples notes saisies par les joueurs. Les boutons « Payer » ouvrent PayPal, Revolut, Lydia ou Wero : le paiement a lieu entièrement chez ces services, selon leurs conditions, et Kicker n’y est pas partie. Chaque organisateur est seul responsable de ses soirées et du respect de la réglementation sur les jeux qui s’applique à lui. En cas de désaccord sur un montant, c’est aux joueurs de s’entendre entre eux.</p>\n<h3>5 bis. Poker en ligne</h3>\n<p>Les parties jouées sur une table en ligne se jouent <b>uniquement avec des jetons fictifs</b>, sans mise d’argent ni lot à gagner. Leurs résultats n’entrent pas dans « qui paie qui » et ne doivent pas servir de base à des paiements entre joueurs. Les cartes sont distribuées au hasard par le serveur de Kicker.</p>\n<h3>6. Disponibilité et responsabilité</h3>\n<p>Kicker est gratuit, en version de test, et fourni « en l’état ». L’éditeur fait de son mieux pour que le service fonctionne et que les calculs soient justes, mais ne peut pas garantir qu’il sera toujours disponible ni exempt d’erreur. Vérifie les comptes avant de régler entre vous. Dans les limites prévues par la loi, l’éditeur n’est pas responsable des pertes de données, des erreurs de calcul ou des différends entre joueurs.</p>\n<h3>7. Tes contenus</h3>\n<p>Ce que tu saisis reste à toi. Tu autorises seulement Kicker à l’enregistrer et à l’afficher aux membres de tes groupes, pour faire fonctionner le service.</p>\n<h3>8. Suspension et suppression</h3>\n<p>Tu peux demander la suppression de ton compte à tout moment en écrivant à <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a>. L’éditeur peut suspendre ou supprimer un compte qui ne respecte pas ces CGU, après t’avoir prévenu sauf en cas d’abus grave.</p>\n<h3>9. Données personnelles et cookies</h3>\n<p>Voir la <button class=\"lg-link\" data-act=\"legal\" data-p=\"privacy\">politique de confidentialité</button> et la <button class=\"lg-link\" data-act=\"legal\" data-p=\"cookies\">politique de cookies</button>.</p>\n<h3>10. Modifications</h3>\n<p>Ces CGU peuvent évoluer avec l’app. En cas de changement important, tu seras prévenu dans l’app ; si tu n’es pas d’accord, tu peux supprimer ton compte.</p>\n<h3>11. Droit applicable et litiges</h3>\n<p>Ces CGU sont soumises au droit français. En cas de problème, écris d’abord à <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a> pour trouver une solution à l’amiable. À défaut, les tribunaux français sont compétents, sans que cela te prive des protections dont tu bénéficies dans ton pays de résidence.</p>", "cookies": "<p>Kicker n’utilise <b>aucun cookie publicitaire, aucun outil de mesure d’audience et aucun traceur de réseau social</b>. Les polices et bibliothèques sont hébergées avec l’app : aucun service tiers n’est contacté pour les charger.</p>\n<h3>Ce qui est enregistré sur ton appareil</h3>\n<p>Kicker utilise le stockage local de ton navigateur (et non des cookies au sens strict) uniquement pour ce qui est indispensable au fonctionnement de l’app :</p>\n<div class=\"lg-table\"><table><thead><tr><th>Élément</th><th>À quoi il sert</th><th>Durée</th></tr></thead><tbody><tr><td><code>sb-…-auth-token</code></td><td>Garder ta session de connexion ouverte</td><td>Jusqu’à la déconnexion</td></tr><tr><td><code>tapisvert-group</code></td><td>Rouvrir le dernier groupe consulté</td><td>Jusqu’à ce que tu changes de groupe</td></tr><tr><td><code>tapisvert-timer</code></td><td>Réglages du minuteur de blindes</td><td>Jusqu’à suppression</td></tr><tr><td><code>kicker-faceid-v3, kicker-pk-hint, kicker-fid-…</code></td><td>Savoir si Face ID / Touch ID est activé sur cet appareil (aucune donnée biométrique)</td><td>Jusqu’à désactivation</td></tr><tr><td><code>kicker-installed, kicker-install-later</code></td><td>Ne pas reproposer l’installation de l’app</td><td>Jusqu’à suppression</td></tr><tr><td><code>kicker-tour-v1</code></td><td>Ne pas relancer le guide de démarrage</td><td>Jusqu’à suppression</td></tr><tr><td><code>Abonnement aux notifications</code></td><td>Recevoir les rappels, uniquement si tu les as activés</td><td>Jusqu’à désactivation ou déconnexion</td></tr><tr><td><code>kicker-push-later</code></td><td>Ne pas reproposer les notifications trop souvent</td><td>14 jours</td></tr><tr><td><code>Cache de l’app (service worker)</code></td><td>Ouvrir l’app plus vite et avec un réseau faible</td><td>Remplacé à chaque mise à jour</td></tr></tbody></table></div>\n<h3>Pourquoi il n’y a pas de bandeau cookies</h3>\n<p>Selon les règles de la CNIL, les traceurs strictement nécessaires au service que tu demandes (connexion, préférences d’affichage, sécurité) sont dispensés de consentement. Kicker n’utilisant que ce type de traceurs, aucun bandeau n’est nécessaire. Si un outil soumis à consentement était ajouté un jour, un bandeau te demanderait ton accord avant tout dépôt.</p>\n<h3>Comment les supprimer</h3>\n<p>Te déconnecter supprime ta session. Tu peux tout effacer depuis les réglages de ton navigateur (sur iPhone : Réglages → Apps → Safari → Avancé → Données de sites web), ou en supprimant l’app de ton écran d’accueil. Tu devras alors te reconnecter.</p>", "refund": "<h3>Kicker est gratuit</h3>\n<p>Kicker ne vend rien : pas d’abonnement, pas d’achat dans l’app, aucune donnée bancaire demandée. Il n’y a donc aucun paiement à te rembourser de la part de Kicker.</p>\n<h3>Les remboursements entre joueurs</h3>\n<p>« Qui paie qui » et les boutons « Payer » servent uniquement à vous aider à vous rembourser entre amis. L’argent passe directement par PayPal, Revolut, Lydia ou Wero, sans jamais transiter par Kicker. Pour annuler ou contester un paiement, adresse-toi à la personne concernée ou au service de paiement utilisé, selon ses conditions. Le statut « payé » dans Kicker n’est qu’une indication saisie par les joueurs.</p>\n<h3>Si une offre payante arrive</h3>\n<p>Si Kicker propose un jour une option payante, son prix, ses conditions et ton droit de rétractation de 14 jours seront clairement indiqués avant tout paiement, et cette page sera mise à jour.</p>\n<h3>Une question ?</h3>\n<p>Écris à <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a>.</p>"};
 const IS_STANDALONE=(()=>{try{return matchMedia("(display-mode: standalone)").matches||navigator.standalone===true}catch(e){return false}})();
 const IS_IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
@@ -2339,8 +2503,9 @@ function viewInstall(){const share=`<span class="ins-ic"><svg viewBox="0 0 24 24
     <p style="margin:6px 0 0;font-size:14px;color:#3A4A66">Kicker s’ouvrira comme une vraie app : plein écran, sans barre d’adresse, depuis son icône.</p>
     <ol class="ins-steps">${steps}</ol>${IS_IOS?`<p style="font-size:12.5px;color:#5B6B86;margin:0 0 12px">Face ID et les notifications fonctionnent mieux depuis l’app installée.</p>`:""}
     <button class="btn primary" data-act="install-close" style="width:100%">J’ai compris</button></div></div>`}
-const LEGAL_PAGES=[["mentions","Mentions légales","mentions-legales"],["privacy","Confidentialité","confidentialite"],["cgu","CGU","cgu"],["cookies","Cookies","cookies"],["refund","Remboursement","remboursement"]];
-const LEGAL_TITLES={mentions:"Mentions légales",privacy:"Politique de confidentialité",cgu:"Conditions générales d’utilisation",cookies:"Politique de cookies",refund:"Politique de remboursement"};
+const LEGAL_PAGES=[["mentions","Mentions légales","mentions-legales"],["privacy","Confidentialité","confidentialite"],["cgu","CGU","cgu"],["cgv","CGV","cgv"],["cookies","Cookies","cookies"],["refund","Remboursement","remboursement"]];
+const LEGAL_TITLES={mentions:"Mentions légales",privacy:"Politique de confidentialité",cgu:"Conditions générales d’utilisation",cookies:"Politique de cookies",refund:"Politique de remboursement",cgv:"Conditions générales de vente Kicker+"};
+LEGAL.cgv="<p class=\"lg-small\"><b>Brouillon à compléter avant la mise en vente</b> (champs entre crochets).</p><h3>1. Vendeur</h3><p>Kicker+ est vendu par [Nom Prénom], entrepreneur individuel, SIRET [à compléter], [adresse], contact : <a href=\"mailto:jonahabbo8@gmail.com\">jonahabbo8@gmail.com</a>.</p><h3>2. Offre</h3><p>Kicker+ est un abonnement qui donne accès, tant qu’il est actif : aux groupes et soirées illimités dans les groupes que tu organises (la version gratuite est limitée à 2 groupes créés et 4 soirées par mois et par groupe), aux statistiques avancées, au thème Kicker+ et au badge Kicker+.</p><h3>3. Prix</h3><p>2,99 € par mois ou 24,99 € par an, toutes taxes comprises. [TVA non applicable, art. 293 B du CGI — à confirmer selon ton statut.] Le prix affiché au moment du paiement est celui qui s’applique.</p><h3>4. Paiement et renouvellement</h3><p>Le paiement est traité par Stripe ; Kicker ne voit ni ne conserve tes données bancaires. L’abonnement se renouvelle automatiquement à la fin de chaque période jusqu’à ce que tu le résilies.</p><h3>5. Résiliation</h3><p>Tu peux résilier à tout moment depuis l’onglet Joueurs, « Gérer mon abonnement ». L’accès reste actif jusqu’à la fin de la période déjà payée, puis ton compte repasse en version gratuite. Tes données sont conservées.</p><h3>6. Droit de rétractation</h3><p>Tu disposes de 14 jours après la souscription pour te rétracter, en écrivant à l’adresse ci-dessus. Comme tu demandes que l’accès commence tout de suite, le montant correspondant à la période déjà utilisée reste dû ; le reste t’est remboursé sous 14 jours.</p><h3>7. Médiation</h3><p>En cas de litige non résolu à l’amiable, tu peux recourir gratuitement au médiateur de la consommation : [nom et site du médiateur à compléter].</p><h3>8. Droit applicable</h3><p>Ces conditions sont soumises au droit français.</p>";
 function legalLinks(){return `<nav class="legal-links" aria-label="Informations légales">${LEGAL_PAGES.map(([k,l])=>`<button data-act="legal" data-p="${k}">${l}</button>`).join("")}</nav>`}
 function viewLegal(){const k=LEGAL_TITLES[S.legal]?S.legal:"mentions";return `<div class="inv-layer legal-layer" role="dialog" aria-modal="true" aria-labelledby="legal-title"><div class="inv-sheet legal-sheet"><div class="legal-head"><h2 id="legal-title">${LEGAL_TITLES[k]}</h2><button class="btn small" data-act="legal-close">Fermer</button></div><nav class="lg-tabs" aria-label="Pages légales">${LEGAL_PAGES.map(([p,l])=>`<button class="${k===p?"on":""}" data-act="legal" data-p="${p}" ${k===p?'aria-current="page"':""}>${l}</button>`).join("")}</nav><div class="legal-body"><p class="lg-date">Dernière mise à jour : ${LEGAL.date}</p>${LEGAL[k]}</div></div></div>`}
 function viewFbLayer(){const k=S.fbKind||"bug";const kinds=[["bug","🐞 Bug"],["reclamation","✋ Réclamation"],["idee","💡 Idée"]];
@@ -2419,7 +2584,7 @@ function viewPlayers(){
     h+=`<div class="card me-card rise"><div class="row">${avatar(S.me.id)}<div class="grow" style="min-width:0"><span class="eyebrow">Mon profil</span>
       <input id="pn-me" data-pname="${S.me.id}" value="${esc(mine.name)}" maxlength="24" ${dis} class="pseudo" aria-label="Mon pseudo"><div class="muted ellipsis" style="font-size:12px">${esc(S.account?.email||"")}</div>${photoTools()}${S.fidAvail?`<button class="fid-toggle ${fidMine()?"on":""}" data-act="${fidMine()?"fid-off":"fid-on"}"><span class="fid-dot"></span>${fidLabel()} ${fidMine()?"activé":"désactivé"}</button>`:""}</div><button class="btn small" data-act="logout">Déconnexion</button></div>
       <div class="stats" style="margin-top:12px"><div class="stat"><span class="eyebrow">Poker</span><b class="${r&&r.net>0?"win":r&&r.net<0?"loss":""}">${r?money(r.net,true):"—"}</b></div><div class="stat"><span class="eyebrow">Victoires jeux</span><b>${b?b.wins:0}</b></div><div class="stat"><span class="eyebrow">Soirées</span><b>${(r?r.games:0)+(b?b.games:0)}</b></div></div></div>`;
-    h+=notifCard();
+    h+=plusCard();h+=notifCard();
     const pm=payOf(S.me.id)||{};
     h+=`<div class="card pay-me rise"><span class="eyebrow">Me faire rembourser</span><p class="muted" style="margin:4px 0 10px;font-size:13px">Facultatif. Tes amis pourront te payer en un clic. Visible uniquement par les membres de tes groupes.</p>
       <label class="pm-field"><span>PayPal.me</span><span class="pm-in"><i>paypal.me/</i><input id="pm-paypal" value="${esc(pm.paypal||"")}" maxlength="40" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="tonpseudo"></span></label>
@@ -2431,7 +2596,7 @@ function viewPlayers(){
   // Membres
   h+=`<section class="block"><div class="sec-title"><h2>Membres</h2><span class="muted" style="font-size:13px">${ps.length}</span></div>${ps.length?`<div class="list">${ps.map(([pid,p])=>{const r=lb[pid],b=bs[pid];
     if(S.confirm==="del-"+pid)return `<div class="item"><div class="confirm grow"><span>Retirer ${esc(p.name)} du groupe ? Ses résultats passés restent comptés.</span><button class="btn small danger" data-act="del-player-yes" data-pid="${pid}">Retirer</button><button class="btn small" data-act="cancel">Annuler</button></div></div>`;
-    return `<div class="item">${avatar(pid)}<div class="grow" style="min-width:0"><div class="row" style="gap:6px"><span class="ellipsis" style="font-weight:700">${esc(p.name)}</span>${isMe(pid)?`<span class="pill planned">Toi</span>`:""}${p.userId||S.mode!=="shared"?"":`<span class="pill">Sans compte</span>`}</div>
+    return `<div class="item">${avatar(pid)}<div class="grow" style="min-width:0"><div class="row" style="gap:6px"><span class="ellipsis" style="font-weight:700">${esc(p.name)}</span>${plusPill(pid)}${isMe(pid)?`<span class="pill planned">Toi</span>`:""}${p.userId||S.mode!=="shared"?"":`<span class="pill">Sans compte</span>`}</div>
       <div class="muted" style="font-size:12px">${b?`${b.wins} victoire${b.wins>1?"s":""} aux jeux · `:""}${r?`${r.games} soirée${r.games>1?"s":""} poker`:"Pas encore de résultats"}</div></div>
       <span class="num ${r&&r.net>0?"win":r&&r.net<0?"loss":"muted"}" style="white-space:nowrap;font-size:13px">${r?money(r.net,true):""}</span>${w&&(curGroup()?.createdBy===S.me.id||S.mode!=="shared")&&!isMe(pid)?`<button class="btn icon" data-act="del-player" data-pid="${pid}" aria-label="Retirer ${esc(p.name)}" style="font-size:16px;flex:none;width:32px;height:32px;min-height:32px">×</button>`:""}</div>`}).join("")}</div>`:`<div class="card empty">Personne n’a encore rejoint la table.</div>`}</section>`;
   // Code du groupe
@@ -2499,9 +2664,9 @@ function render(force){
   document.querySelector("nav.tabs").hidden=needJoin;
   const liveG=S.liveId&&S.data.games[S.liveId];if(S.liveId&&(!liveG||liveG.status!=="live"))S.liveId=null;
   const layer=(S.fidOffer&&S.auth==="ok"?`<div class="inv-layer" role="dialog" aria-modal="true" aria-label="${fidLabel()}"><div class="inv-pop fid-pop"><div class="lock-ic" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 16V10a4 4 0 0 1 4-4h6M32 6h6a4 4 0 0 1 4 4v6M42 32v6a4 4 0 0 1-4 4h-6M16 42h-6a4 4 0 0 1-4-4v-6"/><path d="M17 18v3M31 18v3M24 19v8h-2M18 33c3.5 3 8.5 3 12 0"/></svg></div><div class="inv-title" style="text-align:center">Ouvrir Kicker avec ${fidLabel()} ?</div><p class="muted" style="text-align:center;font-size:13.5px;margin:6px 0 0">Plus besoin de mot de passe sur cet appareil : un regard suffit.</p><div class="del-actions"><button class="btn" data-act="fid-later">Plus tard</button><button class="btn primary" data-act="fid-yes">Activer</button></div></div></div>`:"")||viewCelebrate()||viewStopLayer()||viewDelLayer()||(S.liveId?"":viewInviteLayer());if(layer||S.liveId)document.querySelector("nav.tabs").hidden=true;
-  const vkey=S.auth!=="ok"?"auth":S.pokerId?"poker:"+S.pokerId:S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"")+(S.lib&&S.tab==="games"&&!S.gameId?":lib":"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.pkQuick?"Q":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
+  const vkey=S.auth!=="ok"?"auth":S.pokerId?"poker:"+S.pokerId:S.liveId?"live:"+S.liveId:noGroup?"hub":S.tab+":"+(S.gameId||"")+(S.lib&&S.tab==="games"&&!S.gameId?":lib":"");const changed=vkey!==S.lastView;S.lastView=vkey;const lsig=(layer?"L":"")+(S.plusSheet?"K":"")+(S.kpWelcome?"W":"")+(S.legal||"")+(S.showInstall?"I":"")+(S.paySheet?"P":"")+(S.pkQuick?"Q":"")+(S.showFb?"F":"")+(S.showInbox?"B":"")+(S.confirm||"");const layerSame=lsig===S.lastLayer;S.lastLayer=lsig;
   if(!changed){app.classList.remove("view-in","view-up","view-left","view-right");app.classList.add("still")}else app.classList.remove("still");app.classList.toggle("layer-still",layerSame&&!changed);
-  const tmp=document.createElement("div");tmp.innerHTML=(S.auth!=="ok"?viewAuth():(S.pokerId&&!noGroup)?viewPoker():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+tourReplayHtml()+legalLinks())+layer+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"")+(S.pkQuick&&S.auth==="ok"?viewPkQuick():"");
+  const tmp=document.createElement("div");tmp.innerHTML=(S.auth!=="ok"?viewAuth():(S.pokerId&&!noGroup)?viewPoker():(S.liveId&&!noGroup)?viewLive():noGroup?viewHub()+legalLinks():S.tab==="games"?(S.gameId?viewGame():viewGames()):S.tab==="board"?viewBoard():viewPlayers()+tourReplayHtml()+legalLinks())+layer+viewPlus()+kpWelcome()+(S.legal?viewLegal():"")+(S.showInstall?viewInstall():"")+(S.paySheet&&S.auth==="ok"?viewPaySheet():"")+(S.pkQuick&&S.auth==="ok"?viewPkQuick():"");
   if(!S.liveId&&!S.showInstall){const ib=installBar();if(ib){const anchor=tmp.querySelector(".join-card")||tmp.querySelector(".hub-hero")||tmp.querySelector(".brand");if(anchor)anchor.insertAdjacentHTML(anchor.classList.contains("join-card")?"beforebegin":"afterend",ib);else tmp.insertAdjacentHTML("afterbegin",ib)}}
   if(!TR&&!S.tourTimer)setTimeout(tourMaybeAuto,60);schedDebtSync();applyTheme();
   if(changed||!window.morphdom||!app.firstChild){app.replaceChildren(...tmp.childNodes)}
@@ -2509,7 +2674,7 @@ function render(force){
       onBeforeElUpdated:(a,b)=>{if(a===document.activeElement&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return false;return !a.isEqualNode(b)},
       onBeforeNodeDiscarded:n=>!(n.classList&&(n.classList.contains("rip-wrap")||n.classList.contains("ripple")))})}
     catch(e){console.warn("morph",e);app.replaceChildren(...tmp.childNodes)}}
-  if(S.legal||S.showInstall||S.paySheet)document.querySelector("nav.tabs").hidden=true;
+  if(S.legal||S.showInstall||S.paySheet||S.plusSheet||S.kpWelcome)document.querySelector("nav.tabs").hidden=true;
 
   document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===S.tab));
   window.scrollTo(0,y);
@@ -2533,7 +2698,7 @@ function resultsText(g){if(g.type==="board"){const sc=scoresOf(g).sort((a,b)=>g.
   return `${g.title||"Soirée jeux"} — ${longDate(g)}\n\nRésultats :\n${rs.map((r,i)=>`${i+1}. ${pname(r.pid)} : ${money(r.net,true)}`).join("\n")}\n\nÀ régler :\n${t.map(x=>`${pname(x.from)} → ${pname(x.to)} : ${money(x.v)}`).join("\n")||"rien"}`}
 
 app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&/^(rsvp|rsvp-home|inv-answer|set-type|set-buy|seat-move|live-pause|start|start-home)$/.test(tb.dataset.act))buzz(8);
-  const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const act=b.dataset.act;
+  const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const act=b.dataset.act;if(plusClick(act,b))return;
   if(act==="open-game"){S.gameId=b.dataset.id;S.confirm=null;S.copyFallback=null;render(true);window.scrollTo(0,0);return}
   if(act==="back"){S.gameId=null;S.confirm=null;S.copyFallback=null;render(true);return}
   if(act==="bmode"){S.boardMode=b.dataset.m;render(true);return}
@@ -2771,7 +2936,7 @@ app.addEventListener("click",e=>{const tb=e.target.closest("[data-act]");if(tb&&
   if(act==="leave"){S.confirm="leave";render(true);return}
   if(act==="leave-yes"){const G=curGroup();const gid=S.groupId;S.confirm=null;
     if(G.createdBy===S.me.id||S.mode!=="shared"){Object.entries(S.data.games).filter(([,x])=>x.groupId===gid).forEach(([xid])=>write("games",xid,null,true));write("groups",gid,null,true)}
-    else{const c=clone(G);delete c.members[S.me.id];write("groups",gid,c,true)}
+    else{delete S.data.groups[gid];sb.rpc("leave_group",{p_gid:gid}).then(({error})=>{if(error){console.warn(error);toast("Impossible de quitter le groupe. Réessaie.");loadAll().then(()=>render(true)).catch(()=>{})}})}
     S.groupId=null;try{localStorage.removeItem("tapisvert-group")}catch(e){}render(true);window.scrollTo(0,0);return}
   if(act==="copy-code"){const G=curGroup();const link=APP_URL+"/?join="+G.code;const txt=`Rejoins mon groupe « ${G.name} » sur Kicker pour nos soirées poker et jeux : ${link}`;
     if(navigator.share){navigator.share({title:"Kicker",text:txt}).catch(()=>{})}else copy(txt);return}
@@ -2817,6 +2982,161 @@ app.addEventListener("change",e=>{const el=e.target;if(el.id==="ph-file"){const 
 /* ---------- boot ---------- */
 render(true);
 fidAvailable().then(av=>{S.fidAvail=av;if(!av&&S.auth==="fidwelcome")S.auth="login";if(S.auth==="login"||S.auth==="locked"||S.auth==="fidwelcome")render(true)});
+/* =====================================================================
+   Kicker+ — abonnement, limites gratuites, stats avancées, thème, badge
+   ===================================================================== */
+const KP_LIM={groups:2,gamesPerMonth:4};
+const KP_PRICE={month:"2,99 €",year:"24,99 €"};
+function kpPlan(){return S.plan||{plus:false,plusGroups:[],plusUsers:[]}}
+function isPlus(){return !!kpPlan().plus}
+function groupPlus(gid){return (kpPlan().plusGroups||[]).includes(gid)}
+function userPlus(pid){return !!pid&&(kpPlan().plusUsers||[]).includes(pid)}
+function plusPill(pid){return userPlus(pid)?`<span class="kp-pill" title="Membre Kicker+">K<i>+</i></span>`:""}
+async function loadPlan(){try{const {data,error}=await sb.rpc("kicker_plan");if(!error&&data){S.plan=data;if(data.limits)Object.assign(KP_LIM,data.limits);render()}}catch(e){console.warn("plan",e)}}
+
+/* ---------- limites (contrôle côté app ; la base les applique aussi) ---------- */
+const kpMonth=d=>(d||new Date().toISOString().slice(0,10)).slice(0,7);
+function kpCreatedGroups(){return Object.values(S.data.groups).filter(g=>g.createdBy===S.me.id).length}
+function kpGamesInMonth(gid,ymd){const m=kpMonth(ymd);return Object.values(S.data.games).filter(g=>g.groupId===gid&&kpMonth(g.date)===m).length}
+function kpCanCreateGroup(){return S.mode!=="shared"||isPlus()||kpCreatedGroups()<KP_LIM.groups}
+function kpCanCreateGame(ymd){const gid=S.groupId;return S.mode!=="shared"||!gid||groupPlus(gid)||kpGamesInMonth(gid,ymd)<KP_LIM.gamesPerMonth}
+function kpNextSaturday(){const d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function kpToday(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function openPlus(reason){S.plusSheet={reason:reason||"",plan:(S.plusSheet&&S.plusSheet.plan)||"year",ok:false};render(true)}
+/* Refus envoyé par la base (limite atteinte) : on annule la création locale et on montre Kicker+ */
+function plusDenied(e,path){const msg=String(e&&(e.message||e.details)||"");
+  if(/KICKER_PLUS_(GROUPS|GAMES)/.test(msg)){const [coll,id]=path.split("/");delete S.data[coll][id];if(coll==="groups"&&S.groupId===id){S.groupId=null;try{localStorage.removeItem("tapisvert-group")}catch(_){}}
+    if(coll==="games"&&S.gameId===id)S.gameId=null;saveState("saved");openPlus(/GROUPS/.test(msg)?"groups":"games");return true}
+  if(/KICKER_FORBIDDEN/.test(msg)){toast("Action réservée à l’organisateur du groupe.");loadAll().then(()=>render(true)).catch(()=>{});return true}
+  return false}
+
+/* ---------- clics Kicker+ (appelé en tête du gestionnaire principal) ---------- */
+function plusClick(act,b){
+  if(act==="hub-mode"&&b.dataset.v==="create"&&!kpCanCreateGroup()){openPlus("groups");return true}
+  if(act==="hub-create"&&!kpCanCreateGroup()){openPlus("groups");return true}
+  if(act==="new-game"&&!kpCanCreateGame(kpNextSaturday())){openPlus("games");return true}
+  if(act==="pk-quick-go"){const t=kpToday();const has=Object.values(S.data.games).some(g=>g.groupId===S.groupId&&g.type!=="board"&&g.status!=="done"&&g.date===t);if(!has&&!kpCanCreateGame(t)){S.pkQuick=false;openPlus("games");return true}}
+  if(act==="kp-open"){openPlus(b.dataset.r||"");return true}
+  if(act==="kp-close"){S.plusSheet=null;render(true);return true}
+  if(act==="kp-plan"){S.plusSheet.plan=b.dataset.p;render();return true}
+  if(act==="kp-ok"){S.plusSheet.ok=!S.plusSheet.ok;render();return true}
+  if(act==="kp-buy"){kpCheckout(b);return true}
+  if(act==="kp-portal"){kpPortal(b);return true}
+  if(act==="kp-theme"){try{localStorage.setItem("kicker-plus-theme",plusThemeOn()?"off":"on")}catch(e){}render(true);return true}
+  if(act==="kp-welcome-ok"){S.kpWelcome=false;render(true);return true}
+  if(act==="kp-who"){S.kpWho=b.dataset.pid;render();return true}
+  if(act==="kp-span"){S.kpSpan=b.dataset.s;render();return true}
+  if(act==="kp-sort"){S.kpSort=b.dataset.s;render();return true}
+  return false}
+async function kpCheckout(b){const ps=S.plusSheet;if(!ps||!ps.ok){const e=document.getElementById("kp-err");if(e)e.textContent="Coche la case pour continuer.";return}
+  b.disabled=true;b.textContent="Ouverture du paiement…";
+  try{const {data,error}=await sb.functions.invoke("billing",{body:{action:"checkout",plan:ps.plan,waiver:true}});
+    if(data&&data.url){location.href=data.url;return}
+    if(data&&data.error==="already"){await loadPlan();S.plusSheet=null;toast("Tu es déjà membre Kicker+ ✦");render(true);return}
+    throw error||new Error("billing")}
+  catch(e){console.warn(e);b.disabled=false;b.textContent="Passer à Kicker+";const x=document.getElementById("kp-err");if(x)x.textContent="Le paiement n’a pas pu s’ouvrir. Réessaie dans un instant."}}
+async function kpPortal(b){b.disabled=true;try{const {data}=await sb.functions.invoke("billing",{body:{action:"portal"}});if(data&&data.url){location.href=data.url;return}}catch(e){console.warn(e)}b.disabled=false;toast("Impossible d’ouvrir la gestion de l’abonnement.")}
+/* Retour de Stripe : on attend que le webhook ait enregistré l'abonnement */
+function kpReturn(){let q;try{q=new URLSearchParams(location.search).get("plus")}catch(e){return}if(!q)return;
+  try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
+  if(q==="cancel"){toast("Paiement annulé. Rien n’a été débité.");return}
+  if(q==="portal"){loadPlan();return}
+  let n=0;const tick=async()=>{await loadPlan();if(isPlus()){S.kpWelcome=true;render(true);buzz(30);return}if(++n<15)setTimeout(tick,2000);else toast("Paiement reçu : ton accès Kicker+ arrive dans quelques instants.")};tick()}
+
+/* ---------- thème ---------- */
+function plusThemeOn(){if(!isPlus())return false;try{return localStorage.getItem("kicker-plus-theme")!=="off"}catch(e){return true}}
+function plusTheme(){const on=plusThemeOn();document.documentElement.classList.toggle("kplus",on);const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=on?"#0B0B0D":"#0A2A78"}
+
+/* ---------- écran Kicker+ ---------- */
+function viewPlus(){const ps=S.plusSheet;if(!ps)return"";const G=curGroup();const owner=G&&G.createdBy===S.me.id;
+  const why=ps.reason==="groups"?`<div class="kp-why">Tu as déjà créé ${KP_LIM.groups} groupes, le maximum en version gratuite.</div>`
+    :ps.reason==="games"?(owner?`<div class="kp-why">Ce groupe a déjà ${KP_LIM.gamesPerMonth} soirées ce mois-ci, le maximum en version gratuite.</div>`
+      :`<div class="kp-why">Ce groupe a déjà ${KP_LIM.gamesPerMonth} soirées ce mois-ci. Les soirées illimitées s’activent quand <b>${esc(pname(G&&G.createdBy))}</b>, l’organisateur, passe à Kicker+.</div>`)
+    :ps.reason==="stats"?`<div class="kp-why">Les statistiques avancées font partie de Kicker+.</div>`:"";
+  if(isPlus())return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Kicker+"><div class="inv-sheet kp-sheet">${kpCrest()}<h2 class="kp-title">Tu es membre Kicker+</h2>${why&&ps.reason==="games"&&!owner?why:""}<div class="kp-actions"><button class="btn primary" data-act="kp-close" style="width:100%">Fermer</button></div></div></div>`;
+  const perk=(ic,t,s)=>`<li><span class="kp-ic" aria-hidden="true">${ic}</span><div><b>${t}</b><small>${s}</small></div></li>`;
+  return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Kicker+"><div class="inv-sheet kp-sheet">
+    <button class="kp-x" data-act="kp-close" aria-label="Fermer">×</button>
+    ${kpCrest()}<h2 class="kp-title">Le salon privé de ta bande</h2>${why}
+    <ul class="kp-perks">
+      ${perk("♠&#xFE0E;","Groupes et soirées illimités",`Gratuit : ${KP_LIM.groups} groupes et ${KP_LIM.gamesPerMonth} soirées par mois. Tes amis en profitent dans tes groupes.`)}
+      ${perk("◆","Statistiques avancées","Courbe de tes gains, ROI cash game et tournoi, classement détaillé.")}
+      ${perk("♛","Un thème rien qu’à toi","Kicker en noir et or, réservé aux membres.")}
+      ${perk("✦","Le badge Kicker+","Visible par tous les joueurs de tes groupes.")}
+    </ul>
+    <div class="kp-plans" role="radiogroup" aria-label="Formule">
+      <button class="kp-plan ${ps.plan==="year"?"on":""}" role="radio" aria-checked="${ps.plan==="year"}" data-act="kp-plan" data-p="year"><span class="kp-save">−30 %</span><b>Annuel</b><span class="kp-price">${KP_PRICE.year}<small>/an</small></span><small>soit 2,08 € par mois</small></button>
+      <button class="kp-plan ${ps.plan==="month"?"on":""}" role="radio" aria-checked="${ps.plan==="month"}" data-act="kp-plan" data-p="month"><b>Mensuel</b><span class="kp-price">${KP_PRICE.month}<small>/mois</small></span><small>sans engagement</small></button>
+    </div>
+    <div class="kp-check ${ps.ok?"on":""}"><button class="kp-box" data-act="kp-ok" role="checkbox" aria-checked="${!!ps.ok}" aria-labelledby="kp-ok-t">${ps.ok?"✓":""}</button><span id="kp-ok-t" data-act="kp-ok">Je demande que mon accès commence tout de suite et j’accepte les <button class="lg-link" data-act="legal" data-p="cgv">conditions de vente</button>. Si je me rétracte sous 14 jours, seule la période utilisée me sera facturée.</span></div>
+    <div class="auth-err" id="kp-err" role="alert"></div>
+    <button class="btn primary kp-go" data-act="kp-buy">Passer à Kicker+</button>
+    <p class="kp-fine">Paiement sécurisé par Stripe. Résiliable à tout moment depuis l’app. Kicker ne gère toujours aucun argent entre joueurs.</p>
+  </div></div>`}
+function kpCrest(){return `<div class="kp-crest" aria-hidden="true"><span>K</span><i>+</i></div>`}
+function kpWelcome(){if(!S.kpWelcome)return"";return `<div class="inv-layer" role="dialog" aria-modal="true" aria-label="Bienvenue dans Kicker+"><div class="inv-sheet kp-sheet kp-welcome">${kpCrest()}<h2 class="kp-title">Bienvenue dans Kicker+</h2><p class="kp-lead">Ton thème noir et or est activé, ton badge est visible par tes amis et tes groupes n’ont plus de limite.</p><div class="kp-actions"><button class="btn primary" data-act="kp-welcome-ok" style="width:100%">C’est parti</button></div></div></div>`}
+
+/* Carte dans l'onglet Joueurs */
+function plusCard(){if(S.mode!=="shared")return"";const p=kpPlan();
+  if(!p.plus)return `<button class="card kp-card kp-upsell rise" data-act="kp-open"><div class="kp-card-crest">${kpCrest()}</div><div class="grow"><b>Passe à Kicker+</b><small>Soirées illimitées, stats avancées, thème noir et or et badge. Dès 2,08 € par mois.</small></div><span class="go" aria-hidden="true">›</span></button>`;
+  const until=p.until?new Date(p.until).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):"";
+  return `<div class="card kp-card rise"><div class="row" style="gap:12px">${kpCrest()}<div class="grow"><b>Membre Kicker+</b><small>${p.plan==="year"?"Formule annuelle":"Formule mensuelle"}${until?(p.cancel?` · se termine le ${until}`:` · renouvellement le ${until}`):""}${p.status==="past_due"?" · paiement à régulariser":""}</small></div></div>
+    <div class="kp-row"><span>Thème Kicker+</span><button class="kp-switch ${plusThemeOn()?"on":""}" data-act="kp-theme" role="switch" aria-checked="${plusThemeOn()}" aria-label="Thème Kicker+"><i></i></button></div>
+    <button class="btn small" data-act="kp-portal" style="width:100%;margin-top:10px">Gérer mon abonnement</button></div>`}
+
+/* ---------- statistiques avancées ---------- */
+function kpSeries(span){const cut=span==="3m"?90:span==="12m"?365:0;const lim=cut?new Date(Date.now()-cut*864e5).toISOString().slice(0,10):"";
+  return gamesSorted().past.filter(g=>g.type!=="board"&&g.date&&(!lim||g.date>=lim)).sort((a,b)=>a.date.localeCompare(b.date))
+    .map(g=>({g,rs:results(g).filter(r=>r.in>0||r.out!=null)})).filter(x=>x.rs.length)}
+function kpPlayerStats(pid,series){const pts=[];let cum=0;const by={cash:{games:0,in:0,net:0},tournoi:{games:0,in:0,net:0}};let best=null,worst=null,wins=0,streak=0,inTot=0;
+  series.forEach(({g,rs})=>{const r=rs.find(x=>x.pid===pid);if(!r)return;cum+=r.net;inTot+=r.in;pts.push({date:g.date,net:r.net,cum,title:g.title||"Soirée"});
+    const t=g.type==="tournoi"?"tournoi":"cash";by[t].games++;by[t].in+=r.in;by[t].net+=r.net;
+    if(!best||r.net>best.net)best={net:r.net,g};if(!worst||r.net<worst.net)worst={net:r.net,g};if(r.net>0.004){wins++;streak++}else streak=0});
+  const games=pts.length;return{pid,pts,games,net:cum,in:inTot,roi:inTot?cum/inTot:0,avg:games?cum/games:0,winRate:games?wins/games:0,best,worst,streak,by}}
+function kpChart(pts){if(pts.length<2)return `<div class="kp-chart-empty muted">La courbe apparaît après deux soirées poker terminées.</div>`;
+  const W=340,H=150,P=8,ys=[0,...pts.map(p=>p.cum)],lo=Math.min(...ys),hi=Math.max(...ys),span=hi-lo||1;
+  const x=i=>P+i*(W-2*P)/(pts.length-1),y=v=>P+(hi-v)*(H-2*P)/span;
+  const line=pts.map((p,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(p.cum).toFixed(1)}`).join("");
+  const area=`${line}L${x(pts.length-1).toFixed(1)},${y(0).toFixed(1)}L${x(0).toFixed(1)},${y(0).toFixed(1)}Z`;
+  const last=pts[pts.length-1],up=last.cum>=0;
+  const mo=d=>new Date(d+"T12:00:00").toLocaleDateString("fr-FR",{month:"short"}).replace(".","");
+  return `<figure class="kp-chart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Gains cumulés : ${esc(money(last.cum,true))} après ${pts.length} soirées">
+    <defs><linearGradient id="kpg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--kp-line)" stop-opacity=".32"/><stop offset="1" stop-color="var(--kp-line)" stop-opacity="0"/></linearGradient></defs>
+    <line x1="${P}" x2="${W-P}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}" class="kp-zero"/>
+    <path d="${area}" fill="url(#kpg)"/><path d="${line}" class="kp-path"/>
+    ${pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.cum).toFixed(1)}" r="${i===pts.length-1?4:2.4}" class="${p.net>=0?"kp-dot-w":"kp-dot-l"}"><title>${esc(p.title)} · ${esc(money(p.net,true))}</title></circle>`).join("")}
+  </svg><figcaption><span>${mo(pts[0].date)}</span><b class="${up?"win":"loss"}">${money(last.cum,true)}</b><span>${mo(last.date)}</span></figcaption></figure>`}
+const kpPct=v=>(v>0.0005?"+":v<-0.0005?"−":"")+Math.abs(Math.round(v*100))+" %";
+function viewPlusStats(h){
+  const span=S.kpSpan||"all";const series=kpSeries(span);const ps=groupPlayers();
+  if(!isPlus()){return h+`<div class="kp-teaser"><div class="kp-teaser-blur" aria-hidden="true">${kpChart([{cum:0,net:0,date:"2026-01-10"},{cum:15,net:15,date:"2026-02-10"},{cum:8,net:-7,date:"2026-03-10"},{cum:31,net:23,date:"2026-04-10"},{cum:44,net:13,date:"2026-05-10"}])}<div class="stats"><div class="stat"><span class="eyebrow">ROI</span><b>+18 %</b></div><div class="stat"><span class="eyebrow">Cash</span><b>+24 %</b></div><div class="stat"><span class="eyebrow">Tournoi</span><b>−6 %</b></div></div></div>
+    <div class="kp-teaser-cta">${kpCrest()}<b>Tes stats, en détail</b><span>Courbe de tes gains dans le temps, ROI en cash game et en tournoi, meilleure et pire soirée, classement par régularité.</span><button class="btn primary" data-act="kp-open" data-r="stats">Découvrir Kicker+</button></div></div>`}
+  const who=ps.some(([p])=>p===S.kpWho)?S.kpWho:(ps.some(([p])=>p===S.me.id)?S.me.id:(ps[0]&&ps[0][0]));
+  h+=`<div class="kp-chips" role="tablist" aria-label="Joueur">${ps.map(([pid,p])=>`<button class="kp-chip ${pid===who?"on":""}" data-act="kp-who" data-pid="${pid}" role="tab" aria-selected="${pid===who}">${avatar(pid)}<span>${esc(isMe(pid)?"Moi":p.name)}</span></button>`).join("")}</div>
+   <div class="seg kp-span">${[["all","Tout"],["12m","12 mois"],["3m","3 mois"]].map(([k,l])=>`<button data-act="kp-span" data-s="${k}" data-v="yes" class="${span===k?"on":""}">${l}</button>`).join("")}</div>`;
+  if(!series.length||!who)return h+`<div class="card empty">Aucune soirée poker terminée sur cette période.</div>`;
+  const st=kpPlayerStats(who,series);
+  if(!st.games)return h+`<div class="card empty">${esc(pname(who))} n’a pas joué de soirée poker sur cette période.</div>`;
+  const cls=v=>v>0.004?"win":v<-0.004?"loss":"";
+  const typeRow=(k,l)=>{const t=st.by[k];return `<div class="kp-type"><span class="eyebrow">${l}</span>${t.games?`<b class="num ${cls(t.net)}">${kpPct(t.in?t.net/t.in:0)}</b><small>${money(t.net,true)} · ${t.games} soirée${t.games>1?"s":""}</small>`:`<b class="muted">—</b><small>aucune soirée</small>`}</div>`};
+  h+=`<section class="card kp-panel rise"><div class="row between"><div><span class="eyebrow">Gains cumulés</span><div class="kp-big num ${cls(st.net)}">${money(st.net,true)}</div></div><div class="kp-roi"><span class="eyebrow">ROI</span><b class="num ${cls(st.roi)}">${kpPct(st.roi)}</b></div></div>${kpChart(st.pts)}</section>
+   <section class="block"><div class="sec-title"><h2>ROI par type de partie</h2></div><div class="kp-types">${typeRow("cash","Cash game")}${typeRow("tournoi","Tournoi")}</div></section>
+   <section class="block"><div class="sec-title"><h2>En détail</h2></div><div class="stats kp-grid">
+     <div class="stat"><span class="eyebrow">Soirées</span><b>${st.games}</b></div>
+     <div class="stat"><span class="eyebrow">Soirées gagnantes</span><b>${Math.round(st.winRate*100)} %</b></div>
+     <div class="stat"><span class="eyebrow">Moyenne</span><b class="${cls(st.avg)}">${money(st.avg,true)}</b></div>
+     <div class="stat"><span class="eyebrow">Meilleure</span><b class="${cls(st.best.net)}">${money(st.best.net,true)}</b><span class="muted" style="font-size:12px">${esc(st.best.g.title||"")}</span></div>
+     <div class="stat"><span class="eyebrow">Pire</span><b class="${cls(st.worst.net)}">${money(st.worst.net,true)}</b><span class="muted" style="font-size:12px">${esc(st.worst.g.title||"")}</span></div>
+     <div class="stat"><span class="eyebrow">Série en cours</span><b>${st.streak?st.streak+" ✦":"—"}</b><span class="muted" style="font-size:12px">soirées gagnantes</span></div></div></section>`;
+  const sort=S.kpSort||"net";const all=ps.map(([pid])=>kpPlayerStats(pid,series)).filter(x=>x.games);
+  const key={net:x=>x.net,roi:x=>x.roi,reg:x=>x.winRate,avg:x=>x.avg}[sort]||(x=>x.net);all.sort((a,b)=>key(b)-key(a)||b.net-a.net);
+  const fmt=x=>sort==="roi"?kpPct(x.roi):sort==="reg"?Math.round(x.winRate*100)+" %":sort==="avg"?money(x.avg,true):money(x.net,true);
+  const fv=x=>sort==="roi"?x.roi:sort==="avg"?x.avg:x.net;
+  h+=`<section class="block"><div class="sec-title"><h2>Classement du groupe</h2></div><div class="seg kp-sort">${[["net","Gains"],["roi","ROI"],["reg","Régularité"],["avg","Moyenne"]].map(([k,l])=>`<button data-act="kp-sort" data-s="${k}" data-v="yes" class="${sort===k?"on":""}">${l}</button>`).join("")}</div>
+    <div class="list">${all.map((x,i)=>`<div class="item ${x.pid===who?"kp-me":""}"><span class="rank ${i===0?"r1":""}">${i+1}</span>${avatar(x.pid)}<div class="grow" style="min-width:0"><div class="row" style="gap:6px"><span class="ellipsis" style="font-weight:700">${esc(pname(x.pid))}</span>${plusPill(x.pid)}</div><div class="muted" style="font-size:12px">${x.games} soirée${x.games>1?"s":""} · ${Math.round(x.winRate*100)} % gagnantes · ROI ${kpPct(x.roi)}</div></div><span class="num ${sort==="reg"?"":cls(fv(x))}" style="font-weight:800;white-space:nowrap">${fmt(x)}</span></div>`).join("")}</div>
+    <p class="muted" style="font-size:12px;margin:0">ROI = gains nets ÷ total misé. Régularité = part des soirées terminées en positif.</p></section>`;
+  return h}
+
 initAuth().catch(e=>{console.warn(e);S.auth="error";render(true)});
 if("serviceWorker" in navigator&&location.protocol==="https:")window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(e=>console.warn("SW",e)));
 })();
