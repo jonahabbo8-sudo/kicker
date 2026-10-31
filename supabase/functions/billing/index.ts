@@ -35,6 +35,19 @@ async function portalConfig(): Promise<string> {
   return c.id;
 }
 
+// TVA française 20 % incluse dans les prix (2,99 € et 24,99 € sont TTC).
+// Créée une fois dans le compte Stripe puis réutilisée, pour qu'elle apparaisse sur les factures.
+async function vatRate(): Promise<string> {
+  const list = await stripe.taxRates.list({ active: true, limit: 100 });
+  const mine = list.data.find((t) => t.metadata?.app === "kicker-plus" && t.inclusive && t.percentage === 20);
+  if (mine) return mine.id;
+  const t = await stripe.taxRates.create({
+    display_name: "TVA", description: "TVA France 20 %", jurisdiction: "FR", country: "FR",
+    percentage: 20, inclusive: true, tax_type: "vat", metadata: { app: "kicker-plus" },
+  });
+  return t.id;
+}
+
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -91,7 +104,7 @@ Deno.serve(async (req) => {
         allow_promotion_codes: true,
         locale: "fr",
         metadata: { user_id: user.id, waiver_at: new Date().toISOString() },
-        subscription_data: { metadata: { user_id: user.id } },
+        subscription_data: { metadata: { user_id: user.id }, default_tax_rates: [await vatRate()] },
         success_url: `${APP_URL}/?plus=ok`,
         cancel_url: `${APP_URL}/?plus=cancel`,
       });
