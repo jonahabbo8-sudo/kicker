@@ -2516,7 +2516,7 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredIns
 window.addEventListener("appinstalled",()=>{deferredInstall=null;try{localStorage.setItem("kicker-installed","1")}catch(e){}toast("Kicker est installé sur ton téléphone ✓");render()});
 function installDismissed(){try{const t=+localStorage.getItem("kicker-install-later")||0;return localStorage.getItem("kicker-installed")==="1"||Date.now()-t<3*24*3600e3}catch(e){return false}}
 function installBar(){if(IS_STANDALONE||!IS_MOBILE||installDismissed())return"";
-  return `<div class="install-bar" role="region" aria-label="Installer Kicker"><img src="/apple-touch-icon.png" alt=""><div class="ib-t"><b>Installe Kicker</b>En plein écran, comme une vraie app.</div><button class="ib-go" data-act="install">Installer</button><button class="ib-x" data-act="install-later" aria-label="Plus tard">×</button></div>`}
+  return `<div class="install-bar" role="region" aria-label="Installer Kicker"><img src="${plusThemeOn()?"/apple-touch-icon-plus.png":"/apple-touch-icon.png"}" alt=""><div class="ib-t"><b>Installe Kicker</b>En plein écran, comme une vraie app.</div><button class="ib-go" data-act="install">Installer</button><button class="ib-x" data-act="install-later" aria-label="Plus tard">×</button></div>`}
 function viewInstall(){const share=`<span class="ins-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#1652D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></span>`;
   const plus=`<span class="ins-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#1652D9" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>`;
   const steps=IS_IOS?`<li><span>Appuie sur ${share} <b>Partager</b> en bas de Safari (ou en haut à droite dans Chrome)</span></li><li><span>Fais défiler et choisis ${plus} <b>Sur l’écran d’accueil</b></span></li><li><span>Appuie sur <b>Ajouter</b> : l’icône Kicker apparaît sur ton écran</span></li>`
@@ -3067,7 +3067,12 @@ function kpReturn(){let q;try{q=new URLSearchParams(location.search).get("plus")
 
 /* ---------- thème ---------- */
 function plusThemeOn(){if(!isPlus())return false;try{return localStorage.getItem("kicker-plus-theme")!=="off"}catch(e){return true}}
-function plusTheme(){const on=plusThemeOn();document.documentElement.classList.toggle("kplus",on);const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=on?"#0B0B0D":"#0A2A78"}
+function plusTheme(){const on=plusThemeOn();document.documentElement.classList.toggle("kplus",on);const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=on?"#0B0B0D":"#0A2A78";
+  /* logo Kicker+ (fond noir) : onglet, écran d'accueil et installation */
+  const set=(sel,url)=>{const l=document.querySelector(sel);if(l&&l.getAttribute("href")!==url)l.setAttribute("href",url)};
+  set('link[rel="icon"]',on?"/favicon-plus-32.png?v=1":"/favicon-32.png?v=3");
+  set('link[rel="apple-touch-icon"]',on?"/apple-touch-icon-plus.png?v=1":"/apple-touch-icon.png?v=3");
+  set('link[rel="manifest"]',on?"/manifest-plus.json?v=1":"/manifest.json?v=3")}
 
 /* ---------- écran Kicker+ ---------- */
 function viewPlus(){const ps=S.plusSheet;if(!ps)return"";const G=curGroup();const owner=G&&G.createdBy===S.me.id;
